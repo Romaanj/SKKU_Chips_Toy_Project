@@ -35,10 +35,6 @@ module CONV_FIRST
     localparam                              width_weight    = Q_INT + Q_FRAC            ;
     localparam                              width_bias      = Q_INT + Q_FRAC            ;
 
-    reg signed      [width_data-1:0]        internal_data   [0:74]  ;
-    reg signed      [width_weight-1:0]      internal_weight [0:74]  ;
-    reg signed      [width_bias-1:0]        internal_bias           ;
-
     // -------------------------------------------------------------------------------
     //
     // count the 0-based position(row, col) of current data
@@ -62,76 +58,104 @@ module CONV_FIRST
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            row                     <=  {width_row{1'b0}}                   ;
-            col                     <=  {width_col{1'b0}}                   ;
-            current_output_channel  <=  {width_channel{1'b0}}               ;
+            row                     <=  {width_row{1'b0}}                               ;
+            col                     <=  {width_col{1'b0}}                               ;
+            current_output_channel  <=  {width_channel{1'b0}}                           ;
         end
         else if (data_in_valid & MAX_COL & MAX_ROW & MAX_OUT_CHANNEL) begin
-            row                     <=  {width_row{1'b0}}                   ;
-            col                     <=  {width_col{1'b0}}                   ;
-            current_output_channel  <=  {width_channel{1'b0}}               ;
+            row                     <=  {width_row{1'b0}}                               ;
+            col                     <=  {width_col{1'b0}}                               ;
+            current_output_channel  <=  {width_channel{1'b0}}                           ;
         end
         else if (data_in_valid & MAX_COL & MAX_ROW) begin
-            row                     <=  {width_row{1'b0}}                   ;
-            col                     <=  {width_col{1'b0}}                   ;
-            current_output_channel  <=  current_output_channel + 1'b1       ;
+            row                     <=  {width_row{1'b0}}                               ;
+            col                     <=  {width_col{1'b0}}                               ;
+            current_output_channel  <=  current_output_channel + 1'b1                   ;
         end
         else if (data_in_valid & MAX_COL) begin
-            row                     <=  row + 1'b1                          ;
-            col                     <=  {width_col{1'b0}}                   ;
+            row                     <=  row + 1'b1                                      ;
+            col                     <=  {width_col{1'b0}}                               ;
         end
         else if (data_in_valid) begin
-            col                     <=  col + 1'b1                          ;
+            col                     <=  col + 1'b1                                      ;
         end
     end
 
-    assign MAX_ROW          = (row == VSIZE - 1)                                        ;
-    assign MAX_COL          = (col == HSIZE - 1)                                        ;
-    assign MAX_OUT_CHANNEL  = (current_output_channel == MAX_OUT_CHANNEL - 1)           ;
+    assign MAX_ROW                  = (row == VSIZE - 1)                                ;
+    assign MAX_COL                  = (col == HSIZE - 1)                                ;
+    assign MAX_OUT_CHANNEL          = (current_output_channel == MAX_OUT_CHANNEL - 1)   ;
 
     // -------------------------------------------------------------------------------
-    // count finish
-    // -------------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------------
-    // store input start
-    // -------------------------------------------------------------------------------
-
-    always @(posedge clk) begin
-        if (!rst_n) begin
-            internal_data                   <= 'd0;
-            internal_weight                 <= 'd0;
-            internal_bias                   <= 'd0;
-        end
-        else if (data_in_enable) begin
-            internal_data[count_data]       <= data_in;
-        end
-        else if (weight_in_enable) begin
-            internal_weight[count_weight]   <= weight_in;
-        end
-        else if (bias_in_enable) begin
-            internal_bias                   <= bias_in;
-        end
-    end
-
-    // -------------------------------------------------------------------------------
-    // store input finish
+    // count positon and index finish
     // -------------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------------
     // enable control start
     // -------------------------------------------------------------------------------
-
-    /* TODO */
-
     // -------------------------------------------------------------------------------
     // enable control finish
     // -------------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------------
-    // instantiation start
+    // data to process is determined by zero-padding and kernel size of 5x5
     // -------------------------------------------------------------------------------
 
+    reg signed      [width_data-1:0]        current_data_to_process   [0:74]            ;
+    reg signed      [width_weight-1:0]      current_weight_to_process [0:74]            ;
+    reg signed      [width_bias-1:0]        current_bias_to_process                     ;
+
+    reg signed      [width_data-1:0]        next_data_to_process   [0:74]               ;
+    reg signed      [width_weight-1:0]      next_weight_to_process [0:74]               ;
+    reg signed      [width_bias-1:0]        next_bias_to_process                        ;
+
+    genvar i;
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            for (i = 0; i < 75; i = i + 1) begin
+                current_data_to_process[i]      <= 1'b0                                 ;
+                current_weight_to_process[i]    <= 1'b0                                 ;
+                current_bias_to_process[i]      <= 1'b0                                 ;
+            end
+        end
+        else if (convolution_enable) begin
+            for (i = 0; i < 75; i = i + 1) begin
+                current_data_to_process[i]      <= next_data_to_process[i]              ;
+                current_weight_to_process[i]    <= next_weight_to_process[i]            ;
+                current_bias_to_process[i]      <= next_bias_to_process[i]              ;
+            end
+        end
+    end
+
+    always @(*) begin
+        if (row == 2 && col == 2) begin
+        end
+        else if (row == 2 && col == 1) begin
+        end
+        else if (row == 2) begin
+        end
+        else begin
+            for (i = 0; i < 75; i = i + 3) begin
+                if (i == 12 || i == 27 || i == 42 || i == 57 || i == 72) begin
+                    next_data_to_process[i]     = /* TODO */;
+                    next_data_to_process[i+1]   = /* TODO */;
+                    next_data_to_process[i+2]   = /* TODO */;
+                end
+                else begin
+                    next_data_to_process[i]     = current_data_to_process[i+3];
+                    next_data_to_process[i+1]   = current_data_to_process[i+4];
+                    next_data_to_process[i+2]   = current_data_to_process[i+5];
+                end
+            end
+        end
+    end
+
+    // -------------------------------------------------------------------------------
+    // determine data to process finish
+    // -------------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------------
+    // instantiation start
+    // -------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------
     // instantiation finish
     // -------------------------------------------------------------------------------

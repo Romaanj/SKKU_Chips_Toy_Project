@@ -184,7 +184,7 @@ module CONV_FIRST_CALC
     // -------------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------------
-    // instantiation start
+    // declaration of multi-bit interconnect wires start
     // -------------------------------------------------------------------------------
 
     wire signed [width_multiplied_result-1:0]   multiplied_result_0                     ;
@@ -264,6 +264,14 @@ module CONV_FIRST_CALC
     wire signed [width_multiplied_result-1:0]   multiplied_result_74                    ;
 
     wire signed [width_bias-1:0]                bias_buffed                             ;
+
+    // -------------------------------------------------------------------------------
+    // declaration of multi-bit interconnect wires finish
+    // -------------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------------
+    // instantiation start
+    // -------------------------------------------------------------------------------
 
     CONV_FIRST_DOT_PRODUCT
     #(
