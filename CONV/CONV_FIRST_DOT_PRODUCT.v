@@ -4,6 +4,9 @@ module CONV_FIRST_DOT_PRODUCT
     parameter                           Q_FRAC  = 15
 )
 (
+    input                               clk,
+    input                               rst_n,
+
     input                               dot_product_enable  ,
 
     input signed        [Q_TOT-1:0]     data_0              ,
