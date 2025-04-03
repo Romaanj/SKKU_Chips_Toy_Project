@@ -236,7 +236,9 @@ module CONV_FIRST_DOT_PRODUCT
     output reg signed   [Q_REG-1:0]     multiply_result_73  ,
     output reg signed   [Q_REG-1:0]     multiply_result_74  ,
 
-    output reg signed   [Q_TOT-1:0]     bias_o
+    output reg signed   [Q_TOT-1:0]     bias_o              ,
+
+    output reg                          adder_tree_enable
 );
 
     localparam                          Q_TOT = Q_INT + Q_FRAC;
