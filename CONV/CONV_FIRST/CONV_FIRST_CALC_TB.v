@@ -1,16 +1,33 @@
 module CONV_FIRST_CALC_TB;
 
-    parameter Q_INT = 1                                 ;
-    parameter Q_FRAC = 15                               ;
+    parameter               Q_INT = 1                       ;
+    parameter               Q_FRAC = 15                     ;
 
-    parameter mem_size = 75                             ;
+    parameter               mem_size = 75                   ;
+    parameter               input_size = 75                 ;
 
-    reg clk                                             ;
-    reg rst_n                                           ;
+    // -------------------------------------------------------------------------------
 
-    reg [Q_INT+Q_FRAC-1:0] mem_data     [0:mem_size-1]  ;
-    reg [Q_INT+Q_FRAC-1:0] mem_weight   [0:mem_size-1]  ;
-    reg [Q_INT+Q_FRAC-1:0] mem_bias                     ;
+    reg                     clk                             ;
+    reg                     rst_n                           ;
+
+    // -------------------------------------------------------------------------------
+
+    reg [Q_INT+Q_FRAC-1:0]  mem_data     [0:mem_size-1]     ;
+    reg [Q_INT+Q_FRAC-1:0]  mem_weight   [0:mem_size-1]     ;
+    reg [Q_INT+Q_FRAC-1:0]  mem_bias                        ;
+    reg                     convolution_enable              ;
+
+    reg [Q_INT+Q_FRAC-1:0]  mem_output                      ;
+
+    // -------------------------------------------------------------------------------
+    
+    reg [Q_INT+Q_FRAC-1:0]  data_in      [0:input_size-1]   ;
+    reg [Q_INT+Q_FRAC-1:0]  weight_in    [0:input_size-1]   ;
+    reg [Q_INT+Q_FRAC-1:0]  bias_in                         ;
+
+    wire [Q_INT+Q_FRAC-1:0] data_out                        ;
+    wire                    data_out_enable                 ;
 
     // -------------------------------------------------------------------------------
     // function definition start
@@ -25,12 +42,14 @@ module CONV_FIRST_CALC_TB;
 
     function READFILE;
         begin
-            $readmemh();
+            $readmemh(`CONV_INPUT_ADDRESS);
+            $readmemh(`CONV_WEIGHT_ADDRESS);
+            $readmemh(`CONV_BIAS_ADDRESS);
         end
     endfunction
 
-    function EVAL_ERROR;
-    endfunction
+    //function EVAL_ERROR;
+    //endfunction
 
     // -------------------------------------------------------------------------------
     // function definition finish
@@ -45,14 +64,19 @@ module CONV_FIRST_CALC_TB;
             rst_n <= 1'b0;
             repeat (5) @(posedge clk);
             rst_n <= 1'b1;
+            @(posedge clk);
         end
     endtask
 
-    task INPUT;
+    task DRIVE_INPUT;
+        for (i = 0; i < 75; i = i + 1) begin
+            data_in[i] <= mem_data[i];
+        end
+        @(posedge clk);
     endtask
 
-    task MONITOR;
-    endtask
+    //task FETCH_OUTPUT;
+    //endtask
 
     // -------------------------------------------------------------------------------
     // task definition finish
@@ -73,10 +97,20 @@ module CONV_FIRST_CALC_TB;
     initial begin
         INIT();
         RESET();
-        READFILE();
-        INPUT();
-        MONITOR();
-        EVAL_ERROR();
+        //READFILE();
+        //INPUT();
+        //MONITOR();
+        //EVAL_ERROR();
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            for (i = 0; i < 75; i = i + 1) begin
+                data_in[i] <= 1'b0;
+                weight_in[i] <= 1'b0;
+                bias_in <= 1'b0;                
+            end
+        end
     end
 
     // -------------------------------------------------------------------------------
@@ -87,7 +121,7 @@ module CONV_FIRST_CALC_TB;
     // instantiation start
     // -------------------------------------------------------------------------------
 
-    CONV_FIRST_DOT_PRODUCT
+    CONV_FIRST_CALC
     #(
         .Q_INT                                  (Q_INT                  ),
         .Q_FRAC                                 (Q_FRAC                 )
