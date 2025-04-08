@@ -5,7 +5,7 @@ module CONV_FIRST_CALC
 #(
     // Default fixed point format = signed Q1.15
     parameter                               Q_INT           = 1                         ,
-    parameter                               Q_FRAC          = 15                        ,
+    parameter                               Q_FRAC          = 15
 )
 (
     input                                   clk                                         ,
