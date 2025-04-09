@@ -3,7 +3,10 @@ module CONV_FIRST_CALC_TB;
     parameter               Q_INT = 1                       ;
     parameter               Q_FRAC = 15                     ;
 
-    parameter               mem_size = 75                   ;
+    parameter               HSIZE = 84                      ;
+    parameter               VSIZE = 84                      ;
+
+    parameter               mem_size = HSIZE * VSIZE        ;
     parameter               input_size = 75                 ;
 
     // -------------------------------------------------------------------------------
@@ -13,12 +16,16 @@ module CONV_FIRST_CALC_TB;
 
     // -------------------------------------------------------------------------------
 
-    reg [Q_INT+Q_FRAC-1:0]  mem_data     [0:mem_size-1]     ;
-    reg [Q_INT+Q_FRAC-1:0]  mem_weight   [0:mem_size-1]     ;
-    reg [Q_INT+Q_FRAC-1:0]  mem_bias                        ;
+    reg [Q_INT+Q_FRAC-1:0]  mem_input_0 [0:mem_size-1]      ;
+    reg [Q_INT+Q_FRAC-1:0]  mem_input_1 [0:mem_size-1]      ;
+    reg [Q_INT+Q_FRAC-1:0]  mem_input_2 [0:mem_size-1]      ;
+
+    reg [Q_INT+Q_FRAC-1:0]  mem_weight  [0:input_size-1]    ;
+    reg [Q_INT+Q_FRAC-1:0]  mem_bias [0:0]                  ;
+
     reg                     convolution_enable              ;
 
-    reg [Q_INT+Q_FRAC-1:0]  mem_output                      ;
+    reg [Q_INT+Q_FRAC-1:0]  mem_golden [0:mem_size-1]       ;
 
     // -------------------------------------------------------------------------------
     
@@ -26,30 +33,32 @@ module CONV_FIRST_CALC_TB;
     reg [Q_INT+Q_FRAC-1:0]  weight_in    [0:input_size-1]   ;
     reg [Q_INT+Q_FRAC-1:0]  bias_in                         ;
 
-    wire [Q_INT+Q_FRAC-1:0] data_out                        ;
+    wire signed [Q_INT+Q_FRAC-1:0] data_out                 ;
     wire                    data_out_enable                 ;
+
+    reg [Q_INT+Q_FRAC-1:0]  mem_output [0:mem_size-1]       ;
+    reg [31:0]              cnt_output                      ;
 
     // -------------------------------------------------------------------------------
     // function definition start
     // -------------------------------------------------------------------------------
 
-    function INIT;
+    function is_padding
+    (
+        input integer HSIZE,
+        input integer VSIZE,
+        input integer row,
+        input integer col
+    );
         begin
-            clk = 1'b0;
-            rst = 1'b1;
+            if (row < 0 || col < 0 || row >= VSIZE || col >= HSIZE) begin
+                is_padding = 1'b1;
+            end
+            else begin
+                is_padding = 1'b0;
+            end
         end
     endfunction
-
-    function READFILE;
-        begin
-            $readmemh(`CONV_INPUT_ADDRESS);
-            $readmemh(`CONV_WEIGHT_ADDRESS);
-            $readmemh(`CONV_BIAS_ADDRESS);
-        end
-    endfunction
-
-    //function EVAL_ERROR;
-    //endfunction
 
     // -------------------------------------------------------------------------------
     // function definition finish
@@ -58,6 +67,24 @@ module CONV_FIRST_CALC_TB;
     // -------------------------------------------------------------------------------
     // task definition start
     // -------------------------------------------------------------------------------
+
+    task INIT;
+        begin
+            clk     = 1'b0;
+            rst_n   = 1'b1;
+        end
+    endtask
+
+    task READ_INPUT;
+        begin
+            $readmemh("input_0.txt", mem_input_0);
+            $readmemh("input_1.txt", mem_input_1);
+            $readmemh("input_2.txt", mem_input_2);
+            $readmemh("weight_0.txt", mem_weight);
+            $readmemh("bias_0.txt", mem_bias);
+            $readmemh("output_0.txt", mem_golden);
+        end
+    endtask
 
     task RESET;
         begin
@@ -68,15 +95,153 @@ module CONV_FIRST_CALC_TB;
         end
     endtask
 
-    task DRIVE_INPUT;
-        for (i = 0; i < 75; i = i + 1) begin
-            data_in[i] <= mem_data[i];
+    task automatic DRIVE_INPUT_0;
+        integer i;
+        integer j;
+        integer ii;
+        integer jj;
+        begin
+            for (i = 0; i < VSIZE; i = i + 1) begin
+                for (j = 0; j < HSIZE; j  = j + 1) begin
+                    for (ii = i - 2; ii <= i + 2; ii = ii + 1) begin
+                        for (jj = j - 2; jj <= j + 2; jj = jj + 1) begin
+                            if (is_padding(HSIZE, VSIZE, ii, jj)) begin
+                                data_in[((ii - i) * 5 + (jj - j)) + 12] <= 'b0;
+                            end
+                            else begin
+                                data_in[((ii - i) * 5 + (jj - j)) + 12] <= mem_input_0[ii * HSIZE + jj];
+                            end
+                        end
+                    end
+                    @(posedge clk);
+                end
+            end
         end
-        @(posedge clk);
+    endtask
+    
+    task automatic DRIVE_INPUT_1;
+        integer i;
+        integer j;
+        integer ii;
+        integer jj;
+        begin
+            for (i = 0; i < VSIZE; i = i + 1) begin
+                for (j = 0; j < HSIZE; j  = j + 1) begin
+                    for (ii = i - 2; ii <= i + 2; ii = ii + 1) begin
+                        for (jj = j - 2; jj <= j + 2; jj = jj + 1) begin
+                            if (is_padding(HSIZE, VSIZE, ii, jj)) begin
+                                data_in[((ii - i) * 5 + (jj - j)) + 37] <= 1'b0;
+                            end
+                            else begin
+                                data_in[((ii - i) * 5 + (jj - j)) + 37] <= mem_input_1[ii * HSIZE + jj];
+                            end
+                        end
+                    end
+                    @(posedge clk);
+                end
+            end
+        end
     endtask
 
-    //task FETCH_OUTPUT;
-    //endtask
+    task automatic DRIVE_INPUT_2;
+        integer i;
+        integer j;
+        integer ii;
+        integer jj;
+        begin
+            for (i = 0; i < VSIZE; i = i + 1) begin
+                for (j = 0; j < HSIZE; j  = j + 1) begin
+                    for (ii = i - 2; ii <= i + 2; ii = ii + 1) begin
+                        for (jj = j - 2; jj <= j + 2; jj = jj + 1) begin
+                            if (is_padding(HSIZE, VSIZE, ii, jj)) begin
+                                data_in[((ii - i) * 5 + (jj - j)) + 62] <= 1'b0;
+                            end
+                            else begin
+                                data_in[((ii - i) * 5 + (jj - j)) + 62] <= mem_input_2[ii * HSIZE + jj];
+                            end
+                        end
+                    end
+                    @(posedge clk);
+                end
+            end
+        end
+    endtask
+
+    task DRIVE_INPUT;
+        begin
+            fork
+                DRIVE_INPUT_0;
+                DRIVE_INPUT_1;
+                DRIVE_INPUT_2;
+            join
+        end
+    endtask
+
+    task automatic DRIVE_WEIGHT;
+        integer i;
+        begin
+            for (i = 0; i < 75; i = i + 1) begin
+                weight_in[i] <= mem_weight[i];
+            end
+            @(posedge clk);
+        end
+    endtask
+
+    task DRIVE_BIAS;
+        begin
+            bias_in <= mem_bias[0];
+            @(posedge clk);
+        end
+    endtask
+
+    task DRIVE;
+        begin
+            fork
+                DRIVE_INPUT;
+                DRIVE_WEIGHT;
+                DRIVE_BIAS;
+                begin
+                    convolution_enable <= 1'b1;
+                    @(posedge clk);
+                end
+            join
+        end
+    endtask
+
+    task automatic PRINT_OUTPUT
+    (
+        input [31:0] num_output
+    );
+        integer i;
+        begin
+            for (i = 0; i < num_output; i = i + 1) begin
+                $display("output[%d] = %X", i, mem_output[i]);
+            end
+        end
+    endtask
+
+    task automatic EVAL_ERROR
+    (
+        input [31:0]	num_output,
+        input real		display_error_threshold
+    );
+        integer i;
+        real error;
+        real mean_error;
+        begin
+            mean_error = 0;
+            for (i = 0; i < num_output; i = i + 1) begin
+                error = mem_golden[i] >= mem_output[i] ? mem_golden[i] - mem_output[i] : mem_output[i] - mem_golden[i];
+                error = error / mem_golden[i] * 100;
+                if (error > display_error_threshold) begin
+                	$display("%d %d -> %f!!!", mem_golden[i], mem_output[i], error);
+                end
+                mean_error = mean_error + error;
+            end
+            mean_error = mean_error / num_output;
+            $display("Mean Error: %f %%", mean_error);
+        end
+    endtask
 
     // -------------------------------------------------------------------------------
     // task definition finish
@@ -95,21 +260,32 @@ module CONV_FIRST_CALC_TB;
 
     // scenario of test
     initial begin
-        INIT();
-        RESET();
-        //READFILE();
-        //INPUT();
-        //MONITOR();
-        //EVAL_ERROR();
+        INIT;
+        repeat (5) @(posedge clk);
+        RESET;
+        READ_INPUT;
+        DRIVE;
+        convolution_enable <= 1'b0;
+        repeat (100) @(posedge clk);
+        $display(cnt_output);
+        //PRINT_OUTPUT(cnt_output);
+        EVAL_ERROR(cnt_output, 0.1);
+        $finish;
     end
+
+    // dump waveform
+//    initial begin
+//        $dumpfile("dump.vcd");
+//        //$dumpvars(1, );
+//    end
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            for (i = 0; i < 75; i = i + 1) begin
-                data_in[i] <= 1'b0;
-                weight_in[i] <= 1'b0;
-                bias_in <= 1'b0;                
-            end
+            cnt_output <= 'b0;
+        end
+        else if (data_out_enable) begin
+            cnt_output <= cnt_output + 1;
+            mem_output[cnt_output] <= data_out;
         end
     end
 
@@ -126,7 +302,7 @@ module CONV_FIRST_CALC_TB;
         .Q_INT                                  (Q_INT                  ),
         .Q_FRAC                                 (Q_FRAC                 )
     )
-    conv_first_dot_product_inst
+    conv_first_calc_inst
     (
         .clk                                    (clk                    ),
         .rst_n                                  (rst_n                  ),
