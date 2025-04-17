@@ -3,183 +3,210 @@
 
 module CONV_FIRST_CALC
 #(
-    // Default fixed point format = signed Q1.15
-    parameter                                   Q_INT           = 1                         ,
-    parameter                                   Q_FRAC          = 15
+    // Assumption: Default input fixed point format = signed Q2.15
+    parameter                                                   Q_INT_INPUT         = 2     ,
+    parameter                                                   Q_FRAC_INPUT        = 15    ,
+
+    // Assumption: Default weight fixed point format = signed Q1.15
+    parameter                                                   Q_INT_WEIGHT        = 1     ,
+    parameter                                                   Q_FRAC_WEIGHT       = 15    ,
+
+    // Assumption: Default bias fixed point format = signed Q1.15
+    parameter                                                   Q_INT_BIAS          = 1     ,
+    parameter                                                   Q_FRAC_BIAS         = 15    ,
+
+    // Assumption: Default bias fixed point format = signed Q3.15
+    parameter                                                   Q_INT_SLOPE         = 1     ,
+    parameter                                                   Q_FRAC_SLOPE        = 15    ,
+
+    // Assumption: Default dot prod result fixed point format = signed Q3.30
+    parameter                                                   Q_INT_INTERIM_1     = 3     ,
+    parameter                                                   Q_FRAC_INTERIM_1    = 30    ,
+
+    // Assumption: Default adder tree result fixed point format = signed Q2.15
+    parameter                                                   Q_INT_INTERIM_2     = 2     ,
+    parameter                                                   Q_FRAC_INTERIM_2    = 15    ,
+
+    // Assumption: Default output fixed point format = signed Q2.15
+    parameter                                                   Q_INT_OUTPUT        = 2     ,
+    parameter                                                   Q_FRAC_OUTPUT       = 15 
 )
 (
-    input                                       clk                                         ,
-    input                                       rst_n                                       ,
+    input                                                       clk                         ,
+    input                                                       rst_n                       ,
 
-    input                                       convolution_enable                          ,
+    input                                                       convolution_enable          ,
 
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_0                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_1                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_2                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_3                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_4                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_5                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_6                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_7                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_8                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_9                                   ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_10                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_11                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_12                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_13                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_14                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_15                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_16                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_17                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_18                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_19                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_20                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_21                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_22                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_23                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_24                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_25                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_26                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_27                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_28                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_29                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_30                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_31                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_32                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_33                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_34                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_35                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_36                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_37                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_38                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_39                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_40                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_41                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_42                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_43                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_44                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_45                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_46                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_47                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_48                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_49                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_50                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_51                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_52                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_53                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_54                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_55                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_56                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_57                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_58                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_59                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_60                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_61                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_62                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_63                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_64                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_65                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_66                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_67                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_68                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_69                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_70                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_71                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_72                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_73                                  ,
-    input signed    [Q_INT + Q_FRAC -1:0]       data_in_74                                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_0                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_1                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_2                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_3                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_4                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_5                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_6                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_7                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_8                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_9                   ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_10                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_11                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_12                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_13                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_14                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_15                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_16                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_17                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_18                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_19                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_20                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_21                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_22                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_23                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_24                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_25                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_26                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_27                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_28                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_29                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_30                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_31                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_32                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_33                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_34                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_35                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_36                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_37                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_38                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_39                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_40                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_41                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_42                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_43                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_44                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_45                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_46                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_47                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_48                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_49                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_50                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_51                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_52                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_53                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_54                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_55                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_56                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_57                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_58                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_59                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_60                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_61                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_62                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_63                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_64                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_65                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_66                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_67                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_68                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_69                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_70                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_71                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_72                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_73                  ,
+    input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_74                  ,
 
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_0                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_1                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_2                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_3                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_4                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_5                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_6                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_7                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_8                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_9                                 ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_10                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_11                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_12                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_13                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_14                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_15                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_16                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_17                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_18                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_19                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_20                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_21                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_22                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_23                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_24                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_25                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_26                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_27                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_28                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_29                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_30                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_31                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_32                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_33                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_34                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_35                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_36                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_37                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_38                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_39                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_40                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_41                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_42                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_43                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_44                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_45                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_46                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_47                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_48                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_49                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_50                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_51                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_52                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_53                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_54                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_55                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_56                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_57                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_58                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_59                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_60                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_61                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_62                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_63                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_64                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_65                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_66                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_67                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_68                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_69                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_70                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_71                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_72                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_73                                ,
-    input signed    [Q_INT + Q_FRAC -1:0]       weight_in_74                                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_0                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_1                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_2                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_3                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_4                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_5                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_6                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_7                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_8                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_9                 ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_10                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_11                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_12                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_13                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_14                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_15                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_16                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_17                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_18                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_19                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_20                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_21                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_22                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_23                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_24                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_25                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_26                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_27                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_28                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_29                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_30                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_31                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_32                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_33                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_34                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_35                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_36                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_37                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_38                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_39                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_40                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_41                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_42                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_43                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_44                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_45                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_46                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_47                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_48                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_49                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_50                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_51                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_52                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_53                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_54                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_55                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_56                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_57                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_58                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_59                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_60                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_61                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_62                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_63                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_64                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_65                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_66                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_67                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_68                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_69                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_70                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_71                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_72                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_73                ,
+    input signed    [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]         weight_in_74                ,
 
-    input signed    [Q_INT + Q_FRAC -1:0]       bias_in                                     ,
+    input signed    [Q_INT_BIAS + Q_FRAC_BIAS -1:0]             bias_in                     ,
+    input signed    [Q_INT_SLOPE + Q_FRAC_SLOPE -1:0]           slope_in                    ,
 
-    output signed   [Q_INT + Q_FRAC -1:0]       data_out                                    ,
-    output reg                                  data_out_enable
+    output signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]         data_out                    ,
+    output reg                                                  data_out_enable
 );
 
     // -------------------------------------------------------------------------------
     // data control start
     // -------------------------------------------------------------------------------
+    wire                                                        PReLU_result_enable         ;
+    wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]             PReLU_result                ;
 
     always @(posedge clk) begin
         if (!rst_n) begin
             data_out_enable     <= 1'b0;
         end
-        else if (adder_tree_result_enable) begin
+        else if (PReLU_result_enable) begin
             data_out_enable     <= 1'b1;
         end
         else if (data_out_enable) begin
@@ -187,7 +214,7 @@ module CONV_FIRST_CALC
         end
     end
 
-    assign data_out = adder_tree_result;
+    assign data_out = PReLU_result;
 
     // -------------------------------------------------------------------------------
     // data control finish
@@ -197,85 +224,85 @@ module CONV_FIRST_CALC
     // declaration of multi-bit interconnect wires start
     // -------------------------------------------------------------------------------
 
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_0                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_1                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_2                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_3                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_4                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_5                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_6                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_7                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_8                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_9                         ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_10                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_11                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_12                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_13                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_14                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_15                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_16                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_17                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_18                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_19                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_20                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_21                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_22                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_23                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_24                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_25                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_26                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_27                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_28                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_29                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_30                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_31                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_32                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_33                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_34                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_35                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_36                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_37                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_38                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_39                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_40                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_41                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_42                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_43                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_44                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_45                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_46                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_47                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_48                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_49                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_50                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_51                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_52                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_53                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_54                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_55                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_56                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_57                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_58                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_59                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_60                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_61                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_62                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_63                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_64                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_65                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_66                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_67                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_68                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_69                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_70                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_71                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_72                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_73                        ;
-    wire signed [2 * (Q_INT + Q_FRAC) -1:0]     multiplied_result_74                        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_0         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_1         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_2         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_3         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_4         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_5         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_6         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_7         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_8         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_9         ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_10        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_11        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_12        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_13        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_14        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_15        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_16        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_17        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_18        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_19        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_20        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_21        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_22        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_23        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_24        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_25        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_26        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_27        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_28        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_29        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_30        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_31        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_32        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_33        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_34        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_35        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_36        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_37        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_38        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_39        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_40        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_41        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_42        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_43        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_44        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_45        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_46        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_47        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_48        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_49        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_50        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_51        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_52        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_53        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_54        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_55        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_56        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_57        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_58        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_59        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_60        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_61        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_62        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_63        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_64        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_65        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_66        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_67        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_68        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_69        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_70        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_71        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_72        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_73        ;
+    wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_74        ;
 
-    wire signed [Q_INT + Q_FRAC -1:0]           bias_buffed                                 ;
+    wire signed [Q_INT_BIAS + Q_FRAC_BIAS -1:0]                 bias_buffed                 ;
 
-    wire signed [Q_INT + Q_FRAC -1:0]           adder_tree_result                           ;
+	wire signed [Q_INT_INTERIM_2 + Q_FRAC_INTERIM_2 -1:0]       adder_tree_result           ;
 
     // -------------------------------------------------------------------------------
     // declaration of multi-bit interconnect wires finish
@@ -285,12 +312,16 @@ module CONV_FIRST_CALC
     // instantiation start
     // -------------------------------------------------------------------------------
 
-    wire                                        adder_tree_result_enable;
-
     CONV_FIRST_DOT_PRODUCT
     #(
-        .Q_INT                                  (Q_INT                      ),
-        .Q_FRAC                                 (Q_FRAC                     )
+        .Q_INT_DATA                             (Q_INT_INPUT                ),
+        .Q_FRAC_DATA                            (Q_FRAC_INPUT               ),
+        .Q_INT_WEIGHT                           (Q_INT_WEIGHT               ),
+        .Q_FRAC_WEIGHT                          (Q_FRAC_WEIGHT              ),
+        .Q_INT_BIAS                             (Q_INT_BIAS                 ),
+        .Q_FRAC_BIAS                            (Q_FRAC_BIAS                ),
+        .Q_INT_OUTPUT                           (Q_INT_INTERIM_1            ),
+        .Q_FRAC_OUTPUT                          (Q_FRAC_INTERIM_1           )
     )
     conv_first_dot_product_inst
     (
@@ -536,8 +567,12 @@ module CONV_FIRST_CALC
 
     CONV_FIRST_ADDER_TREE
     #(
-        .Q_INT                                  (Q_INT                      ),
-        .Q_FRAC                                 (Q_FRAC                     )
+        .Q_INT_INPUT                            (Q_INT_INTERIM_1            ),
+        .Q_FRAC_INPUT                           (Q_FRAC_INTERIM_1           ),
+        .Q_INT_BIAS                             (Q_INT_BIAS                 ),
+        .Q_FRAC_BIAS                            (Q_FRAC_BIAS                ),
+        .Q_INT_OUTPUT                           (Q_INT_INTERIM_2            ),
+        .Q_FRAC_OUTPUT                          (Q_FRAC_INTERIM_2           )
     )
     conv_first_adder_tree_inst
     (
@@ -626,6 +661,26 @@ module CONV_FIRST_CALC
 
         .adder_tree_result                      (adder_tree_result          ),
         .adder_tree_result_enable               (adder_tree_result_enable   )
+    );
+    
+    PReLU
+    #(
+        .Q_INT_data                             (Q_INT_INTERIM_2            ),
+        .Q_FRAC_data                            (Q_FRAC_INTERIM_2           ),
+        .Q_INT_slope                            (Q_INT_SLOPE                ),
+        .Q_FRAC_slope                           (Q_FRAC_SLOPE               ),
+        .Q_INT_result                           (Q_INT_OUTPUT               ),
+        .Q_FRAC_result                          (Q_FRAC_OUTPUT              )
+    )
+    PReLU_inst
+    (
+        .clk                                    (clk                        ),
+        .rst_n                                  (rst_n                      ),
+        .PReLU_enable                           (adder_tree_result_enable   ),
+        .data                                   (adder_tree_result          ),
+        .slope                                  (slope_in                   ),
+        .result                                 (PReLU_result               ),
+        .PReLU_result_enable                    (PReLU_result_enable        )
     );
 
     // -------------------------------------------------------------------------------

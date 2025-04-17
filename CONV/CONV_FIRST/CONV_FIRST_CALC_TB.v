@@ -1,43 +1,65 @@
 module CONV_FIRST_CALC_TB;
 
-    parameter               Q_INT = 1                       ;
-    parameter               Q_FRAC = 15                     ;
+    parameter                                       Q_INT_INPUT         = 2         ;
+    parameter                                       Q_FRAC_INPUT        = 15        ;
 
-    parameter               HSIZE = 84                      ;
-    parameter               VSIZE = 84                      ;
+    parameter                                       Q_INT_WEIGHT        = 1         ;
+    parameter                                       Q_FRAC_WEIGHT       = 15        ;
 
-    parameter               mem_size = HSIZE * VSIZE        ;
-    parameter               input_size = 75                 ;
+    parameter                                       Q_INT_BIAS          = 1         ;
+    parameter                                       Q_FRAC_BIAS         = 15        ;
+
+    parameter                                       Q_INT_SLOPE         = 3         ;
+    parameter                                       Q_FRAC_SLOPE        = 15        ;
+
+    parameter                                       Q_INT_INTERIM_1     = 3         ;
+    parameter                                       Q_FRAC_INTERIM_1    = 30        ;
+
+    parameter                                       Q_INT_INTERIM_2     = 1         ;
+    parameter                                       Q_FRAC_INTERIM_2    = 15        ;
+
+    parameter                                       Q_INT_OUTPUT        = 2         ;
+    parameter                                       Q_FRAC_OUTPUT       = 15        ;
+
+
+
+    parameter                                       HSIZE = 84                      ;
+    parameter                                       VSIZE = 84                      ;
+
+    parameter                                       mem_size = HSIZE * VSIZE        ;
+    parameter                                       input_size = 75                 ;
 
     // -------------------------------------------------------------------------------
 
-    reg                     clk                             ;
-    reg                     rst_n                           ;
+    reg                                             clk                             ;
+    reg                                             rst_n                           ;
 
     // -------------------------------------------------------------------------------
 
-    reg [Q_INT+Q_FRAC-1:0]  mem_input_0 [0:mem_size-1]      ;
-    reg [Q_INT+Q_FRAC-1:0]  mem_input_1 [0:mem_size-1]      ;
-    reg [Q_INT+Q_FRAC-1:0]  mem_input_2 [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_input_0 [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_input_1 [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_input_2 [0:mem_size-1]      ;
 
-    reg [Q_INT+Q_FRAC-1:0]  mem_weight  [0:input_size-1]    ;
-    reg [Q_INT+Q_FRAC-1:0]  mem_bias [0:0]                  ;
+    reg [Q_INT_WEIGHT+Q_FRAC_WEIGHT-1:0]            mem_weight  [0:input_size-1]    ;
+    reg [Q_INT_BIAS+Q_FRAC_BIAS-1:0]                mem_bias    [0:0]               ;
+    reg [Q_INT_SLOPE+Q_FRAC_SLOPE-1:0]              mem_slope   [0:0]               ;
 
-    reg                     convolution_enable              ;
+    reg                                             convolution_enable              ;
 
-    reg [Q_INT+Q_FRAC-1:0]  mem_golden [0:mem_size-1]       ;
+    reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_golden  [0:mem_size-1]      ;
 
     // -------------------------------------------------------------------------------
     
-    reg [Q_INT+Q_FRAC-1:0]  data_in      [0:input_size-1]   ;
-    reg [Q_INT+Q_FRAC-1:0]  weight_in    [0:input_size-1]   ;
-    reg [Q_INT+Q_FRAC-1:0]  bias_in                         ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              data_in     [0:input_size-1]    ;
+    reg [Q_INT_WEIGHT+Q_FRAC_WEIGHT-1:0]            weight_in   [0:input_size-1]    ;
+    reg [Q_INT_BIAS+Q_FRAC_BIAS-1:0]                bias_in                         ;
+    reg [Q_INT_SLOPE+Q_FRAC_SLOPE-1:0]              slope_in                        ;
 
-    wire signed [Q_INT+Q_FRAC-1:0] data_out                 ;
-    wire                    data_out_enable                 ;
+    wire signed [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]    data_out                        ;
+    wire                                            data_out_enable                 ;
 
-    reg [Q_INT+Q_FRAC-1:0]  mem_output [0:mem_size-1]       ;
-    reg [31:0]              cnt_output                      ;
+    reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_output  [0:mem_size-1]      ;
+    reg [31:0]                                      cnt_output                      ;
 
     // -------------------------------------------------------------------------------
     // function definition start
@@ -82,6 +104,7 @@ module CONV_FIRST_CALC_TB;
             $readmemh("input_2.txt", mem_input_2);
             $readmemh("weight_0.txt", mem_weight);
             $readmemh("bias_0.txt", mem_bias);
+            $readmemh("slope_0.txt", mem_slope);
             $readmemh("output_0.txt", mem_golden);
         end
     endtask
@@ -194,12 +217,20 @@ module CONV_FIRST_CALC_TB;
         end
     endtask
 
+    task DRIVE_SLOPE;
+        begin
+            slope_in <= mem_slope[0];
+            @(posedge clk);
+        end
+    endtask
+
     task DRIVE;
         begin
             fork
                 DRIVE_INPUT;
                 DRIVE_WEIGHT;
                 DRIVE_BIAS;
+                DRIVE_SLOPE;
                 begin
                     convolution_enable <= 1'b1;
                     @(posedge clk);
@@ -234,7 +265,7 @@ module CONV_FIRST_CALC_TB;
                 error = mem_golden[i] >= mem_output[i] ? mem_golden[i] - mem_output[i] : mem_output[i] - mem_golden[i];
                 error = error / mem_golden[i] * 100;
                 if (error > display_error_threshold) begin
-                	$display("%d %d -> %f!!!", mem_golden[i], mem_output[i], error);
+                	$display("[%d]: %d %d -> %f!!!", i, mem_golden[i], mem_output[i], error);
                 end
                 mean_error = mean_error + error;
             end
@@ -299,8 +330,20 @@ module CONV_FIRST_CALC_TB;
 
     CONV_FIRST_CALC
     #(
-        .Q_INT                                  (Q_INT                  ),
-        .Q_FRAC                                 (Q_FRAC                 )
+        .Q_INT_INPUT                            (Q_INT_INPUT                ),
+        .Q_FRAC_INPUT                           (Q_FRAC_INPUT               ),
+        .Q_INT_WEIGHT                           (Q_INT_WEIGHT               ),
+        .Q_FRAC_WEIGHT                          (Q_FRAC_WEIGHT              ),
+        .Q_INT_BIAS                             (Q_INT_BIAS                 ),
+        .Q_FRAC_BIAS                            (Q_FRAC_BIAS                ),
+        .Q_INT_SLOPE                            (Q_INT_SLOPE                ),
+        .Q_FRAC_SLOPE                           (Q_FRAC_SLOPE               ),
+        .Q_INT_INTERIM_1                        (Q_INT_INTERIM_1            ),
+        .Q_FRAC_INTERIM_1                       (Q_FRAC_INTERIM_1           ),
+        .Q_INT_INTERIM_2                        (Q_INT_INTERIM_2            ),
+        .Q_FRAC_INTERIM_2                       (Q_FRAC_INTERIM_2           ),
+        .Q_INT_OUTPUT                           (Q_INT_OUTPUT               ),
+        .Q_FRAC_OUTPUT                          (Q_FRAC_OUTPUT              )
     )
     conv_first_calc_inst
     (
@@ -462,6 +505,7 @@ module CONV_FIRST_CALC_TB;
         .weight_in_74                           (weight_in[74]          ),
 
         .bias_in                                (bias_in                ),
+        .slope_in                               (slope_in               ),
     
         .data_out                               (data_out               ),
         .data_out_enable                        (data_out_enable        )
