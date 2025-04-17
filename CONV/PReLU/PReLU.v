@@ -26,19 +26,22 @@ module PReLU
     wire signed [Q_INT_data + Q_FRAC_data + Q_INT_slope + Q_FRAC_slope - 1:0] internal_slope        ;
     wire signed [Q_INT_data + Q_FRAC_data + Q_INT_slope + Q_FRAC_slope - 1:0] internal_result       ;
 
+    assign data_sign            = data[Q_INT_data + Q_FRAC_data -1]                                 ;
     assign internal_data        = data                                                              ;
     assign internal_slope       = slope                                                             ;
-    assign internal_result      = internal_data[0] ? internal_data * internal_slope : internal_data ;
 
     // signed Q(a+b).(c+d) -> signed Qe.f
-    // a+b >= e
-    // c+d >= f
+    // assume c,d >= f
     always @(posedge clk) begin
         if(!rst_n) begin
             result              <= 'b0                                                              ;
         end
-        else if(PReLU_enable) begin
-            result              <= internal_result >> (Q_FRAC_data + Q_FRAC_slope - Q_FRAC_result)  ;
+        else if(PReLU_enable & data_sign) begin
+            result              <= (internal_data * internal_slope)
+                                    >> (Q_FRAC_data + Q_FRAC_slope - Q_FRAC_result)                 ;
+        end
+        else if (PReLU_enable) begin
+            result              <= data >> (Q_FRAC_data - Q_FRAC_result);
         end
     end
 
