@@ -15,7 +15,7 @@ module CONV_FIRST_CALC_TB;
     parameter                                       Q_INT_INTERIM_1     = 3         ;
     parameter                                       Q_FRAC_INTERIM_1    = 30        ;
 
-    parameter                                       Q_INT_INTERIM_2     = 1         ;
+    parameter                                       Q_INT_INTERIM_2     = 3         ;
     parameter                                       Q_FRAC_INTERIM_2    = 15        ;
 
     parameter                                       Q_INT_OUTPUT        = 2         ;
@@ -97,15 +97,45 @@ module CONV_FIRST_CALC_TB;
         end
     endtask
 
-    task READ_INPUT;
+    task automatic READ_INPUT
+    (
+        input integer output_channel_idx
+    );
+        reg [8*6-1:0] _weight;
+        reg [8*4-1:0] _bias;
+        reg [8*5-1:0] _slope;
+        reg [8*6-1:0] _output;
+        reg [8*1-1:0] _underbar;
+        reg [8*4-1:0] _filetype;
+        reg [8*1-1:0] _idx_up;
+        reg [8*1-1:0] _idx_down;
         begin
+            _weight         = "weight";
+            _bias           = "bias";
+            _slope          = "slope";
+            _output         = "output";
+            _underbar       = "_";
+            _filetype       = ".txt";
+
+            if (output_channel_idx > 9) begin
+                _idx_up     = output_channel_idx / 10 + 48;
+                _idx_down   = output_channel_idx % 10 + 48;
+                $readmemh({_weight  , _underbar, _idx_up, _idx_down, _filetype}, mem_weight );
+                $readmemh({_bias    , _underbar, _idx_up, _idx_down, _filetype}, mem_bias   );
+                $readmemh({_slope   , _underbar, _idx_up, _idx_down, _filetype}, mem_slope  );
+                $readmemh({_output  , _underbar, _idx_up, _idx_down, _filetype}, mem_golden );
+            end
+            else begin
+                _idx_down   = output_channel_idx + 48;
+                $readmemh({_weight  , _underbar, _idx_down, _filetype}, mem_weight );
+                $readmemh({_bias    , _underbar, _idx_down, _filetype}, mem_bias   );
+                $readmemh({_slope   , _underbar, _idx_down, _filetype}, mem_slope  );
+                $readmemh({_output  , _underbar, _idx_down, _filetype}, mem_golden );
+            end
+
             $readmemh("input_0.txt", mem_input_0);
             $readmemh("input_1.txt", mem_input_1);
             $readmemh("input_2.txt", mem_input_2);
-            $readmemh("weight_0.txt", mem_weight);
-            $readmemh("bias_0.txt", mem_bias);
-            $readmemh("slope_0.txt", mem_slope);
-            $readmemh("output_0.txt", mem_golden);
         end
     endtask
 
@@ -262,15 +292,57 @@ module CONV_FIRST_CALC_TB;
         begin
             mean_error = 0;
             for (i = 0; i < num_output; i = i + 1) begin
-                error = mem_golden[i] >= mem_output[i] ? mem_golden[i] - mem_output[i] : mem_output[i] - mem_golden[i];
-                error = error / mem_golden[i] * 100;
+                if (mem_golden[i]) begin
+                	error = mem_golden[i] >= mem_output[i] ? mem_golden[i] - mem_output[i] : mem_output[i] - mem_golden[i];
+                	error = error / mem_golden[i] * 100;
+                end
+                else begin
+                	error = 0;
+                end
                 if (error > display_error_threshold) begin
-                	$display("[%d]: %d %d -> %f!!!", i, mem_golden[i], mem_output[i], error);
+                	$display("[%d]: golden = %X, current = %X, difference = %d -> %f %%!!!",
+                    i,
+                    mem_golden[i],
+                    mem_output[i],
+                    mem_golden[i] - mem_output[i],
+                    error);
                 end
                 mean_error = mean_error + error;
             end
             mean_error = mean_error / num_output;
             $display("Mean Error: %f %%", mean_error);
+        end
+    endtask
+
+	task TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL
+    (
+        input integer channel
+    );
+        begin
+                RESET;
+                READ_INPUT(channel);
+                DRIVE;
+                convolution_enable <= 1'b0;
+                repeat (20) @(posedge clk);
+                $display("Channel %0d finished!", channel);
+                $display("Evaluating error in processing channel %0d...", channel);
+                EVAL_ERROR(cnt_output, 0.1);
+        end
+	endtask
+
+    task automatic TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
+        integer i;
+        begin
+            for (i = 0; i < 56; i = i + 1) begin
+                RESET;
+                READ_INPUT(i);
+                DRIVE;
+                convolution_enable <= 1'b0;
+                repeat (100) @(posedge clk);
+                $display("Channel %0d finished!", i);
+                //PRINT_OUTPUT(cnt_output);
+                EVAL_ERROR(cnt_output, 2.0);
+            end
         end
     endtask
 
@@ -294,13 +366,8 @@ module CONV_FIRST_CALC_TB;
         INIT;
         repeat (5) @(posedge clk);
         RESET;
-        READ_INPUT;
-        DRIVE;
-        convolution_enable <= 1'b0;
-        repeat (100) @(posedge clk);
-        $display(cnt_output);
-        //PRINT_OUTPUT(cnt_output);
-        EVAL_ERROR(cnt_output, 0.1);
+        //TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL(51);
+        TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
         $finish;
     end
 
