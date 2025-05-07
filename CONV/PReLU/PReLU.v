@@ -36,11 +36,11 @@ module PReLU
         if(!rst_n) begin
             result              <= 'b0                                                              ;
         end
-        else if(PReLU_enable & data_sign) begin
+        else if(PReLU_result_enable & data_sign) begin
             result              <= (internal_data * internal_slope)
                                     >> (Q_FRAC_data + Q_FRAC_slope - Q_FRAC_result)                 ;
         end
-        else if (PReLU_enable) begin
+        else if (PReLU_result_enable) begin
             result              <= data >> (Q_FRAC_data - Q_FRAC_result);
         end
     end

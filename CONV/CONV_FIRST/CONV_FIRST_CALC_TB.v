@@ -341,7 +341,7 @@ module CONV_FIRST_CALC_TB;
                 repeat (100) @(posedge clk);
                 $display("Channel %0d finished!", i);
                 //PRINT_OUTPUT(cnt_output);
-                EVAL_ERROR(cnt_output, 2.0);
+                EVAL_ERROR(cnt_output, 1.0);
             end
         end
     endtask
