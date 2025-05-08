@@ -1,79 +1,112 @@
-`timescale 1ns / 1ps
-// BRAM testbench by HS
-module BRAM_CONTROLLER #(
-parameter AXI_DATA_WIDTH       = 64,
-parameter AXI_ADDR_WIDTH       = 32,
-parameter LMB_DATA_WIDTH       = 40,
-parameter LMB_ADDR_WIDTH       = 32,
-parameter LMB_WE_WIDTH         = 5,
-parameter Q_INT_INPUT          = 2,
-parameter Q_FRAC_INPUT         = 15
+module BRAM_CONTROLLER
+#(
+    //parameter                                 AXI_DATA_WIDTH      = 64    ,
+    //parameter                                 AXI_STRB_WIDTH      = 8     ,
+    //parameter                                 AXI_ADDR_WIDTH      = 32    ,
+    parameter                                   LMB_DATA_WIDTH      = 40    ,
+    parameter                                   LMB_ADDR_WIDTH      = 32    ,
+    parameter                                   LMB_WE_WIDTH        = 5     ,
+    parameter                                   Q_INT_INPUT         = 2     ,
+    parameter                                   Q_FRAC_INPUT        = 15
 )
 (
+    input wire                                  clk         ,
+    input wire                                  rst_n       ,
 
-    input wire clk,
-    input wire rst_n,
+    input [3*(Q_INT_INPUT + Q_FRAC_INPUT)-1:0]  data_i      ,
+    input                                       first       ,
+    input                                       last        ,
+    input                                       lastline    ,
 
-    input  wire [AXI_ADDR_WIDTH-1:0]awaddr_i,
-    input  wire [3:0]               awlen_i,
-    input  wire [2:0]               awsize_i,
-    input  wire [1:0]               awburst_i,
-    input  wire                     awvalid_i,
-    output wire                     awready_o,
+    // LMB Channel 1
+    output reg                                  en_a_1      ,
+    output reg                                  en_b_1      ,
+    output reg [LMB_WE_WIDTH-1:0]               we_a_1      ,
+    output reg [LMB_WE_WIDTH-1:0]               we_b_1      ,
+    output reg [LMB_ADDR_WIDTH-1:0]             addr_a_1    ,
+    output reg [LMB_ADDR_WIDTH-1:0]             addr_b_1    ,
+    output reg [LMB_DATA_WIDTH-1:0]             din_a_1     ,
+    output reg [LMB_DATA_WIDTH-1:0]             din_b_1     ,
+    input wire [LMB_DATA_WIDTH-1:0]             dout_a_1    ,
+    input wire [LMB_DATA_WIDTH-1:0]             dout_b_1    ,
 
- // AXI Write Data Channel
-    input  wire [AXI_DATA_WIDTH-1:0]wdata_i,
-    input  wire [3:0]               wstrb_i,
-    input  wire                     wlast_i,
-    input  wire                     wvalid_i,
-    output wire                     wready_o,
+    // LMB Channel 2
+    output reg                                  en_a_2      ,
+    output reg                                  en_b_2      ,
+    output reg [LMB_WE_WIDTH-1:0]               we_a_2      ,
+    output reg [LMB_WE_WIDTH-1:0]               we_b_2      ,
+    output reg [LMB_ADDR_WIDTH-1:0]             addr_a_2    ,
+    output reg [LMB_ADDR_WIDTH-1:0]             addr_b_2    ,
+    output reg [LMB_DATA_WIDTH-1:0]             din_a_2     ,
+    output reg [LMB_DATA_WIDTH-1:0]             din_b_2     ,
+    input wire [LMB_DATA_WIDTH-1:0]             dout_a_2    ,
+    input wire [LMB_DATA_WIDTH-1:0]             dout_b_2    ,
+
+    // LMB Channel 3
+    output reg                                  en_a_3      ,
+    output reg                                  en_b_3      ,
+    output reg [LMB_WE_WIDTH-1:0]               we_a_3      ,
+    output reg [LMB_WE_WIDTH-1:0]               we_b_3      ,
+    output reg [LMB_ADDR_WIDTH-1:0]             addr_a_3    ,
+    output reg [LMB_ADDR_WIDTH-1:0]             addr_b_3    ,
+    output reg [LMB_DATA_WIDTH-1:0]             din_a_3     ,
+    output reg [LMB_DATA_WIDTH-1:0]             din_b_3     ,
+    input wire [LMB_DATA_WIDTH-1:0]             dout_a_3    ,
+    input wire [LMB_DATA_WIDTH-1:0]             dout_b_3    
+
+    // No detail provided; Couldn't implement AXI interface
+    // Real AXI interface might be moved to other module
+
+    // Needed:
+    // (1) Size of the image
+    // (2) Size of the pixel
+    // (3) Which channel to access to 'shared BRAM' ?
+    // (4) Address range of 'shared BRAM'
+
+    // AXI Write Address Channel
+    //input  wire [AXI_ADDR_WIDTH-1:0]    awaddr_i    ,
+    //input  wire [3:0]                   awlen_i     ,
+    //input  wire [2:0]                   awsize_i    ,
+    //input  wire [1:0]                   awburst_i   ,
+    //input  wire                         awvalid_i   ,
+    //output wire                         awready_o   ,
+
+    // AXI Write Data Channel
+    //input  wire [AXI_DATA_WIDTH-1:0]    wdata_i     ,
+    //input  wire [AXI_STRB_WIDTH-1:0]    wstrb_i     ,
+    //input  wire                         wlast_i     ,
+    //input  wire                         wvalid_i    ,
+    //output wire                         wready_o    ,
 
     // AXI Write Response Channel
-    output wire [1:0]               bresp_o,
-    output wire                     bvalid_o,
-    input  wire                     bready_i,
+    //output wire [1:0]                   bresp_o     ,
+    //output wire                         bvalid_o    ,
+    //input  wire                         bready_i    ,
 
-    output reg                      en_a_1,
-    output reg                      en_b_1,
-    output reg [LMB_WE_WIDTH-1:0]   we_a_1,
-    output reg [LMB_WE_WIDTH-1:0]   we_b_1,
-    output reg [LMB_ADDR_WIDTH-1:0] addr_a_1,
-    output reg [LMB_ADDR_WIDTH-1:0] addr_b_1,
-    output reg [LMB_DATA_WIDTH-1:0] din_a_1,
-    output reg [LMB_DATA_WIDTH-1:0] din_b_1,
-    input wire [LMB_DATA_WIDTH-1:0] dout_a_1,
-    input wire [LMB_DATA_WIDTH-1:0] dout_b_1,
+    // AXI Read Address Channel
+    //input  wire                         arready_i   ,
+    //output wire [AXI_ADDR_WIDTH-1:0]    araddr_o    ,
+    //output wire [3:0]                   arlen_o     ,
+    //output wire [2:0]                   arsize_o    ,
+    //output wire [1:0]                   arburst_o   ,
+    //output wire                         arvalid_o   ,
 
-    output reg                      en_a_2,
-    output reg                      en_b_2,
-    output reg [LMB_WE_WIDTH-1:0]   we_a_2,
-    output reg [LMB_WE_WIDTH-1:0]   we_b_2,
-    output reg [LMB_ADDR_WIDTH-1:0] addr_a_2,
-    output reg [LMB_ADDR_WIDTH-1:0] addr_b_2,
-    output reg [LMB_DATA_WIDTH-1:0] din_a_2,
-    output reg [LMB_DATA_WIDTH-1:0] din_b_2,
-    input wire [LMB_DATA_WIDTH-1:0] dout_a_2,
-    input wire [LMB_DATA_WIDTH-1:0] dout_b_2,
-    
-    output reg                      en_a_3,
-    output reg                      en_b_3,
-    output reg [LMB_WE_WIDTH-1:0]   we_a_3,
-    output reg [LMB_WE_WIDTH-1:0]   we_b_3,
-    output reg [LMB_ADDR_WIDTH-1:0] addr_a_3,
-    output reg [LMB_ADDR_WIDTH-1:0] addr_b_3,
-    output reg [LMB_DATA_WIDTH-1:0] din_a_3,
-    output reg [LMB_DATA_WIDTH-1:0] din_b_3,
-    input wire [LMB_DATA_WIDTH-1:0] dout_a_3,
-    input wire [LMB_DATA_WIDTH-1:0] dout_b_3    
+    // AXI Read Data Channel
+    //input  wire [AXI_DATA_WIDTH-1:0]    rdata_i     ,
+    //input  wire                         rvalid_i    ,
+    //input  wire                         rlast_i     ,
+    //input  wire [AXI_STRB_WIDTH-1:0]    rresp_i     ,
+    //output wire                         rready_o    ,
 );
+
+    // -----------------------------------------------------------------------------
     localparam                      IDLE = 3'b000;
     localparam                      INIT = 3'b001;
-    localparam                      input_width = Q_INT_INPUT + Q_FRAC_INPUT;
 
     reg [2:0]                       state_n;
     reg [2:0]                       state;
 
-    always @ (posedge clk) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             state <= IDLE;
         end
@@ -82,7 +115,7 @@ parameter Q_FRAC_INPUT         = 15
         end
     end
 
-    always @ (*) begin
+    always @(*) begin
         state_n =                   state;
         case (state)
             IDLE : begin
@@ -90,6 +123,49 @@ parameter Q_FRAC_INPUT         = 15
             end
         endcase
     end
+    
+    // -----------------------------------------------------------------------------
+    //wire                                shift_enable;
+    //reg [AXI_DATA_WIDTH-1:0]            buffer;
+//
+    //reg [AXI_ADDR_WIDTH-1:0]            araddr;
+    //reg [3:0]                           arlen;
+    //reg [2:0]                           arsize;
+    //reg [1:0]                           arburst;
+    //reg                                 arvalid;
+//
+    //always @(posedge clk) begin
+        //if (state == INIT) begin
+            //arvalid     <= 1'b1;
+            //araddr      <=
+        //end
+    //end
+//
+    //assign araddr_o     = araddr;
+    //assign arlen_o      = arlen;
+    //assign arsize_o     = arsize;
+    //assign arburst_o    = arburst;
+    //assign arvalid_o    = arvalid;
+//
+    //// -----------------------------------------------------------------------------
+    //localparam                          shift_register_size     = 4;
+//
+    //reg [AXI_DATA_WIDTH-1:0]            shift_register [0:shift_register_size-1];
+//
+    //always @(posedge clk) begin
+        //if (!rst_n) begin
+            //shift_register <= 'b0;
+        //end
+        //else if (shift_enable) begin
+            //shift_register[0] <= buffer;
+            //for (i = 0; i < shift_register_size - 1; i = i + 1) begin
+                //shift_register[i + 1] <= shift_register[i];
+            //end
+        //end
+    //end
+
+    // -----------------------------------------------------------------------------
+    localparam                      input_width = Q_INT_INPUT + Q_FRAC_INPUT;
 
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -99,10 +175,18 @@ parameter Q_FRAC_INPUT         = 15
             din_a_1                 <= 'b0;
         end
         else if (state == INIT) begin
-            en_a_1                  <= 1'b1;
-            we_a_1                  <= {LMB_WE_WIDTH{1'b1}};
-            addr_a_1                <= addr_a_1 + (LMB_DATA_WIDTH / 8);
-            din_a_1                 <= temp[63 - input_width * 0 -: input_width];
+            if (bram_transfer_enable) begin
+                en_a_1                  <= 1'b1;
+                we_a_1                  <= {LMB_WE_WIDTH{1'b1}};
+                addr_a_1                <= addr_a_1 + (LMB_DATA_WIDTH / 8);
+                din_a_1                 <= ;
+            end
+            else begin
+                en_a_1                  <= 'b0;
+                we_a_1                  <= 'b0;
+                addr_a_1                <= 'b0;
+                din_a_1                 <= 'b0;
+            end
         end
     end
     
@@ -117,7 +201,7 @@ parameter Q_FRAC_INPUT         = 15
             en_a_2                  <= 1'b1;
             we_a_2                  <= {LMB_WE_WIDTH{1'b1}};
             addr_a_2                <= addr_a_2 + (LMB_DATA_WIDTH / 8);
-            din_a_2                 <= temp[63 - input_width * 1 -: input_width];
+            din_a_2                 <= ;
         end
     end
     
@@ -132,8 +216,10 @@ parameter Q_FRAC_INPUT         = 15
             en_a_3                  <= 1'b1;
             we_a_3                  <= {LMB_WE_WIDTH{1'b1}};
             addr_a_3                <= addr_a_3 + (LMB_DATA_WIDTH / 8);
-            din_a_3                 <= temp[63 - input_width * 2 -: input_width];
+            din_a_3                 <= ;
         end
     end
+
+    // -----------------------------------------------------------------------------
 
 endmodule
