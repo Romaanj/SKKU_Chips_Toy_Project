@@ -1,102 +1,139 @@
 `timescale 1ns / 1ps
 // BRAM testbench by HS
-module BRAM_Controller();
+module BRAM_CONTROLLER #(
+parameter AXI_DATA_WIDTH       = 64,
+parameter AXI_ADDR_WIDTH       = 32,
+parameter LMB_DATA_WIDTH       = 40,
+parameter LMB_ADDR_WIDTH       = 32,
+parameter LMB_WE_WIDTH         = 5,
+parameter Q_INT_INPUT          = 2,
+parameter Q_FRAC_INPUT         = 15
+)
+(
 
-// Parameters
-parameter DATA_WIDTH = 24; // 임시 비트
-parameter ADDR_WIDTH = 11; // 1920 위치를 표현하기 위해 11비트 필요 (log2(1920) ≈ 10.906)
+    input wire clk,
+    input wire rst_n,
 
-// Signals for Port A
-reg clk;
+    input  wire [AXI_ADDR_WIDTH-1:0]awaddr_i,
+    input  wire [3:0]               awlen_i,
+    input  wire [2:0]               awsize_i,
+    input  wire [1:0]               awburst_i,
+    input  wire                     awvalid_i,
+    output wire                     awready_o,
 
-reg en_a;
-reg we_a;
-reg [ADDR_WIDTH-1:0] addr_a;
-reg [DATA_WIDTH-1:0] din_a;
-wire [DATA_WIDTH-1:0] dout_a;
+ // AXI Write Data Channel
+    input  wire [AXI_DATA_WIDTH-1:0]wdata_i,
+    input  wire [3:0]               wstrb_i,
+    input  wire                     wlast_i,
+    input  wire                     wvalid_i,
+    output wire                     wready_o,
 
-// Signals for Port B
-reg en_b;
-reg we_b;
-reg [ADDR_WIDTH-1:0] addr_b;
-reg [DATA_WIDTH-1:0] din_b;
-wire [DATA_WIDTH-1:0] dout_b;
+    // AXI Write Response Channel
+    output wire [1:0]               bresp_o,
+    output wire                     bvalid_o,
+    input  wire                     bready_i,
 
-// Clock generation
-always #5 clk = ~clk; // 100 MHz for Port A
+    output reg                      en_a_1,
+    output reg                      en_b_1,
+    output reg [LMB_WE_WIDTH-1:0]   we_a_1,
+    output reg [LMB_WE_WIDTH-1:0]   we_b_1,
+    output reg [LMB_ADDR_WIDTH-1:0] addr_a_1,
+    output reg [LMB_ADDR_WIDTH-1:0] addr_b_1,
+    output reg [LMB_DATA_WIDTH-1:0] din_a_1,
+    output reg [LMB_DATA_WIDTH-1:0] din_b_1,
+    input wire [LMB_DATA_WIDTH-1:0] dout_a_1,
+    input wire [LMB_DATA_WIDTH-1:0] dout_b_1,
 
-
-
-
-// Test sequence
-initial begin
-    // Initialize signals
-    clk <= 0;
-    en_a <= 0;
-    en_b <= 0;
-    we_a <= 0;
-    we_b <= 0;
-    addr_a <= 0;
-    addr_b <= 0;
-    din_a <= 0;
-    din_b <= 0;
-
-    // wait
-    repeat (3) @ (posedge clk);
-
-    // memory enable
-    en_a = 1;
-    en_b = 1;
-
-    // Port A: write in addr 0
-    we_a = 1; // write
-    addr_a = 0;
-    din_a = 24'hAABBCC; // 24bit data
-    repeat (1) @ (posedge clk);
+    output reg                      en_a_2,
+    output reg                      en_b_2,
+    output reg [LMB_WE_WIDTH-1:0]   we_a_2,
+    output reg [LMB_WE_WIDTH-1:0]   we_b_2,
+    output reg [LMB_ADDR_WIDTH-1:0] addr_a_2,
+    output reg [LMB_ADDR_WIDTH-1:0] addr_b_2,
+    output reg [LMB_DATA_WIDTH-1:0] din_a_2,
+    output reg [LMB_DATA_WIDTH-1:0] din_b_2,
+    input wire [LMB_DATA_WIDTH-1:0] dout_a_2,
+    input wire [LMB_DATA_WIDTH-1:0] dout_b_2,
     
-    we_b = 1; // write
-    addr_b = 0;
-    din_b = 24'h112233; // 24bit data
-    repeat (3) @ (posedge clk);
-
-    // Port A: read in addr 0
-    we_a = 0; // read
-    addr_a = 0;
-    repeat (1) @ (posedge clk);
-
-    // Port B: read in addr 1
-    we_b = 0; // read
-    addr_b = 1;
-repeat (1) @ (posedge clk);
-
-    addr_a = 2;
-    addr_b = 2;
-    we_a = 1; // Port A write
-    we_b = 0; // Port B read
-    repeat (10) begin
-        din_a <= $urandom;
-        @(posedge clk);
-    end
-    $display("___Port B - read data in addr 2 (Read first test): %h", dout_a);
-#100;
-    $finish;
-end
-
-// Instantiate the True Dual Port BRAM IP
-blk_mem_gen_1 u_bram (
-    // Port A
-    .clka(clk),
-    .ena(en_a),
-    .wea(we_a),
-    .addra(addr_a),
-    .dina(din_a),
-    .douta(dout_a),
-    // Port B
-    .clkb(clk),
-    .enb(en_b),
-    .web(we_b),
-    .addrb(addr_b),
-    .dinb(din_b),
-    .doutb(dout_b)
+    output reg                      en_a_3,
+    output reg                      en_b_3,
+    output reg [LMB_WE_WIDTH-1:0]   we_a_3,
+    output reg [LMB_WE_WIDTH-1:0]   we_b_3,
+    output reg [LMB_ADDR_WIDTH-1:0] addr_a_3,
+    output reg [LMB_ADDR_WIDTH-1:0] addr_b_3,
+    output reg [LMB_DATA_WIDTH-1:0] din_a_3,
+    output reg [LMB_DATA_WIDTH-1:0] din_b_3,
+    input wire [LMB_DATA_WIDTH-1:0] dout_a_3,
+    input wire [LMB_DATA_WIDTH-1:0] dout_b_3    
 );
+    localparam                      IDLE = 3'b000;
+    localparam                      INIT = 3'b001;
+    localparam                      input_width = Q_INT_INPUT + Q_FRAC_INPUT;
+
+    reg [2:0]                       state_n;
+    reg [2:0]                       state;
+
+    always @ (posedge clk) begin
+        if (!rst_n) begin
+            state <= IDLE;
+        end
+        else begin
+            state <= state_n;
+        end
+    end
+
+    always @ (*) begin
+        state_n =                   state;
+        case (state)
+            IDLE : begin
+                state_n = INIT;
+            end
+        endcase
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            en_a_1                  <= 'b0;
+            we_a_1                  <= 'b0;
+            addr_a_1                <= 'b0;
+            din_a_1                 <= 'b0;
+        end
+        else if (state == INIT) begin
+            en_a_1                  <= 1'b1;
+            we_a_1                  <= {LMB_WE_WIDTH{1'b1}};
+            addr_a_1                <= addr_a_1 + (LMB_DATA_WIDTH / 8);
+            din_a_1                 <= temp[63 - input_width * 0 -: input_width];
+        end
+    end
+    
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            en_a_2                  <= 'b0;
+            we_a_2                  <= 'b0;
+            addr_a_2                <= 'b0;
+            din_a_2                 <= 'b0;
+        end
+        else if (state == INIT) begin
+            en_a_2                  <= 1'b1;
+            we_a_2                  <= {LMB_WE_WIDTH{1'b1}};
+            addr_a_2                <= addr_a_2 + (LMB_DATA_WIDTH / 8);
+            din_a_2                 <= temp[63 - input_width * 1 -: input_width];
+        end
+    end
+    
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            en_a_3                  <= 'b0;
+            we_a_3                  <= 'b0;
+            addr_a_3                <= 'b0;
+            din_a_3                 <= 'b0;
+        end
+        else if (state == INIT) begin
+            en_a_3                  <= 1'b1;
+            we_a_3                  <= {LMB_WE_WIDTH{1'b1}};
+            addr_a_3                <= addr_a_3 + (LMB_DATA_WIDTH / 8);
+            din_a_3                 <= temp[63 - input_width * 2 -: input_width];
+        end
+    end
+
 endmodule
