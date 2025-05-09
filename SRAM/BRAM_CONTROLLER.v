@@ -14,6 +14,7 @@ module BRAM_CONTROLLER
     input wire                                  rst_n       ,
 
     input [3*(Q_INT_INPUT + Q_FRAC_INPUT)-1:0]  data_i      ,
+    input                                       data_i_valid,
     input                                       first       ,
     input                                       last        ,
     input                                       lastline    ,
@@ -100,12 +101,12 @@ module BRAM_CONTROLLER
 );
 
     // -----------------------------------------------------------------------------
-    localparam                      IDLE = 3'b000;
-    localparam                      INIT = 3'b001;
-
-    reg [2:0]                       state_n;
-    reg [2:0]                       state;
-
+    localparam                      IDLE                = 4'd0;
+    localparam                      INIT                = 4'd1;
+    localparam                      SETUP_CONV_FIRST    = 4'd2;
+    localparam                      CONV_FIRST          = 4'd3;
+    reg [3:0]                       state_n;
+    reg [3:0]                       state;
     always @(posedge clk) begin
         if (!rst_n) begin
             state <= IDLE;
@@ -116,10 +117,15 @@ module BRAM_CONTROLLER
     end
 
     always @(*) begin
-        state_n =                   state;
+        state_n                     = state;
         case (state)
             IDLE : begin
-                state_n = INIT;
+                state_n             = INIT;
+            end
+            INIT : begin
+                if (lastline_buf & last) begin
+                    state_n         = CONV_FIRST;
+                end
             end
         endcase
     end
@@ -166,26 +172,90 @@ module BRAM_CONTROLLER
 
     // -----------------------------------------------------------------------------
     localparam                      input_width = Q_INT_INPUT + Q_FRAC_INPUT;
-
+    reg                             bram_transfer_enable;
+    reg                             first_buf;
+    reg [1:0]                       data_i_cnt;
+    
+    always @ (posedge clk) begin
+        if (!rst_n) begin
+            data_i_cnt              <= 2'b00;
+        end
+        else if (state == INIT) begin
+            if(data_i_valid) begin
+                data_i_cnt          <= data_i_cnt + 2'b01;
+            end
+        end
+        
+    end
+    
+    always @ (posedge clk) begin
+        if (!rst_n) begin
+            bram_transfer_enable    <= 1'b0;
+        end
+        else if (data_i_cnt == 2'b01) begin
+            bram_transfer_enable    <= 1'b1;
+        end 
+        else if (data_i_cnt == 2'b11) begin
+            bram_transfer_enable    <= 1'b0;
+        end
+    end
+    
+    always @ (posedge clk) begin
+        if (!rst_n) begin
+            first_buf               <= 1'b0;
+        end
+        else if (first) begin
+            first_buf               <= 1'b1;
+        end
+        else if (bram_transfer_enable) begin
+            first_buf               <= 1'b0;
+        end
+    end
+    
+    
     always @(posedge clk) begin
         if (!rst_n) begin
             en_a_1                  <= 'b0;
+            en_b_1                  <= 'b0;
             we_a_1                  <= 'b0;
-            addr_a_1                <= 'b0;
+            we_b_1                  <= 'b0;
+            addr_a_1                <= 'h0;
+            addr_b_1                <= 'h0;
             din_a_1                 <= 'b0;
+            din_b_1                 <= 'b0;
         end
         else if (state == INIT) begin
             if (bram_transfer_enable) begin
+                if(first_buf) begin
+                    addr_a_1            <= 'h0;
+                    addr_b_1            <= 'h5;
+                end
+                else begin
+                    addr_a_1            <= addr_a_1 + (LMB_DATA_WIDTH / 8);
+                    addr_b_1            <= addr_b_1 + (LMB_DATA_WIDTH / 8);
+                end
                 en_a_1                  <= 1'b1;
+                en_b_1                  <= 1'b1;
                 we_a_1                  <= {LMB_WE_WIDTH{1'b1}};
-                addr_a_1                <= addr_a_1 + (LMB_DATA_WIDTH / 8);
-                din_a_1                 <= ;
+                we_b_1                  <= {LMB_WE_WIDTH{1'b1}};
             end
-            else begin
+            else begin     
                 en_a_1                  <= 'b0;
-                we_a_1                  <= 'b0;
-                addr_a_1                <= 'b0;
-                din_a_1                 <= 'b0;
+                en_b_1                  <= 'b0;
+            end
+            
+            if(data_i_cnt == 2'b00) begin
+                din_a_1[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width];    
+            end
+            else if (data_i_cnt == 2'b01) begin
+                din_a_1[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+            end
+            
+            if(data_i_cnt == 2'b10) begin
+                din_b_1[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width];    
+            end
+            else if (data_i_cnt == 2'b11) begin
+                din_b_1[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
             end
         end
     end
