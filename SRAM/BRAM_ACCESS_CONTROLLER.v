@@ -1,4 +1,4 @@
-module BRAM_CONTROLLER
+module BRAM_ACCESS_CONTROLLER
 #(
     //parameter                                 AXI_DATA_WIDTH      = 64    ,
     //parameter                                 AXI_STRB_WIDTH      = 8     ,
@@ -107,6 +107,8 @@ module BRAM_CONTROLLER
     localparam                      CONV_FIRST          = 4'd3;
     reg [3:0]                       state_n;
     reg [3:0]                       state;
+    reg                             lastline_buf;
+    
     always @(posedge clk) begin
         if (!rst_n) begin
             state <= IDLE;
@@ -115,7 +117,18 @@ module BRAM_CONTROLLER
             state <= state_n;
         end
     end
-
+    
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            lastline_buf            <= 'b0;
+        end
+        else if (lastline) begin
+            lastline_buf            <= 'b1;
+        end 
+        else if (last) begin
+            lastline_buf            <= 'b0;
+        end
+    end
     always @(*) begin
         state_n                     = state;
         case (state)
@@ -124,9 +137,10 @@ module BRAM_CONTROLLER
             end
             INIT : begin
                 if (lastline_buf & last) begin
-                    state_n         = CONV_FIRST;
+                    state_n         = SETUP_CONV_FIRST;
                 end
             end
+            
         endcase
     end
     
@@ -239,6 +253,9 @@ module BRAM_CONTROLLER
                 we_a_1                  <= {LMB_WE_WIDTH{1'b1}};
                 we_b_1                  <= {LMB_WE_WIDTH{1'b1}};
             end
+            //else if() begin
+                
+            //end
             else begin     
                 en_a_1                  <= 'b0;
                 en_b_1                  <= 'b0;
@@ -258,6 +275,15 @@ module BRAM_CONTROLLER
                 din_b_1[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
             end
         end
+        else if(state == SETUP_CONV_FIRST) begin
+            en_a_1                  <= 'b0;
+            en_b_1                  <= 'b0;
+            we_a_1                  <= 'b0;
+            we_b_1                  <= 'b0;
+            addr_a_1                <= 'h0;
+            addr_b_1                <= 'h0;
+        end
+        
     end
     
     always @(posedge clk) begin
