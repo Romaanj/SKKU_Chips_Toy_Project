@@ -241,24 +241,21 @@ module BRAM_ACCESS_CONTROLLER
         else if (state == INIT) begin
             if (bram_transfer_enable) begin
                 if(first_buf) begin
-                    addr_a_1            <= 'h0;
-                    addr_b_1            <= 'h5;
+                    addr_a_1        <= 'h0;
+                    addr_b_1        <= 'h5;
                 end
                 else begin
-                    addr_a_1            <= addr_a_1 + (LMB_DATA_WIDTH / 8);
-                    addr_b_1            <= addr_b_1 + (LMB_DATA_WIDTH / 8);
+                    addr_a_1        <= addr_a_1 + (LMB_DATA_WIDTH / 8);
+                    addr_b_1        <= addr_b_1 + (LMB_DATA_WIDTH / 8);
                 end
-                en_a_1                  <= 1'b1;
-                en_b_1                  <= 1'b1;
-                we_a_1                  <= {LMB_WE_WIDTH{1'b1}};
-                we_b_1                  <= {LMB_WE_WIDTH{1'b1}};
+                en_a_1              <= 1'b1;
+                en_b_1              <= 1'b1;
+                we_a_1              <= {LMB_WE_WIDTH{1'b1}};
+                we_b_1              <= {LMB_WE_WIDTH{1'b1}};
             end
-            //else if() begin
-                
-            //end
-            else begin     
-                en_a_1                  <= 'b0;
-                en_b_1                  <= 'b0;
+            else begin
+                en_a_1              <= 'b0;
+                en_b_1              <= 'b0;
             end
             
             if(data_i_cnt == 2'b00) begin
@@ -283,36 +280,115 @@ module BRAM_ACCESS_CONTROLLER
             addr_a_1                <= 'h0;
             addr_b_1                <= 'h0;
         end
-        
     end
-    
+
     always @(posedge clk) begin
         if (!rst_n) begin
             en_a_2                  <= 'b0;
+            en_b_2                  <= 'b0;
             we_a_2                  <= 'b0;
-            addr_a_2                <= 'b0;
+            we_b_2                  <= 'b0;
+            addr_a_2                <= 'h0;
+            addr_b_2                <= 'h0;
             din_a_2                 <= 'b0;
+            din_b_2                 <= 'b0;
         end
         else if (state == INIT) begin
-            en_a_2                  <= 1'b1;
-            we_a_2                  <= {LMB_WE_WIDTH{1'b1}};
-            addr_a_2                <= addr_a_2 + (LMB_DATA_WIDTH / 8);
-            din_a_2                 <= ;
+            if (bram_transfer_enable) begin
+                if(first_buf) begin
+                    addr_a_2        <= 'h0;
+                    addr_b_2        <= 'h5;
+                end
+                else begin
+                    addr_a_2        <= addr_a_2 + (LMB_DATA_WIDTH / 8);
+                    addr_b_2        <= addr_b_2 + (LMB_DATA_WIDTH / 8);
+                end
+                en_a_2              <= 1'b1;
+                en_b_2              <= 1'b1;
+                we_a_2              <= {LMB_WE_WIDTH{1'b1}};
+                we_b_2              <= {LMB_WE_WIDTH{1'b1}};
+            end
+            else begin     
+                en_a_2              <= 'b0;
+                en_b_2              <= 'b0;
+            end
+            
+            if(data_i_cnt == 2'b00) begin
+                din_a_2[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 1  -: input_width];    
+            end
+            else if (data_i_cnt == 2'b01) begin
+                din_a_2[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 1  -: input_width]; 
+            end
+            
+            if(data_i_cnt == 2'b10) begin
+                din_b_2[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 1  -: input_width];    
+            end
+            else if (data_i_cnt == 2'b11) begin
+                din_b_2[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 1  -: input_width]; 
+            end
+        end
+        else if(state == SETUP_CONV_FIRST) begin
+            en_a_2                  <= 'b0;
+            en_b_2                  <= 'b0;
+            we_a_2                  <= 'b0;
+            we_b_2                  <= 'b0;
+            addr_a_2                <= 'h0;
+            addr_b_2                <= 'h0;
         end
     end
-    
+
     always @(posedge clk) begin
         if (!rst_n) begin
             en_a_3                  <= 'b0;
+            en_b_3                  <= 'b0;
             we_a_3                  <= 'b0;
-            addr_a_3                <= 'b0;
+            we_b_3                  <= 'b0;
+            addr_a_3                <= 'h0;
+            addr_b_3                <= 'h0;
             din_a_3                 <= 'b0;
+            din_b_3                 <= 'b0;
         end
         else if (state == INIT) begin
-            en_a_3                  <= 1'b1;
-            we_a_3                  <= {LMB_WE_WIDTH{1'b1}};
-            addr_a_3                <= addr_a_3 + (LMB_DATA_WIDTH / 8);
-            din_a_3                 <= ;
+            if (bram_transfer_enable) begin
+                if(first_buf) begin
+                    addr_a_3        <= 'h0;
+                    addr_b_3        <= 'h5;
+                end
+                else begin
+                    addr_a_3        <= addr_a_3 + (LMB_DATA_WIDTH / 8);
+                    addr_b_3        <= addr_b_3 + (LMB_DATA_WIDTH / 8);
+                end
+                en_a_3              <= 1'b1;
+                en_b_3              <= 1'b1;
+                we_a_3              <= {LMB_WE_WIDTH{1'b1}};
+                we_b_3              <= {LMB_WE_WIDTH{1'b1}};
+            end
+            else begin     
+                en_a_3              <= 'b0;
+                en_b_3              <= 'b0;
+            end
+            
+            if(data_i_cnt == 2'b00) begin
+                din_a_3[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 2  -: input_width];    
+            end
+            else if (data_i_cnt == 2'b01) begin
+                din_a_3[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 2  -: input_width]; 
+            end
+            
+            if(data_i_cnt == 2'b10) begin
+                din_b_3[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 2  -: input_width];    
+            end
+            else if (data_i_cnt == 2'b11) begin
+                din_b_3[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 2  -: input_width]; 
+            end
+        end
+        else if(state == SETUP_CONV_FIRST) begin
+            en_a_3                  <= 'b0;
+            en_b_3                  <= 'b0;
+            we_a_3                  <= 'b0;
+            we_b_3                  <= 'b0;
+            addr_a_3                <= 'h0;
+            addr_b_3                <= 'h0;
         end
     end
 
