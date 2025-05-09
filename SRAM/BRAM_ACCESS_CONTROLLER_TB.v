@@ -3,6 +3,10 @@ module BRAM_ACCESS_CONTROLLER_TB;
     parameter                                       Q_INT_INPUT         = 2         ;
     parameter                                       Q_FRAC_INPUT        = 15        ;
 
+    parameter                                       LMB_DATA_WIDTH      = 40        ;
+    parameter                                       LMB_ADDR_WIDTH      = 32        ;
+    parameter                                       LMB_WE_WIDTH        = 5         ;
+
     parameter                                       HSIZE = 84                      ;
     parameter                                       VSIZE = 84                      ;
 
@@ -26,6 +30,11 @@ module BRAM_ACCESS_CONTROLLER_TB;
     reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              data_i_2                        ;
     
     wire [3*(Q_INT_INPUT+Q_FRAC_INPUT)-1:0]         data_i                          ;
+
+    reg                                             data_i_valid                    ;
+    reg                                             first                           ;
+    reg                                             last                            ;
+    reg                                             lastline                        ;
     
     assign                                          data_i = {data_i_0, data_i_1, data_i_2};
 
