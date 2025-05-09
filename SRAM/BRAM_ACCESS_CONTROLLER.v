@@ -4,7 +4,7 @@ module BRAM_ACCESS_CONTROLLER
     //parameter                                 AXI_STRB_WIDTH      = 8     ,
     //parameter                                 AXI_ADDR_WIDTH      = 32    ,
     parameter                                   LMB_DATA_WIDTH      = 40    ,
-    parameter                                   LMB_ADDR_WIDTH      = 32    ,
+    parameter                                   LMB_ADDR_WIDTH      = 12    ,
     parameter                                   LMB_WE_WIDTH        = 5     ,
     parameter                                   Q_INT_INPUT         = 2     ,
     parameter                                   Q_FRAC_INPUT        = 15

@@ -4,7 +4,7 @@ module BRAM_ACCESS_CONTROLLER_TB;
     parameter                                       Q_FRAC_INPUT        = 15        ;
 
     parameter                                       LMB_DATA_WIDTH      = 40        ;
-    parameter                                       LMB_ADDR_WIDTH      = 32        ;
+    parameter                                       LMB_ADDR_WIDTH      = 12        ;
     parameter                                       LMB_WE_WIDTH        = 5         ;
 
     parameter                                       HSIZE = 84                      ;
@@ -168,7 +168,7 @@ module BRAM_ACCESS_CONTROLLER_TB;
         .data_i_valid                   (data_i_valid   )   ,
         .first                          (first          )   ,
         .last                           (last           )   ,
-        .lastline                       (lastline       )   ,
+        .lastline                       (lastline       )
     );
 
     // -------------------------------------------------------------------------------

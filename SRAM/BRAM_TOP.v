@@ -1,7 +1,7 @@
 module BRAM_TOP
 #(
     parameter                                   LMB_DATA_WIDTH      = 40    ,
-    parameter                                   LMB_ADDR_WIDTH      = 32    ,
+    parameter                                   LMB_ADDR_WIDTH      = 12    ,
     parameter                                   LMB_WE_WIDTH        = 5     ,
     parameter                                   Q_INT_INPUT         = 2     ,
     parameter                                   Q_FRAC_INPUT        = 15
@@ -103,7 +103,7 @@ module BRAM_TOP
         .dout_b_3                               (dout_b_3       )
     );
 
-    blk_mem_gen_1
+    BRAM_40x3528_TDP_RF
     u_bram_1
     (
         // Port A
@@ -122,7 +122,7 @@ module BRAM_TOP
         .doutb                                  (dout_b_1       )
     );
 
-    blk_mem_gen_1
+    BRAM_40x3528_TDP_RF
     u_bram_2
     (
         // Port A
@@ -141,7 +141,7 @@ module BRAM_TOP
         .doutb                                  (dout_b_2       )
     );
 
-    blk_mem_gen_1
+    BRAM_40x3528_TDP_RF
     u_bram_3
     (
         // Port A
