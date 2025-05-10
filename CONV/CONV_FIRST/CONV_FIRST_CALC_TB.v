@@ -1,25 +1,25 @@
 module CONV_FIRST_CALC_TB;
 
     parameter                                       Q_INT_INPUT         = 2         ;
-    parameter                                       Q_FRAC_INPUT        = 15        ;
+    parameter                                       Q_FRAC_INPUT        = 13        ;
 
     parameter                                       Q_INT_WEIGHT        = 1         ;
-    parameter                                       Q_FRAC_WEIGHT       = 15        ;
+    parameter                                       Q_FRAC_WEIGHT       = 13        ;
 
     parameter                                       Q_INT_BIAS          = 1         ;
-    parameter                                       Q_FRAC_BIAS         = 15        ;
+    parameter                                       Q_FRAC_BIAS         = 13        ;
 
     parameter                                       Q_INT_SLOPE         = 3         ;
-    parameter                                       Q_FRAC_SLOPE        = 15        ;
+    parameter                                       Q_FRAC_SLOPE        = 13        ;
 
     parameter                                       Q_INT_INTERIM_1     = 3         ;
-    parameter                                       Q_FRAC_INTERIM_1    = 30        ;
+    parameter                                       Q_FRAC_INTERIM_1    = 26        ;
 
     parameter                                       Q_INT_INTERIM_2     = 3         ;
-    parameter                                       Q_FRAC_INTERIM_2    = 15        ;
+    parameter                                       Q_FRAC_INTERIM_2    = 13        ;
 
     parameter                                       Q_INT_OUTPUT        = 2         ;
-    parameter                                       Q_FRAC_OUTPUT       = 15        ;
+    parameter                                       Q_FRAC_OUTPUT       = 13        ;
 
 
 
@@ -293,7 +293,9 @@ module CONV_FIRST_CALC_TB;
             mean_error = 0;
             for (i = 0; i < num_output; i = i + 1) begin
                 if (mem_golden[i]) begin
-                	error = mem_golden[i] >= mem_output[i] ? mem_golden[i] - mem_output[i] : mem_output[i] - mem_golden[i];
+                	error = $signed(mem_golden[i]) >= $signed(mem_output[i]) ?
+                															$signed(mem_golden[i]) - $signed(mem_output[i]) :
+                															$signed(mem_output[i]) - $signed(mem_golden[i]);
                 	error = error / mem_golden[i] * 100;
                 end
                 else begin
@@ -304,7 +306,7 @@ module CONV_FIRST_CALC_TB;
                     i,
                     mem_golden[i],
                     mem_output[i],
-                    mem_golden[i] - mem_output[i],
+                    $signed(mem_golden[i]) - $signed(mem_output[i]),
                     error);
                 end
                 mean_error = mean_error + error;
