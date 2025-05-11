@@ -27,7 +27,7 @@ module SCALE_2 #(
     assign internal_operand = operand;
     assign internal_scale   = scale_table[layer_bits];
 
-    // === scale_table 초기화 (reset 시) ===
+    // === scale_table 초기화 ===
 
     always @(posedge clk) begin
         if (!rst_n) begin
