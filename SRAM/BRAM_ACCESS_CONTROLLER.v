@@ -206,7 +206,7 @@ module BRAM_ACCESS_CONTROLLER
         if (!rst_n) begin
             bram_transfer_enable    <= 1'b0;
         end
-        else if (data_i_cnt == 2'b01) begin
+        else if (data_i_cnt == 2'b10) begin
             bram_transfer_enable    <= 1'b1;
         end 
         else if (data_i_cnt == 2'b11) begin
@@ -242,11 +242,11 @@ module BRAM_ACCESS_CONTROLLER
             if (bram_transfer_enable) begin
                 if(first_buf) begin
                     addr_a_1        <= 'h0;
-                    addr_b_1        <= 'h5;
+                    addr_b_1        <= 'h1;
                 end
                 else begin
-                    addr_a_1        <= addr_a_1 + (LMB_DATA_WIDTH / 8);
-                    addr_b_1        <= addr_b_1 + (LMB_DATA_WIDTH / 8);
+                    addr_a_1        <= addr_a_1 + 'h2;
+                    addr_b_1        <= addr_b_1 + 'h2;
                 end
                 en_a_1              <= 1'b1;
                 en_b_1              <= 1'b1;
@@ -297,11 +297,11 @@ module BRAM_ACCESS_CONTROLLER
             if (bram_transfer_enable) begin
                 if(first_buf) begin
                     addr_a_2        <= 'h0;
-                    addr_b_2        <= 'h5;
+                    addr_b_2        <= 'h1;
                 end
                 else begin
-                    addr_a_2        <= addr_a_2 + (LMB_DATA_WIDTH / 8);
-                    addr_b_2        <= addr_b_2 + (LMB_DATA_WIDTH / 8);
+                    addr_a_2        <= addr_a_2 + 'h2;
+                    addr_b_2        <= addr_b_2 + 'h2;
                 end
                 en_a_2              <= 1'b1;
                 en_b_2              <= 1'b1;
@@ -352,11 +352,11 @@ module BRAM_ACCESS_CONTROLLER
             if (bram_transfer_enable) begin
                 if(first_buf) begin
                     addr_a_3        <= 'h0;
-                    addr_b_3        <= 'h5;
+                    addr_b_3        <= 'h1;
                 end
                 else begin
-                    addr_a_3        <= addr_a_3 + (LMB_DATA_WIDTH / 8);
-                    addr_b_3        <= addr_b_3 + (LMB_DATA_WIDTH / 8);
+                    addr_a_3        <= addr_a_3 + 'h2;
+                    addr_b_3        <= addr_b_3 + 'h2;
                 end
                 en_a_3              <= 1'b1;
                 en_b_3              <= 1'b1;
