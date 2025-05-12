@@ -13,11 +13,17 @@ module BRAM_ACCESS_CONTROLLER
     input wire                                  clk         ,
     input wire                                  rst_n       ,
 
-    input [3*(Q_INT_INPUT + Q_FRAC_INPUT)-1:0]  data_i      ,
-    input                                       data_i_valid,
-    input                                       first       ,
-    input                                       last        ,
-    input                                       lastline    ,
+    input [79:0]                                CORE_data_i,
+    input                                       CORE_data_i_valid,
+    input                                       CORE_first,
+    input                                       CORE_last,
+    input                                       CORE_lastline,
+    
+    input [31:0]                                AXI_data_i,
+    input                                       AXI_data_i_valid,
+    input                                       AXI_first,
+    input                                       AXI_last,
+    input                                       AXI_lastline,
     
     // LMB Channel 1
     output reg                                  en_a_1      ,
@@ -107,7 +113,7 @@ module BRAM_ACCESS_CONTROLLER
     localparam                      CONV_FIRST          = 4'd3;
     reg [3:0]                       state_n;
     reg [3:0]                       state;
-    reg                             lastline_buf;
+    reg                             AXI_lastline_buf;
     
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -120,13 +126,13 @@ module BRAM_ACCESS_CONTROLLER
     
     always @(posedge clk) begin
         if(!rst_n) begin
-            lastline_buf            <= 'b0;
+            AXI_lastline_buf            <= 'b0;
         end
-        else if (lastline) begin
-            lastline_buf            <= 'b1;
+        else if (AXI_lastline) begin
+            AXI_lastline_buf            <= 'b1;
         end 
-        else if (last) begin
-            lastline_buf            <= 'b0;
+        else if (AXI_last) begin
+            AXI_lastline_buf            <= 'b0;
         end
     end
     always @(*) begin
@@ -136,7 +142,7 @@ module BRAM_ACCESS_CONTROLLER
                 state_n             = INIT;
             end
             INIT : begin
-                if (lastline_buf & last) begin
+                if (AXI_lastline_buf & AXI_last) begin
                     state_n         = SETUP_CONV_FIRST;
                 end
             end
@@ -187,7 +193,7 @@ module BRAM_ACCESS_CONTROLLER
     // -----------------------------------------------------------------------------
     localparam                      input_width = Q_INT_INPUT + Q_FRAC_INPUT;
     reg                             bram_transfer_enable;
-    reg                             first_buf;
+    reg                             AXI_first_buf;
     reg [3:0]                       data_i_cnt;
     
     always @ (posedge clk) begin
@@ -195,7 +201,7 @@ module BRAM_ACCESS_CONTROLLER
             data_i_cnt              <= 4'b0000;
         end
         else if (state == INIT) begin
-            if(data_i_valid) begin
+            if(AXI_data_i_valid) begin
                 if(data_i_cnt > 9) begin
                     data_i_cnt      <= 4'b0000;
                 end
@@ -221,13 +227,13 @@ module BRAM_ACCESS_CONTROLLER
     
     always @ (posedge clk) begin
         if (!rst_n) begin
-            first_buf               <= 1'b0;
+            AXI_first_buf               <= 1'b0;
         end
-        else if (first) begin
-            first_buf               <= 1'b1;
+        else if (AXI_first) begin
+            AXI_first_buf               <= 1'b1;
         end
         else if (bram_transfer_enable) begin
-            first_buf               <= 1'b0;
+            AXI_first_buf               <= 1'b0;
         end
     end
     
@@ -259,36 +265,36 @@ module BRAM_ACCESS_CONTROLLER
                 en_b_1              <= 'b0;
             end
             
-            if(data_i_cnt == 4'b0000) begin
-                din_a_1[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width];    
+            if(data_i_cnt == 4'b0000)       begin
+                din_a_1[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width];    
             end
             else if (data_i_cnt == 4'b0001) begin
-                din_a_1[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+                din_a_1[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width]; 
             end
             else if (data_i_cnt == 4'b0010) begin
-                din_a_1[LMB_DATA_WIDTH-1 - input_width * 2 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+                din_a_1[LMB_DATA_WIDTH-1 - input_width * 2 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width]; 
             end
             else if (data_i_cnt == 4'b0011) begin
-                din_a_1[LMB_DATA_WIDTH-1 - input_width * 3 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+                din_a_1[LMB_DATA_WIDTH-1 - input_width * 3 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width]; 
             end
             else if (data_i_cnt == 4'b0100) begin
-                din_a_1[LMB_DATA_WIDTH-1 - input_width * 4 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+                din_a_1[LMB_DATA_WIDTH-1 - input_width * 4 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width]; 
             end
             
-            if(data_i_cnt == 4'b0101) begin
-                din_b_1[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width];    
+            if(data_i_cnt == 4'b0101)       begin
+                din_b_1[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width];    
             end
             else if (data_i_cnt == 4'b0110) begin
-                din_b_1[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+                din_b_1[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width]; 
             end
             else if (data_i_cnt == 4'b0111) begin
-                din_b_1[LMB_DATA_WIDTH-1 - input_width * 2 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+                din_b_1[LMB_DATA_WIDTH-1 - input_width * 2 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width]; 
             end
             else if (data_i_cnt == 4'b1000) begin
-                din_b_1[LMB_DATA_WIDTH-1 - input_width * 3 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+                din_b_1[LMB_DATA_WIDTH-1 - input_width * 3 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width]; 
             end
             else if (data_i_cnt == 4'b1001) begin
-                din_b_1[LMB_DATA_WIDTH-1 - input_width * 4 -: input_width] <= data_i[3*input_width-1 - input_width * 0  -: input_width]; 
+                din_b_1[LMB_DATA_WIDTH-1 - input_width * 4 -: input_width] <= AXI_data_i[31 - input_width * 0  -: input_width]; 
             end
         end
         else if(state == SETUP_CONV_FIRST) begin
@@ -314,51 +320,71 @@ module BRAM_ACCESS_CONTROLLER
             we_a_2                  <= 'b0;
             we_b_2                  <= 'b0;
             addr_a_2                <= 'h0;
-            addr_b_2                <= 'h0;
+            addr_b_2                <= 'h1;
             din_a_2                 <= 'b0;
             din_b_2                 <= 'b0;
+
         end
         else if (state == INIT) begin
             if (bram_transfer_enable) begin
-                if(first_buf) begin
-                    addr_a_2        <= 'h0;
-                    addr_b_2        <= 'h1;
-                end
-                else begin
-                    addr_a_2        <= addr_a_2 + 'h2;
-                    addr_b_2        <= addr_b_2 + 'h2;
-                end
+                addr_a_2        <= addr_a_2 + 'h2;
+                addr_b_2        <= addr_b_2 + 'h2;
+ 
                 en_a_2              <= 1'b1;
                 en_b_2              <= 1'b1;
                 we_a_2              <= {LMB_WE_WIDTH{1'b1}};
                 we_b_2              <= {LMB_WE_WIDTH{1'b1}};
             end
-            else begin     
+            else begin
                 en_a_2              <= 'b0;
                 en_b_2              <= 'b0;
             end
             
-            if(data_i_cnt == 2'b00) begin
-                din_a_2[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 1  -: input_width];    
+            if(data_i_cnt == 4'b0000)       begin
+                din_a_2[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width];    
             end
-            else if (data_i_cnt == 2'b01) begin
-                din_a_2[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 1  -: input_width]; 
+            else if (data_i_cnt == 4'b0001) begin
+                din_a_2[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b0010) begin
+                din_a_2[LMB_DATA_WIDTH-1 - input_width * 2 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b0011) begin
+                din_a_2[LMB_DATA_WIDTH-1 - input_width * 3 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b0100) begin
+                din_a_2[LMB_DATA_WIDTH-1 - input_width * 4 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width]; 
             end
             
-            if(data_i_cnt == 2'b10) begin
-                din_b_2[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 1  -: input_width];    
+            if(data_i_cnt == 4'b0101)       begin
+                din_b_2[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width];    
             end
-            else if (data_i_cnt == 2'b11) begin
-                din_b_2[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 1  -: input_width]; 
+            else if (data_i_cnt == 4'b0110) begin
+                din_b_2[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b0111) begin
+                din_b_2[LMB_DATA_WIDTH-1 - input_width * 2 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b1000) begin
+                din_b_2[LMB_DATA_WIDTH-1 - input_width * 3 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b1001) begin
+                din_b_2[LMB_DATA_WIDTH-1 - input_width * 4 -: input_width] <= AXI_data_i[31 - input_width * 1  -: input_width]; 
             end
         end
         else if(state == SETUP_CONV_FIRST) begin
-            en_a_2                  <= 'b0;
-            en_b_2                  <= 'b0;
+            en_a_2                  <= 'b1;
+            en_b_2                  <= 'b1;
             we_a_2                  <= 'b0;
             we_b_2                  <= 'b0;
-            addr_a_2                <= 'h0;
-            addr_b_2                <= 'h0;
+            
+            if(addr_a_2 > 1) begin
+                addr_a_2 <= addr_a_2 - 2;
+            end
+            if(addr_b_2 > 1) begin
+                addr_b_2 <= addr_b_2 - 2;
+            end           
+           
         end
     end
 
@@ -369,51 +395,71 @@ module BRAM_ACCESS_CONTROLLER
             we_a_3                  <= 'b0;
             we_b_3                  <= 'b0;
             addr_a_3                <= 'h0;
-            addr_b_3                <= 'h0;
+            addr_b_3                <= 'h1;
             din_a_3                 <= 'b0;
             din_b_3                 <= 'b0;
+
         end
         else if (state == INIT) begin
             if (bram_transfer_enable) begin
-                if(first_buf) begin
-                    addr_a_3        <= 'h0;
-                    addr_b_3        <= 'h1;
-                end
-                else begin
-                    addr_a_3        <= addr_a_3 + 'h2;
-                    addr_b_3        <= addr_b_3 + 'h2;
-                end
+                addr_a_3        <= addr_a_3 + 'h2;
+                addr_b_3        <= addr_b_3 + 'h2;
+ 
                 en_a_3              <= 1'b1;
                 en_b_3              <= 1'b1;
                 we_a_3              <= {LMB_WE_WIDTH{1'b1}};
                 we_b_3              <= {LMB_WE_WIDTH{1'b1}};
             end
-            else begin     
+            else begin
                 en_a_3              <= 'b0;
                 en_b_3              <= 'b0;
             end
             
-            if(data_i_cnt == 2'b00) begin
-                din_a_3[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 2  -: input_width];    
+            if(data_i_cnt == 4'b0000)       begin
+                din_a_3[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width];    
             end
-            else if (data_i_cnt == 2'b01) begin
-                din_a_3[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 2  -: input_width]; 
+            else if (data_i_cnt == 4'b0001) begin
+                din_a_3[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b0010) begin
+                din_a_3[LMB_DATA_WIDTH-1 - input_width * 2 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b0011) begin
+                din_a_3[LMB_DATA_WIDTH-1 - input_width * 3 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b0100) begin
+                din_a_3[LMB_DATA_WIDTH-1 - input_width * 4 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width]; 
             end
             
-            if(data_i_cnt == 2'b10) begin
-                din_b_3[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= data_i[3*input_width-1 - input_width * 2  -: input_width];    
+            if(data_i_cnt == 4'b0101)       begin
+                din_b_3[LMB_DATA_WIDTH-1 - input_width * 0 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width];    
             end
-            else if (data_i_cnt == 2'b11) begin
-                din_b_3[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= data_i[3*input_width-1 - input_width * 2  -: input_width]; 
+            else if (data_i_cnt == 4'b0110) begin
+                din_b_3[LMB_DATA_WIDTH-1 - input_width * 1 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b0111) begin
+                din_b_3[LMB_DATA_WIDTH-1 - input_width * 2 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b1000) begin
+                din_b_3[LMB_DATA_WIDTH-1 - input_width * 3 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width]; 
+            end
+            else if (data_i_cnt == 4'b1001) begin
+                din_b_3[LMB_DATA_WIDTH-1 - input_width * 4 -: input_width] <= AXI_data_i[31 - input_width * 2  -: input_width]; 
             end
         end
         else if(state == SETUP_CONV_FIRST) begin
-            en_a_3                  <= 'b0;
-            en_b_3                  <= 'b0;
+            en_a_3                  <= 'b1;
+            en_b_3                  <= 'b1;
             we_a_3                  <= 'b0;
             we_b_3                  <= 'b0;
-            addr_a_3                <= 'h0;
-            addr_b_3                <= 'h0;
+            
+            if(addr_a_3 > 1) begin
+                addr_a_3 <= addr_a_3 - 2;
+            end
+            if(addr_b_3 > 1) begin
+                addr_b_3 <= addr_b_3 - 2;
+            end           
+           
         end
     end
 
