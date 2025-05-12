@@ -23,10 +23,6 @@ FSRCNN은 다음의 데이터셋들을 사용함
 [Google Drive - Datasets](https://drive.google.com/drive/folders/1pRmhEmmY-tPF7uH8DuVthfHoApZWJ1QU)
 
 ## Checkpoints
-Epoch 50으로 학습해서 얻은 checkpoint들을, 아래의 Google Drive 링크에서 다운로드 받을 수 있음
-
-[Google Drive - FSRCNN Checkpoints](https://drive.google.com/drive/folders/1-iTW9oLEgwb61z9xCZGj1R3Yfk8xmvai?usp=sharing)
-
 **checkpoint_epoch_20_scale_quantization.pth가, 최종 버전**
 [Google Drive - FSRCNN_QAT_Checkpoints](https://drive.google.com/drive/folders/11lDyU3vFRGdnTkKqXconq_pI9yKaiSG2?usp=sharing)
 
