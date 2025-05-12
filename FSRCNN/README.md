@@ -27,7 +27,7 @@ Epoch 50으로 학습해서 얻은 checkpoint들을, 아래의 Google Drive 링�
 
 [Google Drive - FSRCNN Checkpoints](https://drive.google.com/drive/folders/1-iTW9oLEgwb61z9xCZGj1R3Yfk8xmvai?usp=sharing)
 
-- checkpoint_epoch_20_scale_quantization.pth가, scale까지 quantization된 최종 버전
+**checkpoint_epoch_20_scale_quantization.pth가, 최종 버전**
 [Google Drive - FSRCNN_QAT_Checkpoints](https://drive.google.com/drive/folders/11lDyU3vFRGdnTkKqXconq_pI9yKaiSG2?usp=sharing)
 
 ## Article
