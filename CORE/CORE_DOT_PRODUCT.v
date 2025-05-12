@@ -1,20 +1,20 @@
-module CONV_FIRST_DOT_PRODUCT
+module CORE_DOT_PRODUCT
 #(
-    // Assumption: Default data fixed point format = signed Q2.15
-    parameter                                                   Q_INT_DATA      = 2     ,
+    // Assumption: Default data fixed point format = signed Q4.15
+    parameter                                                   Q_INT_DATA      = 4     ,
     parameter                                                   Q_FRAC_DATA     = 15    ,
 
-    // Assumption: Default weight fixed point format = signed Q1.15
-    parameter                                                   Q_INT_WEIGHT    = 1     ,
-    parameter                                                   Q_FRAC_WEIGHT   = 15    ,
+    // Assumption: Default weight fixed point format = signed Q8.0
+    parameter                                                   Q_INT_WEIGHT    = 8     ,
+    parameter                                                   Q_FRAC_WEIGHT   = 0     ,
 
-    // Assumption: Default weight fixed point format = signed Q1.15
-    parameter                                                   Q_INT_BIAS      = 1     ,
-    parameter                                                   Q_FRAC_BIAS     = 15    ,
+    // Assumption: Default bias fixed point format = signed Q8.0
+    parameter                                                   Q_INT_BIAS      = 8     ,
+    parameter                                                   Q_FRAC_BIAS     = 0     ,
 
-    // Assumption: Default output fixed point format = signed Q3.30
-    parameter                                                   Q_INT_OUTPUT    = 3     ,
-    parameter                                                   Q_FRAC_OUTPUT   = 30
+    // Assumption: Default output fixed point format = signed Q12.15
+    parameter                                                   Q_INT_OUTPUT    = 12    ,
+    parameter                                                   Q_FRAC_OUTPUT   = 15
 )
 (
     input                                                       clk                     ,
@@ -97,6 +97,39 @@ module CONV_FIRST_DOT_PRODUCT
     input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_72                 ,
     input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_73                 ,
     input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_74                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_75                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_76                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_77                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_78                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_79                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_80                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_81                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_82                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_83                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_84                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_85                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_86                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_87                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_88                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_89                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_90                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_91                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_92                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_93                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_94                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_95                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_96                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_97                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_98                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_99                 ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_100                ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_101                ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_102                ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_103                ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_104                ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_105                ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_106                ,
+    input signed        [Q_INT_DATA + Q_FRAC_DATA -1:0]         data_107                ,
 
     input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_0                ,
     input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_1                ,
@@ -173,6 +206,39 @@ module CONV_FIRST_DOT_PRODUCT
     input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_72               ,
     input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_73               ,
     input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_74               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_75               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_76               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_77               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_78               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_79               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_80               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_81               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_82               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_83               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_84               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_85               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_86               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_87               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_88               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_89               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_90               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_91               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_92               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_93               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_94               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_95               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_96               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_97               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_98               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_99               ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_100              ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_101              ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_102              ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_103              ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_104              ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_105              ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_106              ,
+    input signed        [Q_INT_WEIGHT + Q_FRAC_WEIGHT -1:0]     weight_107              ,
 
     input signed        [Q_INT_BIAS + Q_FRAC_BIAS -1:0]         bias_i                  ,
 
@@ -251,14 +317,47 @@ module CONV_FIRST_DOT_PRODUCT
     output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_72               ,
     output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_73               ,
     output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_74               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_75               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_76               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_77               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_78               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_79               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_80               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_81               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_82               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_83               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_84               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_85               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_86               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_87               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_88               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_89               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_90               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_91               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_92               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_93               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_94               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_95               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_96               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_97               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_98               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_99               ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_100              ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_101              ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_102              ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_103              ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_104              ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_105              ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_106              ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     result_107              ,
 
     output reg signed   [Q_INT_BIAS + Q_FRAC_BIAS -1:0]         bias_o                  ,
 
     output reg                                                  adder_tree_enable
 );
 
-    wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0] internal_data      [0:74]          ;
-    wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0] internal_weight    [0:74]          ;
+    wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0] internal_data      [0:107]         ;
+    wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0] internal_weight    [0:107]         ;
 
     // sign extension: Qa.b -> Q(a+x).b
     assign internal_data[0]         = data_0                                            ;
@@ -336,6 +435,39 @@ module CONV_FIRST_DOT_PRODUCT
     assign internal_data[72]        = data_72                                           ;
     assign internal_data[73]        = data_73                                           ;
     assign internal_data[74]        = data_74                                           ;
+    assign internal_data[75]        = data_75                                           ;
+    assign internal_data[76]        = data_76                                           ;
+    assign internal_data[77]        = data_77                                           ;
+    assign internal_data[78]        = data_78                                           ;
+    assign internal_data[79]        = data_79                                           ;
+    assign internal_data[80]        = data_80                                           ;
+    assign internal_data[81]        = data_81                                           ;
+    assign internal_data[82]        = data_82                                           ;
+    assign internal_data[83]        = data_83                                           ;
+    assign internal_data[84]        = data_84                                           ;
+    assign internal_data[85]        = data_85                                           ;
+    assign internal_data[86]        = data_86                                           ;
+    assign internal_data[87]        = data_87                                           ;
+    assign internal_data[88]        = data_88                                           ;
+    assign internal_data[89]        = data_89                                           ;
+    assign internal_data[90]        = data_90                                           ;
+    assign internal_data[91]        = data_91                                           ;
+    assign internal_data[92]        = data_92                                           ;
+    assign internal_data[93]        = data_93                                           ;
+    assign internal_data[94]        = data_94                                           ;
+    assign internal_data[95]        = data_95                                           ;
+    assign internal_data[96]        = data_96                                           ;
+    assign internal_data[97]        = data_97                                           ;
+    assign internal_data[98]        = data_98                                           ;
+    assign internal_data[99]        = data_99                                           ;
+    assign internal_data[100]       = data_100                                          ;
+    assign internal_data[101]       = data_101                                          ;
+    assign internal_data[102]       = data_102                                          ;
+    assign internal_data[103]       = data_103                                          ;
+    assign internal_data[104]       = data_104                                          ;
+    assign internal_data[105]       = data_105                                          ;
+    assign internal_data[106]       = data_106                                          ;
+    assign internal_data[107]       = data_107                                          ;
 
     assign internal_weight[0]       = weight_0                                          ;
     assign internal_weight[1]       = weight_1                                          ;
@@ -412,6 +544,39 @@ module CONV_FIRST_DOT_PRODUCT
     assign internal_weight[72]      = weight_72                                         ;
     assign internal_weight[73]      = weight_73                                         ;
     assign internal_weight[74]      = weight_74                                         ;
+    assign internal_weight[75]      = weight_75                                         ;
+    assign internal_weight[76]      = weight_76                                         ;
+    assign internal_weight[77]      = weight_77                                         ;
+    assign internal_weight[78]      = weight_78                                         ;
+    assign internal_weight[79]      = weight_79                                         ;
+    assign internal_weight[80]      = weight_80                                         ;
+    assign internal_weight[81]      = weight_81                                         ;
+    assign internal_weight[82]      = weight_82                                         ;
+    assign internal_weight[83]      = weight_83                                         ;
+    assign internal_weight[84]      = weight_84                                         ;
+    assign internal_weight[85]      = weight_85                                         ;
+    assign internal_weight[86]      = weight_86                                         ;
+    assign internal_weight[87]      = weight_87                                         ;
+    assign internal_weight[88]      = weight_88                                         ;
+    assign internal_weight[89]      = weight_89                                         ;
+    assign internal_weight[90]      = weight_90                                         ;
+    assign internal_weight[91]      = weight_91                                         ;
+    assign internal_weight[92]      = weight_92                                         ;
+    assign internal_weight[93]      = weight_93                                         ;
+    assign internal_weight[94]      = weight_94                                         ;
+    assign internal_weight[95]      = weight_95                                         ;
+    assign internal_weight[96]      = weight_96                                         ;
+    assign internal_weight[97]      = weight_97                                         ;
+    assign internal_weight[98]      = weight_98                                         ;
+    assign internal_weight[99]      = weight_99                                         ;
+    assign internal_weight[100]     = weight_100                                        ;
+    assign internal_weight[101]     = weight_101                                        ;
+    assign internal_weight[102]     = weight_102                                        ;
+    assign internal_weight[103]     = weight_103                                        ;
+    assign internal_weight[104]     = weight_104                                        ;
+    assign internal_weight[105]     = weight_105                                        ;
+    assign internal_weight[106]     = weight_106                                        ;
+    assign internal_weight[107]     = weight_107                                        ;
 
     always @(posedge clk) begin
         if(!rst_n) begin
@@ -490,6 +655,39 @@ module CONV_FIRST_DOT_PRODUCT
             result_72      <= 'b0                                                       ;
             result_73      <= 'b0                                                       ;
             result_74      <= 'b0                                                       ;
+            result_75      <= 'b0                                                       ;
+            result_76      <= 'b0                                                       ;
+            result_77      <= 'b0                                                       ;
+            result_78      <= 'b0                                                       ;
+            result_79      <= 'b0                                                       ;
+            result_80      <= 'b0                                                       ;
+            result_81      <= 'b0                                                       ;
+            result_82      <= 'b0                                                       ;
+            result_83      <= 'b0                                                       ;
+            result_84      <= 'b0                                                       ;
+            result_85      <= 'b0                                                       ;
+            result_86      <= 'b0                                                       ;
+            result_87      <= 'b0                                                       ;
+            result_88      <= 'b0                                                       ;
+            result_89      <= 'b0                                                       ;
+            result_90      <= 'b0                                                       ;
+            result_91      <= 'b0                                                       ;
+            result_92      <= 'b0                                                       ;
+            result_93      <= 'b0                                                       ;
+            result_94      <= 'b0                                                       ;
+            result_95      <= 'b0                                                       ;
+            result_96      <= 'b0                                                       ;
+            result_97      <= 'b0                                                       ;
+            result_98      <= 'b0                                                       ;
+            result_99      <= 'b0                                                       ;
+            result_100     <= 'b0                                                       ;
+            result_101     <= 'b0                                                       ;
+            result_102     <= 'b0                                                       ;
+            result_103     <= 'b0                                                       ;
+            result_104     <= 'b0                                                       ;
+            result_105     <= 'b0                                                       ;
+            result_106     <= 'b0                                                       ;
+            result_107     <= 'b0                                                       ;
         end
         else if(dot_product_enable) begin
             result_0       <= internal_data[0 ]    * internal_weight[0 ]                ;
@@ -567,6 +765,39 @@ module CONV_FIRST_DOT_PRODUCT
             result_72      <= internal_data[72]    * internal_weight[72]                ;
             result_73      <= internal_data[73]    * internal_weight[73]                ;
             result_74      <= internal_data[74]    * internal_weight[74]                ;
+            result_75      <= internal_data[75]    * internal_weight[75]                ;
+            result_76      <= internal_data[76]    * internal_weight[76]                ;
+            result_77      <= internal_data[77]    * internal_weight[77]                ;
+            result_78      <= internal_data[78]    * internal_weight[78]                ;
+            result_79      <= internal_data[79]    * internal_weight[79]                ;
+            result_80      <= internal_data[80]    * internal_weight[80]                ;
+            result_81      <= internal_data[81]    * internal_weight[81]                ;
+            result_82      <= internal_data[82]    * internal_weight[82]                ;
+            result_83      <= internal_data[83]    * internal_weight[83]                ;
+            result_84      <= internal_data[84]    * internal_weight[84]                ;
+            result_85      <= internal_data[85]    * internal_weight[85]                ;
+            result_86      <= internal_data[86]    * internal_weight[86]                ;
+            result_87      <= internal_data[87]    * internal_weight[87]                ;
+            result_88      <= internal_data[88]    * internal_weight[88]                ;
+            result_89      <= internal_data[89]    * internal_weight[89]                ;
+            result_90      <= internal_data[90]    * internal_weight[90]                ;
+            result_91      <= internal_data[91]    * internal_weight[91]                ;
+            result_92      <= internal_data[92]    * internal_weight[92]                ;
+            result_93      <= internal_data[93]    * internal_weight[93]                ;
+            result_94      <= internal_data[94]    * internal_weight[94]                ;
+            result_95      <= internal_data[95]    * internal_weight[95]                ;
+            result_96      <= internal_data[96]    * internal_weight[96]                ;
+            result_97      <= internal_data[97]    * internal_weight[97]                ;
+            result_98      <= internal_data[98]    * internal_weight[98]                ;
+            result_99      <= internal_data[99]    * internal_weight[99]                ;
+            result_100     <= internal_data[100]   * internal_weight[100]               ;
+            result_101     <= internal_data[101]   * internal_weight[101]               ;
+            result_102     <= internal_data[102]   * internal_weight[102]               ;
+            result_103     <= internal_data[103]   * internal_weight[103]               ;
+            result_104     <= internal_data[104]   * internal_weight[104]               ;
+            result_105     <= internal_data[105]   * internal_weight[105]               ;
+            result_106     <= internal_data[106]   * internal_weight[106]               ;
+            result_107     <= internal_data[107]   * internal_weight[107]               ;
         end
     end
 

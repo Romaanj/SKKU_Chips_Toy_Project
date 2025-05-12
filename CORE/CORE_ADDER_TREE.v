@@ -1,21 +1,21 @@
-module CONV_FIRST_ADDER_TREE
+module CORE_ADDER_TREE
 #(
-    // Assumption: Default input fixed point format = signed Q3.30
-    parameter                                               Q_INT_INPUT     = 3                                 ,
-    parameter                                               Q_FRAC_INPUT    = 30                                ,
+    // Assumption: Default input fixed point format = signed Q12.15
+    parameter                                               Q_INT_INPUT     = 12                                ,
+    parameter                                               Q_FRAC_INPUT    = 15                                ,
 
-    // Assumption: Default bias fixed point format = signed Q1.15
-    parameter                                               Q_INT_BIAS      = 1                                 ,
-    parameter                                               Q_FRAC_BIAS     = 15                                ,
+    // Assumption: Default bias fixed point format = signed Q8.0
+    parameter                                               Q_INT_BIAS      = 8                                 ,
+    parameter                                               Q_FRAC_BIAS     = 0                                 ,
 
-    // Assumption: Default output fixed point format = signed Q2.15
-    parameter                                               Q_INT_OUTPUT    = 2                                 ,
+    // Assumption: Default output fixed point format = signed Q19.15
+    parameter                                               Q_INT_OUTPUT    = 19                                ,
     parameter                                               Q_FRAC_OUTPUT   = 15
 )
 (
     input                                                   clk                                                 ,
     input                                                   rst_n                                               ,
-    input                                                   adder_tree_middle_stage_enable                      ,
+    input                                                   adder_tree_first_stage_enable                      ,
 
     // By assumption, each addend has signed Q3.30
     input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_0                                            ,
@@ -93,10 +93,44 @@ module CONV_FIRST_ADDER_TREE
     input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_72                                           ,
     input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_73                                           ,
     input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_74                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_75                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_76                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_77                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_78                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_79                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_80                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_81                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_82                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_83                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_84                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_85                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_86                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_87                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_88                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_89                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_90                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_91                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_92                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_93                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_94                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_95                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_96                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_97                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_98                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_99                                           ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_100                                          ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_101                                          ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_102                                          ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_103                                          ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_104                                          ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_105                                          ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_106                                          ,
+    input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_107                                          ,
+
     input signed [Q_INT_BIAS + Q_FRAC_BIAS - 1:0]           bias                                                ,
 
     output reg signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]  adder_tree_result                                   ,
-    output reg                                              adder_tree_result_enable
+    output reg                                              adder_tree_second_stage_enable
 );
 
     localparam                                              width_stage_1   = Q_INT_INPUT + Q_FRAC_INPUT + 1    ;
@@ -113,8 +147,8 @@ module CONV_FIRST_ADDER_TREE
     // result   : signed Q(a+1).b
     // -------------------------------------------------------------------------------
 
-    wire signed [width_stage_1 - 1:0]                       stage_1_operand [0:75]                              ;
-    wire signed [width_stage_1 - 1:0]                       stage_1_result  [0:37]                              ; // 76 = 38 * 2
+    wire signed [width_stage_1 - 1:0]                       stage_1_operand [0:108]                             ;
+    wire signed [width_stage_1 - 1:0]                       stage_1_result  [0:54]                              ; // 109 = 54 * 2 + 1
 
     // sign extension: Qa.b -> Q(a+1).b
     assign stage_1_operand[0]       = addend_0                                                                  ;
@@ -192,7 +226,40 @@ module CONV_FIRST_ADDER_TREE
     assign stage_1_operand[72]      = addend_72                                                                 ;
     assign stage_1_operand[73]      = addend_73                                                                 ;
     assign stage_1_operand[74]      = addend_74                                                                 ;
-    assign stage_1_operand[75]      = bias << (Q_FRAC_INPUT - Q_FRAC_BIAS)                                      ;
+    assign stage_1_operand[75]      = addend_75                                                                 ;
+    assign stage_1_operand[76]      = addend_76                                                                 ;
+    assign stage_1_operand[77]      = addend_77                                                                 ;
+    assign stage_1_operand[78]      = addend_78                                                                 ;
+    assign stage_1_operand[79]      = addend_79                                                                 ;
+    assign stage_1_operand[80]      = addend_80                                                                 ;
+    assign stage_1_operand[81]      = addend_81                                                                 ;
+    assign stage_1_operand[82]      = addend_82                                                                 ;
+    assign stage_1_operand[83]      = addend_83                                                                 ;
+    assign stage_1_operand[84]      = addend_84                                                                 ;
+    assign stage_1_operand[85]      = addend_85                                                                 ;
+    assign stage_1_operand[86]      = addend_86                                                                 ;
+    assign stage_1_operand[87]      = addend_87                                                                 ;
+    assign stage_1_operand[88]      = addend_88                                                                 ;
+    assign stage_1_operand[89]      = addend_89                                                                 ;
+    assign stage_1_operand[90]      = addend_90                                                                 ;
+    assign stage_1_operand[91]      = addend_91                                                                 ;
+    assign stage_1_operand[92]      = addend_92                                                                 ;
+    assign stage_1_operand[93]      = addend_93                                                                 ;
+    assign stage_1_operand[94]      = addend_94                                                                 ;
+    assign stage_1_operand[95]      = addend_95                                                                 ;
+    assign stage_1_operand[96]      = addend_96                                                                 ;
+    assign stage_1_operand[97]      = addend_97                                                                 ;
+    assign stage_1_operand[98]      = addend_98                                                                 ;
+    assign stage_1_operand[99]      = addend_99                                                                 ;
+    assign stage_1_operand[100]     = addend_100                                                                ;
+    assign stage_1_operand[101]     = addend_101                                                                ;
+    assign stage_1_operand[102]     = addend_102                                                                ;
+    assign stage_1_operand[103]     = addend_103                                                                ;
+    assign stage_1_operand[104]     = addend_104                                                                ;
+    assign stage_1_operand[105]     = addend_105                                                                ;
+    assign stage_1_operand[106]     = addend_106                                                                ;
+    assign stage_1_operand[107]     = addend_107                                                                ;
+    assign stage_1_operand[108]     = bias << (Q_FRAC_INPUT - Q_FRAC_BIAS)                                      ;
 
     assign stage_1_result[0]        = stage_1_operand[0 ]   +   stage_1_operand[1 ]                             ;
     assign stage_1_result[1]        = stage_1_operand[2 ]   +   stage_1_operand[3 ]                             ;
@@ -232,6 +299,23 @@ module CONV_FIRST_ADDER_TREE
     assign stage_1_result[35]       = stage_1_operand[70]   +   stage_1_operand[71]                             ;
     assign stage_1_result[36]       = stage_1_operand[72]   +   stage_1_operand[73]                             ;
     assign stage_1_result[37]       = stage_1_operand[74]   +   stage_1_operand[75]                             ;
+    assign stage_1_result[38]       = stage_1_operand[76]   +   stage_1_operand[77]                             ;
+    assign stage_1_result[39]       = stage_1_operand[78]   +   stage_1_operand[79]                             ;
+    assign stage_1_result[40]       = stage_1_operand[80]   +   stage_1_operand[81]                             ;
+    assign stage_1_result[41]       = stage_1_operand[82]   +   stage_1_operand[83]                             ;
+    assign stage_1_result[42]       = stage_1_operand[84]   +   stage_1_operand[85]                             ;
+    assign stage_1_result[43]       = stage_1_operand[86]   +   stage_1_operand[87]                             ;
+    assign stage_1_result[44]       = stage_1_operand[88]   +   stage_1_operand[89]                             ;
+    assign stage_1_result[45]       = stage_1_operand[90]   +   stage_1_operand[91]                             ;
+    assign stage_1_result[46]       = stage_1_operand[92]   +   stage_1_operand[93]                             ;
+    assign stage_1_result[47]       = stage_1_operand[94]   +   stage_1_operand[95]                             ;
+    assign stage_1_result[48]       = stage_1_operand[96]   +   stage_1_operand[97]                             ;
+    assign stage_1_result[49]       = stage_1_operand[98]   +   stage_1_operand[99]                             ;
+    assign stage_1_result[50]       = stage_1_operand[100]  +   stage_1_operand[101]                            ;
+    assign stage_1_result[51]       = stage_1_operand[102]  +   stage_1_operand[103]                            ;
+    assign stage_1_result[52]       = stage_1_operand[104]  +   stage_1_operand[105]                            ;
+    assign stage_1_result[53]       = stage_1_operand[106]  +   stage_1_operand[107]                            ;
+    assign stage_1_result[54]       = stage_1_operand[108]                                                      ;
     
     // -------------------------------------------------------------------------------
     // stage 1 end
@@ -243,8 +327,8 @@ module CONV_FIRST_ADDER_TREE
     // result   : signed Q(a+2).b
     // -------------------------------------------------------------------------------
 
-    wire signed [width_stage_2 - 1:0]               stage_2_operand [0:37]                                      ;
-    wire signed [width_stage_2 - 1:0]               stage_2_result  [0:18]                                      ; // 38 = 19 * 2
+    wire signed [width_stage_2 - 1:0]               stage_2_operand [0:54]                                      ;
+    wire signed [width_stage_2 - 1:0]               stage_2_result  [0:27]                                      ; // 55 = 27 * 2 + 1
 
     // sign extension: Q(a+1).b -> Q(a+2).b
     assign stage_2_operand[0]       = stage_1_result[0 ]                                                        ;
@@ -285,6 +369,23 @@ module CONV_FIRST_ADDER_TREE
     assign stage_2_operand[35]      = stage_1_result[35]                                                        ;
     assign stage_2_operand[36]      = stage_1_result[36]                                                        ;
     assign stage_2_operand[37]      = stage_1_result[37]                                                        ;
+    assign stage_2_operand[38]      = stage_1_result[38]                                                        ;
+    assign stage_2_operand[39]      = stage_1_result[39]                                                        ;
+    assign stage_2_operand[40]      = stage_1_result[40]                                                        ;
+    assign stage_2_operand[41]      = stage_1_result[41]                                                        ;
+    assign stage_2_operand[42]      = stage_1_result[42]                                                        ;
+    assign stage_2_operand[43]      = stage_1_result[43]                                                        ;
+    assign stage_2_operand[44]      = stage_1_result[44]                                                        ;
+    assign stage_2_operand[45]      = stage_1_result[45]                                                        ;
+    assign stage_2_operand[46]      = stage_1_result[46]                                                        ;
+    assign stage_2_operand[47]      = stage_1_result[47]                                                        ;
+    assign stage_2_operand[48]      = stage_1_result[48]                                                        ;
+    assign stage_2_operand[49]      = stage_1_result[49]                                                        ;
+    assign stage_2_operand[50]      = stage_1_result[50]                                                        ;
+    assign stage_2_operand[51]      = stage_1_result[51]                                                        ;
+    assign stage_2_operand[52]      = stage_1_result[52]                                                        ;
+    assign stage_2_operand[53]      = stage_1_result[53]                                                        ;
+    assign stage_2_operand[54]      = stage_1_result[54]                                                        ;
 
     assign stage_2_result[0]        = stage_2_operand[0 ]   +   stage_2_operand[1 ]                             ;
     assign stage_2_result[1]        = stage_2_operand[2 ]   +   stage_2_operand[3 ]                             ;
@@ -305,6 +406,15 @@ module CONV_FIRST_ADDER_TREE
     assign stage_2_result[16]       = stage_2_operand[32]   +   stage_2_operand[33]                             ;
     assign stage_2_result[17]       = stage_2_operand[34]   +   stage_2_operand[35]                             ;
     assign stage_2_result[18]       = stage_2_operand[36]   +   stage_2_operand[37]                             ;
+    assign stage_2_result[19]       = stage_2_operand[38]   +   stage_2_operand[39]                             ;
+    assign stage_2_result[20]       = stage_2_operand[40]   +   stage_2_operand[41]                             ;
+    assign stage_2_result[21]       = stage_2_operand[42]   +   stage_2_operand[43]                             ;
+    assign stage_2_result[22]       = stage_2_operand[44]   +   stage_2_operand[45]                             ;
+    assign stage_2_result[23]       = stage_2_operand[46]   +   stage_2_operand[47]                             ;
+    assign stage_2_result[24]       = stage_2_operand[48]   +   stage_2_operand[49]                             ;
+    assign stage_2_result[25]       = stage_2_operand[50]   +   stage_2_operand[51]                             ;
+    assign stage_2_result[26]       = stage_2_operand[52]   +   stage_2_operand[53]                             ;
+    assign stage_2_result[27]       = stage_2_operand[54]                                                       ;
 
     // -------------------------------------------------------------------------------
     // stage 2 end
@@ -316,40 +426,53 @@ module CONV_FIRST_ADDER_TREE
     // result   : signed Q(a+3).b
     // -------------------------------------------------------------------------------
 
-    wire signed [width_stage_3 - 1:0]               stage_3_operand [0:18]                      ;
-    wire signed [width_stage_3 - 1:0]               stage_3_result  [0:9]                       ; // 19 = 9 * 2 + 1
+    wire signed [width_stage_3 - 1:0]               stage_3_operand [0:27]                                      ;
+    wire signed [width_stage_3 - 1:0]               stage_3_result  [0:13]                                      ; // 28 = 14 * 2
 
     // sign extension: Q(a+2).b -> Q(a+3).b
-    assign stage_3_operand[0]       = stage_2_result[0 ]                                        ;
-    assign stage_3_operand[1]       = stage_2_result[1 ]                                        ;
-    assign stage_3_operand[2]       = stage_2_result[2 ]                                        ;
-    assign stage_3_operand[3]       = stage_2_result[3 ]                                        ;
-    assign stage_3_operand[4]       = stage_2_result[4 ]                                        ;
-    assign stage_3_operand[5]       = stage_2_result[5 ]                                        ;
-    assign stage_3_operand[6]       = stage_2_result[6 ]                                        ;
-    assign stage_3_operand[7]       = stage_2_result[7 ]                                        ;
-    assign stage_3_operand[8]       = stage_2_result[8 ]                                        ;
-    assign stage_3_operand[9]       = stage_2_result[9 ]                                        ;
-    assign stage_3_operand[10]      = stage_2_result[10]                                        ;
-    assign stage_3_operand[11]      = stage_2_result[11]                                        ;
-    assign stage_3_operand[12]      = stage_2_result[12]                                        ;
-    assign stage_3_operand[13]      = stage_2_result[13]                                        ;
-    assign stage_3_operand[14]      = stage_2_result[14]                                        ;
-    assign stage_3_operand[15]      = stage_2_result[15]                                        ;
-    assign stage_3_operand[16]      = stage_2_result[16]                                        ;
-    assign stage_3_operand[17]      = stage_2_result[17]                                        ;
-    assign stage_3_operand[18]      = stage_2_result[18]                                        ;
+    assign stage_3_operand[0]       = stage_2_result[0 ]                                                        ;
+    assign stage_3_operand[1]       = stage_2_result[1 ]                                                        ;
+    assign stage_3_operand[2]       = stage_2_result[2 ]                                                        ;
+    assign stage_3_operand[3]       = stage_2_result[3 ]                                                        ;
+    assign stage_3_operand[4]       = stage_2_result[4 ]                                                        ;
+    assign stage_3_operand[5]       = stage_2_result[5 ]                                                        ;
+    assign stage_3_operand[6]       = stage_2_result[6 ]                                                        ;
+    assign stage_3_operand[7]       = stage_2_result[7 ]                                                        ;
+    assign stage_3_operand[8]       = stage_2_result[8 ]                                                        ;
+    assign stage_3_operand[9]       = stage_2_result[9 ]                                                        ;
+    assign stage_3_operand[10]      = stage_2_result[10]                                                        ;
+    assign stage_3_operand[11]      = stage_2_result[11]                                                        ;
+    assign stage_3_operand[12]      = stage_2_result[12]                                                        ;
+    assign stage_3_operand[13]      = stage_2_result[13]                                                        ;
+    assign stage_3_operand[14]      = stage_2_result[14]                                                        ;
+    assign stage_3_operand[15]      = stage_2_result[15]                                                        ;
+    assign stage_3_operand[16]      = stage_2_result[16]                                                        ;
+    assign stage_3_operand[17]      = stage_2_result[17]                                                        ;
+    assign stage_3_operand[18]      = stage_2_result[18]                                                        ;
+    assign stage_3_operand[19]      = stage_2_result[19]                                                        ;
+    assign stage_3_operand[20]      = stage_2_result[20]                                                        ;
+    assign stage_3_operand[21]      = stage_2_result[21]                                                        ;
+    assign stage_3_operand[22]      = stage_2_result[22]                                                        ;
+    assign stage_3_operand[23]      = stage_2_result[23]                                                        ;
+    assign stage_3_operand[24]      = stage_2_result[24]                                                        ;
+    assign stage_3_operand[25]      = stage_2_result[25]                                                        ;
+    assign stage_3_operand[26]      = stage_2_result[26]                                                        ;
+    assign stage_3_operand[27]      = stage_2_result[27]                                                        ;
 
-    assign stage_3_result[0]        = stage_3_operand[0 ]   +   stage_3_operand[1 ]             ;
-    assign stage_3_result[1]        = stage_3_operand[2 ]   +   stage_3_operand[3 ]             ;
-    assign stage_3_result[2]        = stage_3_operand[4 ]   +   stage_3_operand[5 ]             ;
-    assign stage_3_result[3]        = stage_3_operand[6 ]   +   stage_3_operand[7 ]             ;
-    assign stage_3_result[4]        = stage_3_operand[8 ]   +   stage_3_operand[9 ]             ;
-    assign stage_3_result[5]        = stage_3_operand[10]   +   stage_3_operand[11]             ;
-    assign stage_3_result[6]        = stage_3_operand[12]   +   stage_3_operand[13]             ;
-    assign stage_3_result[7]        = stage_3_operand[14]   +   stage_3_operand[15]             ;
-    assign stage_3_result[8]        = stage_3_operand[16]   +   stage_3_operand[17]             ;
-    assign stage_3_result[9]        = stage_3_operand[18]                                       ;
+    assign stage_3_result[0]        = stage_3_operand[0 ]   +   stage_3_operand[1 ]                             ;
+    assign stage_3_result[1]        = stage_3_operand[2 ]   +   stage_3_operand[3 ]                             ;
+    assign stage_3_result[2]        = stage_3_operand[4 ]   +   stage_3_operand[5 ]                             ;
+    assign stage_3_result[3]        = stage_3_operand[6 ]   +   stage_3_operand[7 ]                             ;
+    assign stage_3_result[4]        = stage_3_operand[8 ]   +   stage_3_operand[9 ]                             ;
+    assign stage_3_result[5]        = stage_3_operand[10]   +   stage_3_operand[11]                             ;
+    assign stage_3_result[6]        = stage_3_operand[12]   +   stage_3_operand[13]                             ;
+    assign stage_3_result[7]        = stage_3_operand[14]   +   stage_3_operand[15]                             ;
+    assign stage_3_result[8]        = stage_3_operand[16]   +   stage_3_operand[17]                             ;
+    assign stage_3_result[9]        = stage_3_operand[18]   +   stage_3_operand[19]                             ;
+    assign stage_3_result[10]       = stage_3_operand[20]   +   stage_3_operand[21]                             ;
+    assign stage_3_result[11]       = stage_3_operand[22]   +   stage_3_operand[23]                             ;
+    assign stage_3_result[12]       = stage_3_operand[24]   +   stage_3_operand[25]                             ;
+    assign stage_3_result[13]       = stage_3_operand[26]   +   stage_3_operand[27]                             ;
 
     // -------------------------------------------------------------------------------
     // stage 3 end
@@ -361,27 +484,34 @@ module CONV_FIRST_ADDER_TREE
     // result   : signed Q(a+4).b
     // -------------------------------------------------------------------------------
 
-    wire signed [width_stage_4 - 1:0]               stage_4_operand     [0:9]                   ;
-    wire signed [width_stage_4 - 1:0]               stage_4_result      [0:4]                   ; // 10 = 5 * 2
-    reg signed  [width_stage_4 - 1:0]               stage_4_result_reg  [0:4]                   ;
+    wire signed [width_stage_4 - 1:0]               stage_4_operand     [0:13]                                  ;
+    wire signed [width_stage_4 - 1:0]               stage_4_result      [0:6]                                   ; // 14 = 7 * 2
+    reg signed  [width_stage_4 - 1:0]               stage_4_result_reg  [0:6]                                   ;
+    reg                                             adder_tree_second_stage_enable                              ;
 
     // sign extension: Q(a+3).b -> Q(a+4).b
-    assign stage_4_operand[0]       = stage_3_result[0 ]                                        ;
-    assign stage_4_operand[1]       = stage_3_result[1 ]                                        ;
-    assign stage_4_operand[2]       = stage_3_result[2 ]                                        ;
-    assign stage_4_operand[3]       = stage_3_result[3 ]                                        ;
-    assign stage_4_operand[4]       = stage_3_result[4 ]                                        ;
-    assign stage_4_operand[5]       = stage_3_result[5 ]                                        ;
-    assign stage_4_operand[6]       = stage_3_result[6 ]                                        ;
-    assign stage_4_operand[7]       = stage_3_result[7 ]                                        ;
-    assign stage_4_operand[8]       = stage_3_result[8 ]                                        ;
-    assign stage_4_operand[9]       = stage_3_result[9 ]                                        ;
+    assign stage_4_operand[0]       = stage_3_result[0 ]                                                        ;
+    assign stage_4_operand[1]       = stage_3_result[1 ]                                                        ;
+    assign stage_4_operand[2]       = stage_3_result[2 ]                                                        ;
+    assign stage_4_operand[3]       = stage_3_result[3 ]                                                        ;
+    assign stage_4_operand[4]       = stage_3_result[4 ]                                                        ;
+    assign stage_4_operand[5]       = stage_3_result[5 ]                                                        ;
+    assign stage_4_operand[6]       = stage_3_result[6 ]                                                        ;
+    assign stage_4_operand[7]       = stage_3_result[7 ]                                                        ;
+    assign stage_4_operand[8]       = stage_3_result[8 ]                                                        ;
+    assign stage_4_operand[9]       = stage_3_result[9 ]                                                        ;
+    assign stage_4_operand[10]      = stage_3_result[10]                                                        ;
+    assign stage_4_operand[11]      = stage_3_result[11]                                                        ;
+    assign stage_4_operand[12]      = stage_3_result[12]                                                        ;
+    assign stage_4_operand[13]      = stage_3_result[13]                                                        ;
 
-    assign stage_4_result[0]        = stage_4_operand[0 ]   +   stage_4_operand[1 ]             ;
-    assign stage_4_result[1]        = stage_4_operand[2 ]   +   stage_4_operand[3 ]             ;
-    assign stage_4_result[2]        = stage_4_operand[4 ]   +   stage_4_operand[5 ]             ;
-    assign stage_4_result[3]        = stage_4_operand[6 ]   +   stage_4_operand[7 ]             ;
-    assign stage_4_result[4]        = stage_4_operand[8 ]   +   stage_4_operand[9 ]             ;
+    assign stage_4_result[0]        = stage_4_operand[0 ]   +   stage_4_operand[1 ]                             ;
+    assign stage_4_result[1]        = stage_4_operand[2 ]   +   stage_4_operand[3 ]                             ;
+    assign stage_4_result[2]        = stage_4_operand[4 ]   +   stage_4_operand[5 ]                             ;
+    assign stage_4_result[3]        = stage_4_operand[6 ]   +   stage_4_operand[7 ]                             ;
+    assign stage_4_result[4]        = stage_4_operand[8 ]   +   stage_4_operand[9 ]                             ;
+    assign stage_4_result[5]        = stage_4_operand[10]   +   stage_4_operand[11]                             ;
+    assign stage_4_result[6]        = stage_4_operand[12]   +   stage_4_operand[13]                             ;
 
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -390,25 +520,29 @@ module CONV_FIRST_ADDER_TREE
             stage_4_result_reg[2]   <= 'd0;
             stage_4_result_reg[3]   <= 'd0;
             stage_4_result_reg[4]   <= 'd0;
+            stage_4_result_reg[5]   <= 'd0;
+            stage_4_result_reg[6]   <= 'd0;
         end
-        else if (adder_tree_middle_stage_enable) begin
+        else if (adder_tree_first_stage_enable) begin
             stage_4_result_reg[0]   <= stage_4_result[0];
             stage_4_result_reg[1]   <= stage_4_result[1];
             stage_4_result_reg[2]   <= stage_4_result[2];
             stage_4_result_reg[3]   <= stage_4_result[3];
             stage_4_result_reg[4]   <= stage_4_result[4];
+            stage_4_result_reg[5]   <= stage_4_result[5];
+            stage_4_result_reg[6]   <= stage_4_result[6];
         end
     end
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            adder_tree_result_enable <= 1'b0;
+            adder_tree_second_stage_enable <= 1'b0;
         end
-        else if (adder_tree_middle_stage_enable) begin
-            adder_tree_result_enable <= 1'b1;
+        else if (adder_tree_first_stage_enable) begin
+            adder_tree_second_stage_enable <= 1'b1;
         end
-        else if (adder_tree_result_enable) begin
-            adder_tree_result_enable <= 1'b0;
+        else if (adder_tree_second_stage_enable) begin
+            adder_tree_second_stage_enable <= 1'b0;
         end
     end
 
@@ -422,8 +556,8 @@ module CONV_FIRST_ADDER_TREE
     // result   : signed Q(a+5).b
     // -------------------------------------------------------------------------------
 
-    wire signed [width_stage_5 - 1:0]               stage_5_operand     [0:4]                   ;
-    wire signed [width_stage_5 - 1:0]               stage_5_result      [0:2]                   ; // 5 = 2 * 2 + 1
+    wire signed [width_stage_5 - 1:0]               stage_5_operand     [0:6]                   ;
+    wire signed [width_stage_5 - 1:0]               stage_5_result      [0:3]                   ; // 7 = 3 * 2 + 1
 
     // sign extension: Q(a+4).b -> Q(a+5).b
     assign stage_5_operand[0]       = stage_4_result_reg[0 ]                                    ;
@@ -431,10 +565,13 @@ module CONV_FIRST_ADDER_TREE
     assign stage_5_operand[2]       = stage_4_result_reg[2 ]                                    ;
     assign stage_5_operand[3]       = stage_4_result_reg[3 ]                                    ;
     assign stage_5_operand[4]       = stage_4_result_reg[4 ]                                    ;
+    assign stage_5_operand[5]       = stage_4_result_reg[5 ]                                    ;
+    assign stage_5_operand[6]       = stage_4_result_reg[6 ]                                    ;
 
     assign stage_5_result[0]        = stage_5_operand[0 ]   +   stage_5_operand[1 ]             ;
     assign stage_5_result[1]        = stage_5_operand[2 ]   +   stage_5_operand[3 ]             ;
-    assign stage_5_result[2]        = stage_5_operand[4 ]                                       ;
+    assign stage_5_result[2]        = stage_5_operand[4 ]   +   stage_5_operand[5 ]             ;
+    assign stage_5_result[3]        = stage_5_operand[6 ]                                       ;
 
     // -------------------------------------------------------------------------------
     // stage 5 end
@@ -446,16 +583,17 @@ module CONV_FIRST_ADDER_TREE
     // result   : signed Q(a+6).b
     // -------------------------------------------------------------------------------
 
-    wire signed [width_stage_6 - 1:0]               stage_6_operand     [0:2]                   ;
-    wire signed [width_stage_6 - 1:0]               stage_6_result      [0:1]                   ; // 3 = 1 * 2 + 1
+    wire signed [width_stage_6 - 1:0]               stage_6_operand     [0:3]                   ;
+    wire signed [width_stage_6 - 1:0]               stage_6_result      [0:2]                   ; // 4 = 2 * 2
 
     // sign extension: Q(a+5).b -> Q(a+6).b
     assign stage_6_operand[0]       = stage_5_result[0 ]                                        ;
     assign stage_6_operand[1]       = stage_5_result[1 ]                                        ;
     assign stage_6_operand[2]       = stage_5_result[2 ]                                        ;
+    assign stage_6_operand[3]       = stage_5_result[3 ]                                        ;
 
     assign stage_6_result[0]        = stage_6_operand[0 ]   +   stage_6_operand[1 ]             ;
-    assign stage_6_result[1]        = stage_6_operand[2 ]                                       ;
+    assign stage_6_result[1]        = stage_6_operand[2 ]   +   stage_6_operand[3 ]             ;
 
     // -------------------------------------------------------------------------------
     // stage 6 end
@@ -489,9 +627,21 @@ module CONV_FIRST_ADDER_TREE
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            adder_tree_result   <= 'd0;
+            adder_tree_second_stage_enable <= 1'b0;
+        end
+        else if (adder_tree_second_stage_enable) begin
+            adder_tree_result_enable <= 1'b1;
         end
         else if (adder_tree_result_enable) begin
+            adder_tree_result_enable <= 1'b0;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            adder_tree_result   <= 'd0;
+        end
+        else if (adder_tree_second_stage_enable) begin
             adder_tree_result   <= stage_7_result >> (Q_FRAC_INPUT - Q_FRAC_OUTPUT)             ;
         end
     end

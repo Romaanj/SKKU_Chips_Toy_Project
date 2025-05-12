@@ -1,12 +1,16 @@
 module PReLU
 #(
-    // Assumption: Default fixed point format = signed Q1.15
-    parameter                                                   Q_INT_data      = 1                 ,
-    parameter                                                   Q_FRAC_data     = 15                ,
-    parameter                                                   Q_INT_slope     = 1                 ,
-    parameter                                                   Q_FRAC_slope    = 15                ,
-    parameter                                                   Q_INT_result    = 1                 ,
-    parameter                                                   Q_FRAC_result   = 15
+    // Assumption: Default input fixed point format = signed Q20.29
+    parameter                                                   Q_INT_data      = 20                ,
+    parameter                                                   Q_FRAC_data     = 29                ,
+
+    // Assumption: Default slope fixed point format = signed Q8.0
+    parameter                                                   Q_INT_slope     = 8                 ,
+    parameter                                                   Q_FRAC_slope    = 0                 ,
+
+    // Assumption: Default result fixed point format = signed Q4.15
+    parameter                                                   Q_INT_result    = 28                ,
+    parameter                                                   Q_FRAC_result   = 29
 )
 (
     input                                                       clk                                 ,
