@@ -1,27 +1,44 @@
 module CORE_TB;
 
+    // Assumption: Default input fixed point format = signed Q4.15
     parameter                                       Q_INT_INPUT         = 4         ;
     parameter                                       Q_FRAC_INPUT        = 15        ;
 
-    parameter                                       Q_INT_WEIGHT        = 1         ;
-    parameter                                       Q_FRAC_WEIGHT       = 15        ;
+    // Assumption: Default weight fixed point format = signed Q8.0
+    parameter                                       Q_INT_WEIGHT        = 8         ;
+    parameter                                       Q_FRAC_WEIGHT       = 0         ;
 
-    parameter                                       Q_INT_BIAS          = 1         ;
-    parameter                                       Q_FRAC_BIAS         = 15        ;
+    // Assumption: Default bias fixed point format = signed Q8.0
+    parameter                                       Q_INT_BIAS          = 8         ;
+    parameter                                       Q_FRAC_BIAS         = 0         ;
 
-    parameter                                       Q_INT_SLOPE         = 3         ;
-    parameter                                       Q_FRAC_SLOPE        = 15        ;
+    // Assumption: Default bias fixed point format = signed Q8.0
+    parameter                                       Q_INT_SLOPE         = 8         ;
+    parameter                                       Q_FRAC_SLOPE        = 0         ;
 
-    parameter                                       Q_INT_INTERIM_1     = 3         ;
-    parameter                                       Q_FRAC_INTERIM_1    = 30        ;
+    // Assumption: Default scale fixed point format = signed Q1.14
+    parameter                                       Q_INT_SCALE         = 1         ;
+    parameter                                       Q_FRAC_SCALE        = 14        ;
 
-    parameter                                       Q_INT_INTERIM_2     = 3         ;
+    // Assumption: Default dot prod result fixed point format = signed Q12.15
+    parameter                                       Q_INT_INTERIM_1     = 12        ;
+    parameter                                       Q_FRAC_INTERIM_1    = 15        ;
+
+    // Assumption: Default adder tree result fixed point format = signed Q19.15
+    parameter                                       Q_INT_INTERIM_2     = 19        ;
     parameter                                       Q_FRAC_INTERIM_2    = 15        ;
 
+    // Assumption: Default conv2d result fixed point format = signed Q20.29
+    parameter                                       Q_INT_INTERIM_3     = 20        ;
+    parameter                                       Q_FRAC_INTERIM_3    = 29        ;
+
+    // Assumption: Default PReLU result fixed point format = signed Q28.29
+    parameter                                       Q_INT_INTERIM_4     = 28        ;
+    parameter                                       Q_FRAC_INTERIM_4    = 29        ;
+
+    // Assumption: Default output fixed point format = signed Q4.15
     parameter                                       Q_INT_OUTPUT        = 4         ;
     parameter                                       Q_FRAC_OUTPUT       = 15        ;
-
-
 
     parameter                                       HSIZE = 84                      ;
     parameter                                       VSIZE = 84                      ;
@@ -48,6 +65,20 @@ module CORE_TB;
     reg [Q_INT_BIAS+Q_FRAC_BIAS-1:0]                mem_bias    [0:0]               ;
     reg [Q_INT_SLOPE+Q_FRAC_SLOPE-1:0]              mem_slope   [0:0]               ;
 
+    // layer bits:
+    // 0 → conv_first.0 (Conv2d)
+    // 0 → conv_first.1_alpha (PReLU)
+    // 1 → conv_shrink.0 (Conv2d)
+    // 1 → conv_shrink.1_alpha (PReLU)
+    // 2 → conv_mapping.0 (Conv2d)
+    // 3 → conv_mapping.1 (Conv2d)
+    // 4 → conv_mapping.2 (Conv2d)
+    // 5 → conv_mapping.3 (Conv2d)
+    // 5 → conv_mapping.4 (PReLU)
+    // 6 → conv_expanding.0 (Conv2d)
+    // 6 → conv_expanding.1_alpha (PReLU)
+    // 7 → conv_last (Conv2d)
+    reg [2:0]                                       layer_bits                      ;
     reg                                             convolution_enable              ;
 
     reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_golden  [0:mem_size-1]      ;
@@ -241,21 +272,25 @@ module CORE_TB;
         integer ii;
         integer jj;
         begin
-            for (i = 0; i < VSIZE; i = i + 1) begin
-                for (j = 0; j < HSIZE; j  = j + 1) begin
-                    for (ii = i - 2; ii <= i + 2; ii = ii + 1) begin
-                        for (jj = j - 2; jj <= j + 2; jj = jj + 1) begin
-                            if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                                data_in[((ii - i) * 5 + (jj - j)) + 12] <= 'b0;
+            fork
+                begin
+                    for (i = 0; i < VSIZE; i = i + 1) begin
+                        for (j = 0; j < HSIZE; j  = j + 1) begin
+                            for (ii = i - 2; ii <= i + 2; ii = ii + 1) begin
+                                for (jj = j - 2; jj <= j + 2; jj = jj + 1) begin
+                                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
+                                        data_in[((ii - i) * 5 + (jj - j)) + 12] <= 'b0;
+                                    end
+                                    else begin
+                                        data_in[((ii - i) * 5 + (jj - j)) + 12] <= mem_input_0[ii * HSIZE + jj];
+                                    end
+                                end
                             end
-                            else begin
-                                data_in[((ii - i) * 5 + (jj - j)) + 12] <= mem_input_0[ii * HSIZE + jj];
-                            end
+                            @(posedge clk);
                         end
                     end
-                    @(posedge clk);
                 end
-            end
+            join
         end
     endtask
     
@@ -307,21 +342,33 @@ module CORE_TB;
         end
     endtask
 
-    task DRIVE_INPUT;
+    task automatic DRIVE_INPUT;
+        integer i;
         begin
             fork
                 DRIVE_INPUT_0;
                 DRIVE_INPUT_1;
                 DRIVE_INPUT_2;
+                begin
+                    layer_bits      <= 3'd0;
+                    for (i = 75; i < 108; i = i + 1) begin
+                        data_in[i]  <= 'b0;
+                    end
+                    @(posedge clk);
+                end
             join
         end
     endtask
 
     task automatic DRIVE_WEIGHT;
         integer i;
+        integer j;
         begin
             for (i = 0; i < 75; i = i + 1) begin
                 weight_in[i] <= mem_weight[i];
+            end
+            for (j = 75; j < 108; j = j + 1) begin
+                weight_in[j] <= 'b0;
             end
             @(posedge clk);
         end
@@ -349,7 +396,7 @@ module CORE_TB;
                 DRIVE_BIAS;
                 DRIVE_SLOPE;
                 begin
-                    convolution_enable <= 1'b1;
+                    convolution_enable  <= 1'b1;
                     @(posedge clk);
                 end
             join
@@ -612,7 +659,7 @@ module CORE_TB;
     // instantiation start
     // -------------------------------------------------------------------------------
 
-    CONV_FIRST_CALC
+    CORE
     #(
         .Q_INT_INPUT                            (Q_INT_INPUT                ),
         .Q_FRAC_INPUT                           (Q_FRAC_INPUT               ),
@@ -622,18 +669,25 @@ module CORE_TB;
         .Q_FRAC_BIAS                            (Q_FRAC_BIAS                ),
         .Q_INT_SLOPE                            (Q_INT_SLOPE                ),
         .Q_FRAC_SLOPE                           (Q_FRAC_SLOPE               ),
+        .Q_INT_SCALE                            (Q_INT_SCALE                ),
+        .Q_FRAC_SCALE                           (Q_FRAC_SCALE               ),
         .Q_INT_INTERIM_1                        (Q_INT_INTERIM_1            ),
         .Q_FRAC_INTERIM_1                       (Q_FRAC_INTERIM_1           ),
         .Q_INT_INTERIM_2                        (Q_INT_INTERIM_2            ),
         .Q_FRAC_INTERIM_2                       (Q_FRAC_INTERIM_2           ),
+        .Q_INT_INTERIM_3                        (Q_INT_INTERIM_3            ),
+        .Q_FRAC_INTERIM_3                       (Q_FRAC_INTERIM_3           ),
+        .Q_INT_INTERIM_4                        (Q_INT_INTERIM_4            ),
+        .Q_FRAC_INTERIM_4                       (Q_FRAC_INTERIM_4           ),
         .Q_INT_OUTPUT                           (Q_INT_OUTPUT               ),
         .Q_FRAC_OUTPUT                          (Q_FRAC_OUTPUT              )
     )
-    conv_first_calc_inst
+    DUT_TOP
     (
         .clk                                    (clk                    ),
         .rst_n                                  (rst_n                  ),
 
+        .layer_bits                             (layer_bits             ),
         .convolution_enable                     (convolution_enable     ),
 
         .data_in_0                              (data_in[0 ]            ),

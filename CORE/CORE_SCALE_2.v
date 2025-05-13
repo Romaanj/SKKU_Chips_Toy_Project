@@ -17,7 +17,7 @@ module SCALE_2
     input                                                                           rst_n                               ,
     input                                                                           scale_2_enable                      ,
 
-    input  [3:0]                                                                    layer_bits                          ,
+    input  [2:0]                                                                    layer_bits                          ,
     input signed [Q_INT_OPERAND + Q_FRAC_OPERAND - 1:0]                             operand                             ,
 
     output reg signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]                          result                              ,
@@ -57,10 +57,13 @@ module SCALE_2
     wire signed [Q_INT_OPERAND + Q_FRAC_OPERAND + Q_INT_SCALE + Q_FRAC_SCALE - 1:0] internal_scale                      ;
 
     assign internal_operand = operand                                   ;
-    assign internal_scale   = layer_bits == 3'd0    ? scale_1_table[0]
-                            : layer_bits == 3'd1    ? scale_1_table[1]
-                            : layer_bits == 3'd5    ? scale_1_table[2]
-                            : layer_bits == 3'd6    ? scale_1_table[3]  ;
+    assign internal_scale   = layer_bits == 3'd0    ?	scale_table[0]
+                            : layer_bits == 3'd1    ?	scale_table[1]
+                            : layer_bits == 3'd5    ?	scale_table[2]
+                            : layer_bits == 3'd6    ?	scale_table[3]
+                            :							'b0             ;
+
+    wire signed [Q_INT_OPERAND + Q_FRAC_OPERAND + Q_INT_SCALE + Q_FRAC_SCALE - 1:0] internal_result = internal_operand * internal_scale;
 
     // --------------------------------------------------------
     always @(posedge clk) begin
@@ -80,7 +83,7 @@ module SCALE_2
             result                      <= 'b0;
         end
         else if (scale_2_enable) begin
-            result                      <= internal_operand * internal_scale;
+            result                      <= internal_operand * internal_scale >> (Q_FRAC_OPERAND + Q_FRAC_SCALE - Q_FRAC_OUTPUT);
         end
     end
 

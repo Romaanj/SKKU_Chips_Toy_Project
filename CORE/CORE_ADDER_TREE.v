@@ -130,7 +130,7 @@ module CORE_ADDER_TREE
     input signed [Q_INT_BIAS + Q_FRAC_BIAS - 1:0]           bias                                                ,
 
     output reg signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]  adder_tree_result                                   ,
-    output reg                                              adder_tree_second_stage_enable
+    output reg                                              adder_tree_result_enable
 );
 
     localparam                                              width_stage_1   = Q_INT_INPUT + Q_FRAC_INPUT + 1    ;
@@ -627,7 +627,7 @@ module CORE_ADDER_TREE
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            adder_tree_second_stage_enable <= 1'b0;
+            adder_tree_result_enable <= 1'b0;
         end
         else if (adder_tree_second_stage_enable) begin
             adder_tree_result_enable <= 1'b1;

@@ -18,6 +18,10 @@ module CORE
     parameter                                                   Q_INT_SLOPE         = 8     ,
     parameter                                                   Q_FRAC_SLOPE        = 0     ,
 
+    // Assumption: Default scale fixed point format = signed Q1.14
+    parameter                                                   Q_INT_SCALE         = 1     ,
+    parameter                                                   Q_FRAC_SCALE        = 14    ,
+
     // Assumption: Default dot prod result fixed point format = signed Q12.15
     parameter                                                   Q_INT_INTERIM_1     = 12    ,
     parameter                                                   Q_FRAC_INTERIM_1    = 15    ,
@@ -42,7 +46,7 @@ module CORE
     input                                                       clk                         ,
     input                                                       rst_n                       ,
 
-    input [3:0]                                                 layer_bits                  ,
+    input [2:0]                                                 layer_bits                  ,
     input                                                       convolution_enable          ,
 
     input signed    [Q_INT_INPUT + Q_FRAC_INPUT -1:0]           data_in_0                   ,
@@ -266,7 +270,7 @@ module CORE
     input signed    [Q_INT_BIAS + Q_FRAC_BIAS -1:0]             bias_in                     ,
     input signed    [Q_INT_SLOPE + Q_FRAC_SLOPE -1:0]           slope_in                    ,
 
-    output signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]         data_out                    ,
+    output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     data_out                    ,
     output reg                                                  data_out_enable
 );
 
@@ -443,6 +447,9 @@ module CORE
     wire signed [Q_INT_BIAS + Q_FRAC_BIAS -1:0]                 bias_buffed                 ;
 
 	wire signed [Q_INT_INTERIM_2 + Q_FRAC_INTERIM_2 -1:0]       adder_tree_result           ;
+    wire signed [Q_INT_INTERIM_3 + Q_FRAC_INTERIM_3 -1:0]       scale_1_result              ;
+    wire signed [Q_INT_INTERIM_4 + Q_FRAC_INTERIM_4 -1:0]       PReLU_result                ;
+    wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]             scale_2_result              ;
 
     // -------------------------------------------------------------------------------
     // declaration of multi-bit interconnect wires finish
@@ -452,7 +459,7 @@ module CORE
     // instantiation start
     // -------------------------------------------------------------------------------
 
-    CONV_FIRST_DOT_PRODUCT
+    CORE_DOT_PRODUCT
     #(
         .Q_INT_DATA                             (Q_INT_INPUT                ),
         .Q_FRAC_DATA                            (Q_FRAC_INPUT               ),
@@ -463,7 +470,7 @@ module CORE
         .Q_INT_OUTPUT                           (Q_INT_INTERIM_1            ),
         .Q_FRAC_OUTPUT                          (Q_FRAC_INTERIM_1           )
     )
-    conv_first_dot_product_inst
+    dot_product_inst
     (
         .clk                                    (clk                        ),
         .rst_n                                  (rst_n                      ),
@@ -578,8 +585,6 @@ module CORE
         .data_105                               (data_in_105                ),
         .data_106                               (data_in_106                ),
         .data_107                               (data_in_107                ),
-        .data_108                               (data_in_108                ),
-        .data_109                               (data_in_109                ),
 
         .weight_0                               (weight_in_0                ),
         .weight_1                               (weight_in_1                ),
@@ -689,8 +694,6 @@ module CORE
         .weight_105                             (weight_in_105              ),
         .weight_106                             (weight_in_106              ),
         .weight_107                             (weight_in_107              ),
-        .weight_108                             (weight_in_108              ),
-        .weight_109                             (weight_in_109              ),
 
         .bias_i                                 (bias_in                    ),
 
@@ -808,7 +811,7 @@ module CORE
         .adder_tree_enable                      (adder_tree_enable          )
     );
 
-    CONV_FIRST_ADDER_TREE
+    CORE_ADDER_TREE
     #(
         .Q_INT_INPUT                            (Q_INT_INTERIM_1            ),
         .Q_FRAC_INPUT                           (Q_FRAC_INTERIM_1           ),
@@ -817,12 +820,12 @@ module CORE
         .Q_INT_OUTPUT                           (Q_INT_INTERIM_2            ),
         .Q_FRAC_OUTPUT                          (Q_FRAC_INTERIM_2           )
     )
-    conv_first_adder_tree_inst
+    adder_tree_inst
     (
         .clk                                    (clk                        ),
         .rst_n                                  (rst_n                      ),
 
-        .adder_tree_middle_stage_enable         (adder_tree_enable          ),
+        .adder_tree_first_stage_enable			(adder_tree_enable          ),
 
         .addend_0                               (multiplied_result_0        ),
         .addend_1                               (multiplied_result_1        ),
@@ -943,8 +946,8 @@ module CORE
     #(
         .Q_INT_OPERAND                          (Q_INT_INTERIM_2            ),
         .Q_FRAC_OPERAND                         (Q_FRAC_INTERIM_2           ),
-        .Q_INT_SCALE                            (Q_INT_SLOPE                ),
-        .Q_FRAC_SCALE                           (Q_FRAC_SLOPE               ),
+        .Q_INT_SCALE                            (Q_INT_SCALE                ),
+        .Q_FRAC_SCALE                           (Q_FRAC_SCALE               ),
         .Q_INT_OUTPUT                           (Q_INT_INTERIM_3            ),
         .Q_FRAC_OUTPUT                          (Q_FRAC_INTERIM_3           )
     )
@@ -983,8 +986,8 @@ module CORE
     #(
         .Q_INT_OPERAND                          (Q_INT_INTERIM_4            ),
         .Q_FRAC_OPERAND                         (Q_FRAC_INTERIM_4           ),
-        .Q_INT_SCALE                            (Q_INT_SLOPE                ),
-        .Q_FRAC_SCALE                           (Q_FRAC_SLOPE               ),
+        .Q_INT_SCALE                            (Q_INT_SCALE                ),
+        .Q_FRAC_SCALE                           (Q_FRAC_SCALE               ),
         .Q_INT_OUTPUT                           (Q_INT_OUTPUT               ),
         .Q_FRAC_OUTPUT                          (Q_FRAC_OUTPUT              )
     )
@@ -994,7 +997,7 @@ module CORE
         .rst_n                                  (rst_n                      ),
         .layer_bits                             (layer_bits                 ),
         .scale_2_enable                         (PReLU_result_enable        ),
-        .operand                                (PReLU_tree_result          ),
+        .operand                                (PReLU_result               ),
         .scale_2_result_enable                  (scale_2_result_enable      ),
         .result                                 (scale_2_result             )
     );
