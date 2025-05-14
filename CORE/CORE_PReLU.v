@@ -40,7 +40,6 @@ module PReLU
     always @(posedge clk) begin
         if(!rst_n) begin
             result              <= 'b0                                                              ;
-            PRelu_operand_sign  <= 'b0                                                              ;
         end
         else if(PReLU_enable & data_sign) begin
             result              <= (internal_data * internal_slope)

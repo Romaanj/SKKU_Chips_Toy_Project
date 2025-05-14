@@ -978,8 +978,9 @@ module CORE
         .PReLU_enable                           (scale_1_result_enable      ),
         .data                                   (scale_1_result             ),
         .slope                                  (slope_in                   ),
-        .result                                 (PReLU_result               ),
-        .PReLU_result_enable                    (PReLU_result_enable        )
+        .PReLU_result_enable                    (PReLU_result_enable        ),
+        .PReLU_operand_sign                     (PReLU_operand_sign         ),
+        .result                                 (PReLU_result               )
     );
 
     SCALE_2
@@ -997,6 +998,7 @@ module CORE
         .rst_n                                  (rst_n                      ),
         .layer_bits                             (layer_bits                 ),
         .scale_2_enable                         (PReLU_result_enable        ),
+        .PReLU_operand_sign                     (PReLU_operand_sign         ),
         .operand                                (PReLU_result               ),
         .scale_2_result_enable                  (scale_2_result_enable      ),
         .result                                 (scale_2_result             )
