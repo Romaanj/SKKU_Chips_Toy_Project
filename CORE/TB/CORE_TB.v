@@ -589,7 +589,7 @@ module CORE_TB;
     end
 
     always @(posedge clk) begin
-        if (data_out_enable) begin
+        if (layer_bits == 3'd0 && data_out_enable) begin
             case(channel_idx)
                 'd0     : mem_conv_first_output_0[cnt_output]   <= data_out;
                 'd1     : mem_conv_first_output_1[cnt_output]   <= data_out;
