@@ -87,7 +87,7 @@ module SCALE_2
             result                      <= internal_operand * internal_scale >> (Q_FRAC_OPERAND + Q_FRAC_SCALE - Q_FRAC_OUTPUT);
         end
         else if (scale_2_enable) begin
-            result                      <= internal_operand >> (Q_FRAC_OPERAND - Q_FRAC_OUTPUT)
+            result                      <= internal_operand >> (Q_FRAC_OPERAND - Q_FRAC_OUTPUT);
         end
     end
 
