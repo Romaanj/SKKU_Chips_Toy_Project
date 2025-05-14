@@ -247,7 +247,7 @@
         end
     endtask
 
-	reg signed [Q_INT_INPUT+Q_FRAC_INPUT-1:0] temp;
+	reg signed [Q_INT_INPUT+Q_FRAC_INPUT-1:0] conv_first_output_temp;
     task automatic CONV_FIRST_EVAL_ERROR
     (
         input [31:0]    output_channel_idx,
@@ -255,74 +255,73 @@
         input real		display_error_threshold
     );
         integer i;
-        //integer signed temp;
         real error;
         real mean_error;
         begin
             mean_error = 0;
             for (i = 0; i < num_output; i = i + 1) begin
                 case (output_channel_idx)
-                    'd0     : temp = mem_conv_first_output_0[i]     ;
-                    'd1     : temp = mem_conv_first_output_1[i]     ;
-                    'd2     : temp = mem_conv_first_output_2[i]     ;
-                    'd3     : temp = mem_conv_first_output_3[i]     ;
-                    'd4     : temp = mem_conv_first_output_4[i]     ;
-                    'd5     : temp = mem_conv_first_output_5[i]     ;
-                    'd6     : temp = mem_conv_first_output_6[i]     ;
-                    'd7     : temp = mem_conv_first_output_7[i]     ;
-                    'd8     : temp = mem_conv_first_output_8[i]     ;
-                    'd9     : temp = mem_conv_first_output_9[i]     ;
-                    'd10    : temp = mem_conv_first_output_10[i]    ;
-                    'd11    : temp = mem_conv_first_output_11[i]    ;
-                    'd12    : temp = mem_conv_first_output_12[i]    ;
-                    'd13    : temp = mem_conv_first_output_13[i]    ;
-                    'd14    : temp = mem_conv_first_output_14[i]    ;
-                    'd15    : temp = mem_conv_first_output_15[i]    ;
-                    'd16    : temp = mem_conv_first_output_16[i]    ;
-                    'd17    : temp = mem_conv_first_output_17[i]    ;
-                    'd18    : temp = mem_conv_first_output_18[i]    ;
-                    'd19    : temp = mem_conv_first_output_19[i]    ;
-                    'd20    : temp = mem_conv_first_output_20[i]    ;
-                    'd21    : temp = mem_conv_first_output_21[i]    ;
-                    'd22    : temp = mem_conv_first_output_22[i]    ;
-                    'd23    : temp = mem_conv_first_output_23[i]    ;
-                    'd24    : temp = mem_conv_first_output_24[i]    ;
-                    'd25    : temp = mem_conv_first_output_25[i]    ;
-                    'd26    : temp = mem_conv_first_output_26[i]    ;
-                    'd27    : temp = mem_conv_first_output_27[i]    ;
-                    'd28    : temp = mem_conv_first_output_28[i]    ;
-                    'd29    : temp = mem_conv_first_output_29[i]    ;
-                    'd30    : temp = mem_conv_first_output_30[i]    ;
-                    'd31    : temp = mem_conv_first_output_31[i]    ;
-                    'd32    : temp = mem_conv_first_output_32[i]    ;
-                    'd33    : temp = mem_conv_first_output_33[i]    ;
-                    'd34    : temp = mem_conv_first_output_34[i]    ;
-                    'd35    : temp = mem_conv_first_output_35[i]    ;
-                    'd36    : temp = mem_conv_first_output_36[i]    ;
-                    'd37    : temp = mem_conv_first_output_37[i]    ;
-                    'd38    : temp = mem_conv_first_output_38[i]    ;
-                    'd39    : temp = mem_conv_first_output_39[i]    ;
-                    'd40    : temp = mem_conv_first_output_40[i]    ;
-                    'd41    : temp = mem_conv_first_output_41[i]    ;
-                    'd42    : temp = mem_conv_first_output_42[i]    ;
-                    'd43    : temp = mem_conv_first_output_43[i]    ;
-                    'd44    : temp = mem_conv_first_output_44[i]    ;
-                    'd45    : temp = mem_conv_first_output_45[i]    ;
-                    'd46    : temp = mem_conv_first_output_46[i]    ;
-                    'd47    : temp = mem_conv_first_output_47[i]    ;
-                    'd48    : temp = mem_conv_first_output_48[i]    ;
-                    'd49    : temp = mem_conv_first_output_49[i]    ;
-                    'd50    : temp = mem_conv_first_output_50[i]    ;
-                    'd51    : temp = mem_conv_first_output_51[i]    ;
-                    'd52    : temp = mem_conv_first_output_52[i]    ;
-                    'd53    : temp = mem_conv_first_output_53[i]    ;
-                    'd54    : temp = mem_conv_first_output_54[i]    ;
-                    'd55    : temp = mem_conv_first_output_55[i]    ;
+                    'd0     : conv_first_output_temp = mem_conv_first_output_0[i]     ;
+                    'd1     : conv_first_output_temp = mem_conv_first_output_1[i]     ;
+                    'd2     : conv_first_output_temp = mem_conv_first_output_2[i]     ;
+                    'd3     : conv_first_output_temp = mem_conv_first_output_3[i]     ;
+                    'd4     : conv_first_output_temp = mem_conv_first_output_4[i]     ;
+                    'd5     : conv_first_output_temp = mem_conv_first_output_5[i]     ;
+                    'd6     : conv_first_output_temp = mem_conv_first_output_6[i]     ;
+                    'd7     : conv_first_output_temp = mem_conv_first_output_7[i]     ;
+                    'd8     : conv_first_output_temp = mem_conv_first_output_8[i]     ;
+                    'd9     : conv_first_output_temp = mem_conv_first_output_9[i]     ;
+                    'd10    : conv_first_output_temp = mem_conv_first_output_10[i]    ;
+                    'd11    : conv_first_output_temp = mem_conv_first_output_11[i]    ;
+                    'd12    : conv_first_output_temp = mem_conv_first_output_12[i]    ;
+                    'd13    : conv_first_output_temp = mem_conv_first_output_13[i]    ;
+                    'd14    : conv_first_output_temp = mem_conv_first_output_14[i]    ;
+                    'd15    : conv_first_output_temp = mem_conv_first_output_15[i]    ;
+                    'd16    : conv_first_output_temp = mem_conv_first_output_16[i]    ;
+                    'd17    : conv_first_output_temp = mem_conv_first_output_17[i]    ;
+                    'd18    : conv_first_output_temp = mem_conv_first_output_18[i]    ;
+                    'd19    : conv_first_output_temp = mem_conv_first_output_19[i]    ;
+                    'd20    : conv_first_output_temp = mem_conv_first_output_20[i]    ;
+                    'd21    : conv_first_output_temp = mem_conv_first_output_21[i]    ;
+                    'd22    : conv_first_output_temp = mem_conv_first_output_22[i]    ;
+                    'd23    : conv_first_output_temp = mem_conv_first_output_23[i]    ;
+                    'd24    : conv_first_output_temp = mem_conv_first_output_24[i]    ;
+                    'd25    : conv_first_output_temp = mem_conv_first_output_25[i]    ;
+                    'd26    : conv_first_output_temp = mem_conv_first_output_26[i]    ;
+                    'd27    : conv_first_output_temp = mem_conv_first_output_27[i]    ;
+                    'd28    : conv_first_output_temp = mem_conv_first_output_28[i]    ;
+                    'd29    : conv_first_output_temp = mem_conv_first_output_29[i]    ;
+                    'd30    : conv_first_output_temp = mem_conv_first_output_30[i]    ;
+                    'd31    : conv_first_output_temp = mem_conv_first_output_31[i]    ;
+                    'd32    : conv_first_output_temp = mem_conv_first_output_32[i]    ;
+                    'd33    : conv_first_output_temp = mem_conv_first_output_33[i]    ;
+                    'd34    : conv_first_output_temp = mem_conv_first_output_34[i]    ;
+                    'd35    : conv_first_output_temp = mem_conv_first_output_35[i]    ;
+                    'd36    : conv_first_output_temp = mem_conv_first_output_36[i]    ;
+                    'd37    : conv_first_output_temp = mem_conv_first_output_37[i]    ;
+                    'd38    : conv_first_output_temp = mem_conv_first_output_38[i]    ;
+                    'd39    : conv_first_output_temp = mem_conv_first_output_39[i]    ;
+                    'd40    : conv_first_output_temp = mem_conv_first_output_40[i]    ;
+                    'd41    : conv_first_output_temp = mem_conv_first_output_41[i]    ;
+                    'd42    : conv_first_output_temp = mem_conv_first_output_42[i]    ;
+                    'd43    : conv_first_output_temp = mem_conv_first_output_43[i]    ;
+                    'd44    : conv_first_output_temp = mem_conv_first_output_44[i]    ;
+                    'd45    : conv_first_output_temp = mem_conv_first_output_45[i]    ;
+                    'd46    : conv_first_output_temp = mem_conv_first_output_46[i]    ;
+                    'd47    : conv_first_output_temp = mem_conv_first_output_47[i]    ;
+                    'd48    : conv_first_output_temp = mem_conv_first_output_48[i]    ;
+                    'd49    : conv_first_output_temp = mem_conv_first_output_49[i]    ;
+                    'd50    : conv_first_output_temp = mem_conv_first_output_50[i]    ;
+                    'd51    : conv_first_output_temp = mem_conv_first_output_51[i]    ;
+                    'd52    : conv_first_output_temp = mem_conv_first_output_52[i]    ;
+                    'd53    : conv_first_output_temp = mem_conv_first_output_53[i]    ;
+                    'd54    : conv_first_output_temp = mem_conv_first_output_54[i]    ;
+                    'd55    : conv_first_output_temp = mem_conv_first_output_55[i]    ;
                 endcase
                 if (mem_golden[i]) begin
-                	error = $signed(mem_golden[i]) >= $signed(temp) ?
-                                                                    $signed(mem_golden[i]) - $signed(temp) :
-                                                                    $signed(temp) - $signed(mem_golden[i]);
+                	error = $signed(mem_golden[i]) >= $signed(conv_first_output_temp) ?
+                                                                    $signed(mem_golden[i]) - $signed(conv_first_output_temp) :
+                                                                    $signed(conv_first_output_temp) - $signed(mem_golden[i]);
                 	error = error / mem_golden[i] * 100;
                 end
                 else begin
@@ -332,8 +331,8 @@
                 	$display("[%d]: golden = %X, current = %X, difference = %d -> %f %%!!!",
                     i,
                     mem_golden[i],
-                    temp,
-                    $signed(mem_golden[i]) - $signed(temp),
+                    conv_first_output_temp,
+                    $signed(mem_golden[i]) - $signed(conv_first_output_temp),
                     error);
                 end
                 mean_error = mean_error + error;
@@ -350,12 +349,12 @@
         begin
             RESET;
             READ_INPUT(channel);
-            DRIVE;
+            CONV_FIRST_DRIVE;
             convolution_enable <= 1'b0;
             repeat (20) @(posedge clk);
             $display("Channel %0d finished!", channel);
             $display("Evaluating error in processing channel %0d...", channel);
-            EVAL_ERROR(channel, cnt_output, 1.0);
+            CONV_FIRST_EVAL_ERROR(channel, cnt_output, 1.0);
         end
 	endtask
 
