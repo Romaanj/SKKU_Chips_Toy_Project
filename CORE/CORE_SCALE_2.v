@@ -16,6 +16,7 @@ module SCALE_2
     input                                                                           clk                                 ,
     input                                                                           rst_n                               ,
     input                                                                           scale_2_enable                      ,
+    input                                                                           PReLU_operand_sign                  ,                                                                       
 
     input  [2:0]                                                                    layer_bits                          ,
     input signed [Q_INT_OPERAND + Q_FRAC_OPERAND - 1:0]                             operand                             ,
@@ -82,8 +83,11 @@ module SCALE_2
         if (!rst_n) begin
             result                      <= 'b0;
         end
-        else if (scale_2_enable) begin
+        else if (scale_2_enable & PReLU_operand_sign) begin
             result                      <= internal_operand * internal_scale >> (Q_FRAC_OPERAND + Q_FRAC_SCALE - Q_FRAC_OUTPUT);
+        end
+        else if (scale_2_enable) begin
+            result                      <= internal_operand >> (Q_FRAC_OPERAND - Q_FRAC_OUTPUT)
         end
     end
 

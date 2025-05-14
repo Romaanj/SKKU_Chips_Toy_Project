@@ -22,7 +22,8 @@ module PReLU
     input signed        [Q_INT_slope + Q_FRAC_slope -1:0]       slope                               ,
 
     output reg signed   [Q_INT_result + Q_FRAC_result -1:0]     result                              ,
-    output reg                                                  PReLU_result_enable
+    output reg                                                  PReLU_result_enable                 ,
+    output reg                                                  PReLU_operand_sign
 );
 
     // signed Qa.b * signed Qc.d = signed Q(a+b).(c+d)
@@ -39,13 +40,23 @@ module PReLU
     always @(posedge clk) begin
         if(!rst_n) begin
             result              <= 'b0                                                              ;
+            PRelu_operand_sign  <= 'b0                                                              ;
         end
         else if(PReLU_enable & data_sign) begin
             result              <= (internal_data * internal_slope)
                                     >> (Q_FRAC_data + Q_FRAC_slope - Q_FRAC_result)                 ;
         end
         else if (PReLU_enable) begin
-            result              <= data >> (Q_FRAC_data - Q_FRAC_result);
+            result              <= data >> (Q_FRAC_data - Q_FRAC_result)                            ;                                                      
+        end
+    end
+
+    always @(posedge clk) begin
+        if(!rst_n) begin
+            PReLU_operand_sign  <= 'b0                                                              ;
+        end
+        else if (PReLU_enable) begin
+            PReLU_operand_sign  <= data_sign                                                        ;
         end
     end
 
