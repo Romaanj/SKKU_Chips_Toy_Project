@@ -51,6 +51,7 @@ module CORE_TB;
     parameter                                       input_size = 108                ;
 
     `include "CORE_TB_TASKS_CONV_FIRST.vh"
+    `include "CORE_TB_TASKS_CONV_SHRINK.vh"
 
     // -------------------------------------------------------------------------------
 
@@ -155,20 +156,6 @@ module CORE_TB;
         end
     endtask
 
-    task DRIVE_BIAS;
-        begin
-            bias_in <= mem_bias[0];
-            @(posedge clk);
-        end
-    endtask
-
-    task DRIVE_SLOPE;
-        begin
-            slope_in <= mem_slope[0];
-            @(posedge clk);
-        end
-    endtask
-
     // -------------------------------------------------------------------------------
     // task definition finish
     // -------------------------------------------------------------------------------
@@ -190,8 +177,8 @@ module CORE_TB;
         repeat (5) @(posedge clk);
         RESET;
         RESET_CNT_OUTPUT;
-        TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL(29);
-        //TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
+        TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
+        TEST_CONV_SHRINK_SINGLE_IMAGE_ALL_CHANNEL;
         $finish;
     end
 
@@ -264,6 +251,22 @@ module CORE_TB;
                 'd53    : mem_conv_first_output_53[cnt_output]  <= data_out;
                 'd54    : mem_conv_first_output_54[cnt_output]  <= data_out;
                 'd55    : mem_conv_first_output_55[cnt_output]  <= data_out;
+            endcase
+        end
+        else if (layer_bits == 3'd1 && data_out_enable) begin
+            case(channel_idx)
+                'd0     : mem_conv_shrink_output_0[cnt_output]  <= data_out;
+                'd1     : mem_conv_shrink_output_1[cnt_output]  <= data_out;
+                'd2     : mem_conv_shrink_output_2[cnt_output]  <= data_out;
+                'd3     : mem_conv_shrink_output_3[cnt_output]  <= data_out;
+                'd4     : mem_conv_shrink_output_4[cnt_output]  <= data_out;
+                'd5     : mem_conv_shrink_output_5[cnt_output]  <= data_out;
+                'd6     : mem_conv_shrink_output_6[cnt_output]  <= data_out;
+                'd7     : mem_conv_shrink_output_7[cnt_output]  <= data_out;
+                'd8     : mem_conv_shrink_output_8[cnt_output]  <= data_out;
+                'd9     : mem_conv_shrink_output_9[cnt_output]  <= data_out;
+                'd10    : mem_conv_shrink_output_10[cnt_output] <= data_out;
+                'd11    : mem_conv_shrink_output_11[cnt_output] <= data_out;
             endcase
         end
     end

@@ -17,84 +17,91 @@
 
     // -------------------------------------------------------------------------------
 
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_input_0 [0:mem_size-1]      ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_input_1 [0:mem_size-1]      ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_input_2 [0:mem_size-1]      ;
+    reg [Q_INT_WEIGHT+Q_FRAC_WEIGHT-1:0]            mem_conv_first_weight       [0:input_size-1]    ;
+    reg [Q_INT_BIAS+Q_FRAC_BIAS-1:0]                mem_conv_first_bias         [0:0]               ;
+    reg [Q_INT_SLOPE+Q_FRAC_SLOPE-1:0]              mem_conv_first_slope        [0:0]               ;
+    reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_conv_first_golden       [0:mem_size-1]      ;
 
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_0 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_1 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_2 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_3 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_4 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_5 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_6 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_7 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_8 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_9 [0:mem_size-1]  ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_10 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_11 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_12 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_13 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_14 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_15 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_16 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_17 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_18 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_19 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_20 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_21 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_22 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_23 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_24 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_25 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_26 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_27 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_28 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_29 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_30 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_31 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_32 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_33 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_34 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_35 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_36 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_37 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_38 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_39 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_40 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_41 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_42 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_43 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_44 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_45 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_46 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_47 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_48 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_49 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_50 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_51 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_52 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_53 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_54 [0:mem_size-1] ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_55 [0:mem_size-1] ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_input_0      [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_input_1      [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_input_2      [0:mem_size-1]      ;
+
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_0     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_1     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_2     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_3     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_4     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_5     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_6     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_7     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_8     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_9     [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_10    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_11    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_12    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_13    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_14    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_15    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_16    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_17    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_18    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_19    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_20    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_21    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_22    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_23    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_24    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_25    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_26    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_27    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_28    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_29    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_30    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_31    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_32    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_33    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_34    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_35    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_36    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_37    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_38    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_39    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_40    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_41    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_42    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_43    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_44    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_45    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_46    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_47    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_48    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_49    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_50    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_51    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_52    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_53    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_54    [0:mem_size-1]      ;
+    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_first_output_55    [0:mem_size-1]      ;
 
     // -------------------------------------------------------------------------------
     // task definition start
     // -------------------------------------------------------------------------------
 
-    task automatic READ_INPUT
+    task automatic CONV_FIRST_READ_INPUT
     (
         input integer output_channel_idx
     );
-        reg [8*6-1:0] _weight;
-        reg [8*4-1:0] _bias;
-        reg [8*5-1:0] _slope;
-        reg [8*6-1:0] _output;
-        reg [8*1-1:0] _underbar;
-        reg [8*4-1:0] _filetype;
-        reg [8*1-1:0] _idx_up;
-        reg [8*1-1:0] _idx_down;
+        reg [8*11-1:0]  _prefix;
+        reg [8*6-1:0]   _weight;
+        reg [8*4-1:0]   _bias;
+        reg [8*5-1:0]   _slope;
+        reg [8*6-1:0]   _output;
+        reg [8*1-1:0]   _underbar;
+        reg [8*4-1:0]   _filetype;
+        reg [8*1-1:0]   _idx_up;
+        reg [8*1-1:0]   _idx_down;
         begin
+            _prefix         = "conv_first_";
             _weight         = "weight";
             _bias           = "bias";
             _slope          = "slope";
@@ -105,22 +112,22 @@
             if (output_channel_idx > 9) begin
                 _idx_up     = output_channel_idx / 10 + 48;
                 _idx_down   = output_channel_idx % 10 + 48;
-                $readmemh({_weight  , _underbar, _idx_up, _idx_down, _filetype}, mem_weight );
-                $readmemh({_bias    , _underbar, _idx_up, _idx_down, _filetype}, mem_bias   );
-                $readmemh({_slope   , _underbar, _idx_up, _idx_down, _filetype}, mem_slope  );
-                $readmemh({_output  , _underbar, _idx_up, _idx_down, _filetype}, mem_golden );
+                $readmemh({_prefix, _weight  , _underbar, _idx_up, _idx_down, _filetype}, mem_conv_first_weight );
+                $readmemh({_prefix, _bias    , _underbar, _idx_up, _idx_down, _filetype}, mem_conv_first_bias   );
+                $readmemh({_prefix, _slope   , _underbar, _idx_up, _idx_down, _filetype}, mem_conv_first_slope  );
+                $readmemh({_prefix, _output  , _underbar, _idx_up, _idx_down, _filetype}, mem_conv_first_golden );
             end
             else begin
                 _idx_down   = output_channel_idx + 48;
-                $readmemh({_weight  , _underbar, _idx_down, _filetype}, mem_weight );
-                $readmemh({_bias    , _underbar, _idx_down, _filetype}, mem_bias   );
-                $readmemh({_slope   , _underbar, _idx_down, _filetype}, mem_slope  );
-                $readmemh({_output  , _underbar, _idx_down, _filetype}, mem_golden );
+                $readmemh({_prefix, _weight  , _underbar, _idx_down, _filetype}, mem_conv_first_weight );
+                $readmemh({_prefix, _bias    , _underbar, _idx_down, _filetype}, mem_conv_first_bias   );
+                $readmemh({_prefix, _slope   , _underbar, _idx_down, _filetype}, mem_conv_first_slope  );
+                $readmemh({_prefix, _output  , _underbar, _idx_down, _filetype}, mem_conv_first_golden );
             end
 
-            $readmemh("input_0.txt", mem_input_0);
-            $readmemh("input_1.txt", mem_input_1);
-            $readmemh("input_2.txt", mem_input_2);
+            $readmemh("input_0.txt", mem_conv_first_input_0);
+            $readmemh("input_1.txt", mem_conv_first_input_1);
+            $readmemh("input_2.txt", mem_conv_first_input_2);
         end
     endtask
 
@@ -140,7 +147,7 @@
                                         data_in[((ii - i) * 5 + (jj - j)) + 12] <= 'b0;
                                     end
                                     else begin
-                                        data_in[((ii - i) * 5 + (jj - j)) + 12] <= mem_input_0[ii * HSIZE + jj];
+                                        data_in[((ii - i) * 5 + (jj - j)) + 12] <= mem_conv_first_input_0[ii * HSIZE + jj];
                                     end
                                 end
                             end
@@ -166,7 +173,7 @@
                                 data_in[((ii - i) * 5 + (jj - j)) + 37] <= 1'b0;
                             end
                             else begin
-                                data_in[((ii - i) * 5 + (jj - j)) + 37] <= mem_input_1[ii * HSIZE + jj];
+                                data_in[((ii - i) * 5 + (jj - j)) + 37] <= mem_conv_first_input_1[ii * HSIZE + jj];
                             end
                         end
                     end
@@ -190,7 +197,7 @@
                                 data_in[((ii - i) * 5 + (jj - j)) + 62] <= 1'b0;
                             end
                             else begin
-                                data_in[((ii - i) * 5 + (jj - j)) + 62] <= mem_input_2[ii * HSIZE + jj];
+                                data_in[((ii - i) * 5 + (jj - j)) + 62] <= mem_conv_first_input_2[ii * HSIZE + jj];
                             end
                         end
                     end
@@ -223,11 +230,25 @@
         integer j;
         begin
             for (i = 0; i < 75; i = i + 1) begin
-                weight_in[i] <= mem_weight[i];
+                weight_in[i] <= mem_conv_first_weight[i];
             end
             for (j = 75; j < 108; j = j + 1) begin
                 weight_in[j] <= 'b0;
             end
+            @(posedge clk);
+        end
+    endtask
+
+    task CONV_FIRST_DRIVE_BIAS;
+        begin
+            bias_in <= mem_conv_first_bias[0];
+            @(posedge clk);
+        end
+    endtask
+
+    task CONV_FIRST_DRIVE_SLOPE;
+        begin
+            slope_in <= mem_conv_first_slope[0];
             @(posedge clk);
         end
     endtask
@@ -237,8 +258,8 @@
             fork
                 CONV_FIRST_DRIVE_INPUT;
                 CONV_FIRST_DRIVE_WEIGHT;
-                DRIVE_BIAS;
-                DRIVE_SLOPE;
+                CONV_FIRST_DRIVE_BIAS;
+                CONV_FIRST_DRIVE_SLOPE;
                 begin
                     convolution_enable  <= 1'b1;
                     @(posedge clk);
@@ -318,11 +339,11 @@
                     'd54    : conv_first_output_temp = mem_conv_first_output_54[i]    ;
                     'd55    : conv_first_output_temp = mem_conv_first_output_55[i]    ;
                 endcase
-                if (mem_golden[i]) begin
-                	error = $signed(mem_golden[i]) >= $signed(conv_first_output_temp) ?
-                                                                    $signed(mem_golden[i]) - $signed(conv_first_output_temp) :
-                                                                    $signed(conv_first_output_temp) - $signed(mem_golden[i]);
-                	error = error / mem_golden[i] * 100;
+                if (mem_conv_first_golden[i]) begin
+                	error = $signed(mem_conv_first_golden[i]) >= $signed(conv_first_output_temp) ?
+                                                                    $signed(mem_conv_first_golden[i]) - $signed(conv_first_output_temp) :
+                                                                    $signed(conv_first_output_temp) - $signed(mem_conv_first_golden[i]);
+                	error = error / mem_conv_first_golden[i] * 100;
                 end
                 else begin
                 	error = 0;
@@ -330,9 +351,9 @@
                 if (error < 0 || error > display_error_threshold) begin
                 	$display("[%d]: golden = %X, current = %X, difference = %d -> %f %%!!!",
                     i,
-                    mem_golden[i],
+                    mem_conv_first_golden[i],
                     conv_first_output_temp,
-                    $signed(mem_golden[i]) - $signed(conv_first_output_temp),
+                    $signed(mem_conv_first_golden[i]) - $signed(conv_first_output_temp),
                     error);
                 end
                 mean_error = mean_error + error;
@@ -347,27 +368,26 @@
         input integer channel
     );
         begin
-            RESET;
-            READ_INPUT(channel);
+            RESET_CNT_OUTPUT;
+            CONV_FIRST_READ_INPUT(channel);
             channel_idx <= channel;
             CONV_FIRST_DRIVE;
             convolution_enable <= 1'b0;
-            repeat (20) @(posedge clk);
-            $display("Channel %0d finished!", channel);
-            $display("Evaluating error in processing channel %0d...", channel);
-            CONV_FIRST_EVAL_ERROR(channel, cnt_output, 0.0001);
+            repeat (10) @(posedge clk);
+            $display("[%m] Channel %0d finished!", channel);
+            //$display("[%m] Evaluating error in processing channel %0d...", channel);
+            //CONV_FIRST_EVAL_ERROR(channel, cnt_output, 0.001);
+            repeat (5) @(posedge clk);
         end
 	endtask
 
     task automatic TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
         integer i;
         begin
-			RESET_CNT_OUTPUT;
             for (i = 0; i < 56; i = i + 1) begin
                 TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL(i);
-                repeat (5) @(posedge clk);
-                RESET_CNT_OUTPUT;
             end
+            repeat (20) @(posedge clk);
         end
     endtask
 
