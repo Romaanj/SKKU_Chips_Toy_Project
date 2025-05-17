@@ -1,12 +1,12 @@
 module SCALE_2
 #(
-    // Assumption: Default input fixed point format = signed Q28.29
+    // Assumption: Default input fixed point format = signed Q28.27
     parameter                                                                       Q_INT_OPERAND               = 28    ,
-    parameter                                                                       Q_FRAC_OPERAND              = 29    ,
+    parameter                                                                       Q_FRAC_OPERAND              = 27    ,
 
-    // Assumption: Default scale fixed point format = signed Q1.14
+    // Assumption: Default scale (PReLU) fixed point format = signed Q1.9
     parameter                                                                       Q_INT_SCALE                 = 1     ,
-    parameter                                                                       Q_FRAC_SCALE                = 14    ,
+    parameter                                                                       Q_FRAC_SCALE                = 9     ,
 
     // Assumption: Default output fixed point format = signed Q4.15
     parameter                                                                       Q_INT_OUTPUT                = 4     ,
@@ -45,10 +45,10 @@ module SCALE_2
     // 7 → conv_last (Conv2d)
     always @(posedge clk) begin
         if (!rst_n) begin
-            scale_table[0]  <= 15'b000000011010101; // 0.01300729
-            scale_table[1]  <= 15'b000000001000100; // 0.00833962
-            scale_table[2]  <= 15'b000000000111101; // 0.00747632
-            scale_table[3]  <= 15'b000000001000011; // 0.00816691
+            scale_table[0]  <= 10'b0_0000_0010_0; // 2^-7 = 0.0078125
+            scale_table[1]  <= 10'b0_0000_0001_0; // 2^-8 = 0.00390625
+            scale_table[2]  <= 10'b0_0000_0000_1; // 2^-9 = 0.001953125
+            scale_table[3]  <= 10'b0_0000_0001_0; // 2^-8 = 0.00390625
         end
     end
 

@@ -349,22 +349,20 @@
         begin
             RESET;
             READ_INPUT(channel);
+            channel_idx <= channel;
             CONV_FIRST_DRIVE;
             convolution_enable <= 1'b0;
             repeat (20) @(posedge clk);
             $display("Channel %0d finished!", channel);
             $display("Evaluating error in processing channel %0d...", channel);
-            CONV_FIRST_EVAL_ERROR(channel, cnt_output, 1.0);
+            CONV_FIRST_EVAL_ERROR(channel, cnt_output, 0.01);
         end
 	endtask
 
     task automatic TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
         integer i;
         begin
-            fork
-                RESET_CNT_OUTPUT;
-                RESET_CHANNEL_IDX;
-            join
+			RESET_CNT_OUTPUT;
             for (i = 0; i < 56; i = i + 1) begin
                 TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL(i);
                 repeat (5) @(posedge clk);

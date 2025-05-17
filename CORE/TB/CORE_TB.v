@@ -12,13 +12,17 @@ module CORE_TB;
     parameter                                       Q_INT_BIAS          = 8         ;
     parameter                                       Q_FRAC_BIAS         = 0         ;
 
-    // Assumption: Default bias fixed point format = signed Q8.0
+    // Assumption: Default slope fixed point format = signed Q8.0
     parameter                                       Q_INT_SLOPE         = 8         ;
     parameter                                       Q_FRAC_SLOPE        = 0         ;
 
-    // Assumption: Default scale fixed point format = signed Q1.14
-    parameter                                       Q_INT_SCALE         = 1         ;
-    parameter                                       Q_FRAC_SCALE        = 14        ;
+    // Assumption: Default scale (after Conv2d) fixed point format = signed Q1.12
+    parameter                                       Q_INT_SCALE_1       = 1       ;
+    parameter                                       Q_FRAC_SCALE_1      = 12      ;
+
+    // Assumption: Default scale (after PReLU) fixed point format = signed Q1.9
+    parameter                                       Q_INT_SCALE_2       = 1       ;
+    parameter                                       Q_FRAC_SCALE_2      = 9       ;
 
     // Assumption: Default dot prod result fixed point format = signed Q12.15
     parameter                                       Q_INT_INTERIM_1     = 12        ;
@@ -28,13 +32,13 @@ module CORE_TB;
     parameter                                       Q_INT_INTERIM_2     = 19        ;
     parameter                                       Q_FRAC_INTERIM_2    = 15        ;
 
-    // Assumption: Default conv2d result fixed point format = signed Q20.29
+    // Assumption: Default conv2d result fixed point format = signed Q20.27
     parameter                                       Q_INT_INTERIM_3     = 20        ;
-    parameter                                       Q_FRAC_INTERIM_3    = 29        ;
+    parameter                                       Q_FRAC_INTERIM_3    = 27        ;
 
-    // Assumption: Default PReLU result fixed point format = signed Q28.29
+    // Assumption: Default PReLU result fixed point format = signed Q28.27
     parameter                                       Q_INT_INTERIM_4     = 28        ;
-    parameter                                       Q_FRAC_INTERIM_4    = 29        ;
+    parameter                                       Q_FRAC_INTERIM_4    = 27        ;
 
     // Assumption: Default output fixed point format = signed Q4.15
     parameter                                       Q_INT_OUTPUT        = 4         ;
@@ -130,7 +134,6 @@ module CORE_TB;
             clk                 = 1'b0;
             rst_n               = 1'b1;
             reset_cnt_output    = 1'b0;
-            reset_channel_idx   = 1'b0;
         end
     endtask
 
@@ -148,15 +151,6 @@ module CORE_TB;
             reset_cnt_output <= 1'b1;
             repeat (5) @(posedge clk);
             reset_cnt_output <= 1'b0;
-            @(posedge clk);
-        end
-    endtask
-
-    task RESET_CHANNEL_IDX;
-        begin
-            reset_channel_idx <= 1'b1;
-            repeat (5) @(posedge clk);
-            reset_channel_idx <= 1'b0;
             @(posedge clk);
         end
     endtask
@@ -195,9 +189,8 @@ module CORE_TB;
         INIT;
         repeat (5) @(posedge clk);
         RESET;
-        RESET_CNT_OUTPUT;
-        RESET_CHANNEL_IDX;
-        //TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL(0);
+        //RESET_CNT_OUTPUT;
+        //TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL(29);
         TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
         $finish;
     end
@@ -209,15 +202,6 @@ module CORE_TB;
         else if (data_out_enable) begin
             cnt_output <= cnt_output + 1;
             mem_output[cnt_output] <= data_out;
-        end
-    end
-
-    always @(posedge clk) begin
-        if (reset_channel_idx) begin
-            channel_idx <= 'b0;
-        end
-        else if (data_out_enable && cnt_output == HSIZE * VSIZE - 1) begin
-            channel_idx <= channel_idx + 1;
         end
     end
 
@@ -302,8 +286,10 @@ module CORE_TB;
         .Q_FRAC_BIAS                            (Q_FRAC_BIAS                ),
         .Q_INT_SLOPE                            (Q_INT_SLOPE                ),
         .Q_FRAC_SLOPE                           (Q_FRAC_SLOPE               ),
-        .Q_INT_SCALE                            (Q_INT_SCALE                ),
-        .Q_FRAC_SCALE                           (Q_FRAC_SCALE               ),
+        .Q_INT_SCALE_1                          (Q_INT_SCALE_1              ),
+        .Q_FRAC_SCALE_1                         (Q_FRAC_SCALE_1             ),
+        .Q_INT_SCALE_2                          (Q_INT_SCALE_2              ),
+        .Q_FRAC_SCALE_2                         (Q_FRAC_SCALE_2             ),
         .Q_INT_INTERIM_1                        (Q_INT_INTERIM_1            ),
         .Q_FRAC_INTERIM_1                       (Q_FRAC_INTERIM_1           ),
         .Q_INT_INTERIM_2                        (Q_INT_INTERIM_2            ),
