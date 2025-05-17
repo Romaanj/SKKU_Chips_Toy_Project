@@ -4,13 +4,13 @@ module SCALE_1
     parameter                                                                       Q_INT_OPERAND       = 19    ,     
     parameter                                                                       Q_FRAC_OPERAND      = 15    ,
 
-    // Assumption: Default scale fixed point format = signed Q1.14
+    // Assumption: Default scale (Conv2d) fixed point format = signed Q1.12
     parameter                                                                       Q_INT_SCALE         = 1     ,
-    parameter                                                                       Q_FRAC_SCALE        = 14    ,
+    parameter                                                                       Q_FRAC_SCALE        = 12    ,
 
-    // Assumption: Default output fixed point format = signed Q20.29
+    // Assumption: Default output fixed point format = signed Q20.27
     parameter                                                                       Q_INT_OUTPUT        = 20    ,
-    parameter                                                                       Q_FRAC_OUTPUT       = 29
+    parameter                                                                       Q_FRAC_OUTPUT       = 27
 )
 (
     input                                                                           clk                         ,
@@ -44,14 +44,14 @@ module SCALE_1
     // 7 → conv_last (Conv2d)
     always @(posedge clk) begin
         if (!rst_n) begin
-            scale_table[0]  <= 15'b000000001010000; // 0.00490147
-            scale_table[1]  <= 15'b000000001010001; // 0.00494969
-            scale_table[2]  <= 15'b000000000011100; // 0.00340602
-            scale_table[3]  <= 15'b000000000011100; // 0.00340601
-            scale_table[4]  <= 15'b000000000100000; // 0.00391295
-            scale_table[5]  <= 15'b000000000011001; // 0.00307888
-            scale_table[6]  <= 15'b000000001001111; // 0.00970481
-            scale_table[7]  <= 15'b000000000000110; // 0.00076693
+            scale_table[0]  <= 13'b0_0000_0001_0000; // 2^-8        = 0.00390625
+            scale_table[1]  <= 13'b0_0000_0001_0000; // 2^-8        = 0.00390625
+            scale_table[2]  <= 13'b0_0000_0000_0100; // 2^-10       = 0.000976625
+            scale_table[3]  <= 13'b0_0000_0000_0100; // 2^-10       = 0.000976625
+            scale_table[4]  <= 13'b0_0000_0000_1000; // 2^-9        = 0.001953125
+            scale_table[5]  <= 13'b0_0000_0000_0100; // 2^-10       = 0.000976625
+            scale_table[6]  <= 13'b0_0000_0001_0000; // 2^-8        = 0.00390625
+            scale_table[7]  <= 13'b0_0000_0000_0001; // 2^-12       = 0.000244140625
         end
     end
 

@@ -189,9 +189,9 @@ module CORE_TB;
         INIT;
         repeat (5) @(posedge clk);
         RESET;
-        //RESET_CNT_OUTPUT;
-        //TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL(29);
-        TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
+        RESET_CNT_OUTPUT;
+        TEST_CONV_FIRST_SINGLE_IMAGE_SINGLE_CHANNEL(29);
+        //TEST_CONV_FIRST_SINGLE_IMAGE_ALL_CHANNEL;
         $finish;
     end
 

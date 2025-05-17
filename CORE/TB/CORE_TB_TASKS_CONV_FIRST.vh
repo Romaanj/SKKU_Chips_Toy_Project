@@ -355,7 +355,7 @@
             repeat (20) @(posedge clk);
             $display("Channel %0d finished!", channel);
             $display("Evaluating error in processing channel %0d...", channel);
-            CONV_FIRST_EVAL_ERROR(channel, cnt_output, 0.01);
+            CONV_FIRST_EVAL_ERROR(channel, cnt_output, 0.0001);
         end
 	endtask
 
