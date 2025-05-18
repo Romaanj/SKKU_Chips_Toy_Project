@@ -6,7 +6,44 @@ import torch.optim as optim
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
+import math
+from dataset import SRDataset, TestDataset
+from model_QAT import FSRCNN_QAT
 
+def compute_psnr(sr, hr, max_val=1.0):
+    # sr, hr: torch.Tensor, shape (N,C,H,W), float in [0,1]
+    mse = torch.mean((sr - hr) ** 2)
+    if mse == 0:
+        return float('inf')
+    return 10 * math.log10(max_val**2 / mse.item())
+
+@torch.no_grad()
+def validate(model, dataloader, device, scale):
+    model.eval()
+    total_psnr = 0.0
+    count = 0
+
+    for lr, hr in dataloader:
+        lr = lr.to(device)
+        hr = hr.to(device)
+
+        sr = model(lr)
+
+        # 1) 원하는 크기 계산
+        h_lr, w_lr = lr.size(2), lr.size(3)
+        h_sr, w_sr = h_lr * scale, w_lr * scale
+
+        # 2) 자르기: sr과 hr 모두 (h_sr, w_sr)만 남기고 잘라 줌
+        sr = sr[:, :, :h_sr, :w_sr]
+        hr = hr[:, :, :h_sr, :w_sr]
+
+        # 배치 단위 PSNR
+        for i in range(sr.size(0)):
+            total_psnr += compute_psnr(sr[i:i+1], hr[i:i+1])
+            count += 1
+
+    return total_psnr / count
+    
 def train_model(model, dataloader, criterion, optimizer, num_epochs, checkpoint_dir, device):
     model.to(device)
     loss_history = []
