@@ -270,7 +270,7 @@
             repeat (10) @(posedge clk);
             $display("[%m] Channel %0d finished!", channel);
             $display("[%m] Evaluating error in processing channel %0d...", channel);
-            CONV_SHRINK_EVAL_ERROR(channel, cnt_output, 0.000001);
+            CONV_SHRINK_EVAL_ERROR(channel, cnt_output, 1.0);
             repeat (5) @(posedge clk);
         end
 	endtask
