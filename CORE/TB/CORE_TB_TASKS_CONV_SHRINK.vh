@@ -153,8 +153,8 @@
             fork
                 CONV_SHRINK_DRIVE_INPUT_INTERNAL;
                 begin
-                    layer_bits      <= 3'd0;
-                    for (i = 75; i < 108; i = i + 1) begin
+                    layer_bits      <= 3'd1;
+                    for (i = 56; i < 108; i = i + 1) begin
                         data_in[i]  <= 'b0;
                     end
                     @(posedge clk);
@@ -233,7 +233,7 @@
                     'd10    : conv_shrink_output_temp = mem_conv_shrink_output_10[i]    ;
                     'd11    : conv_shrink_output_temp = mem_conv_shrink_output_11[i]    ;
                 endcase
-                if (mem_golden[i]) begin
+                if (mem_conv_shrink_golden[i]) begin
                 	error = $signed(mem_conv_shrink_golden[i]) >= $signed(conv_shrink_output_temp) ?
                                                                     $signed(mem_conv_shrink_golden[i]) - $signed(conv_shrink_output_temp) :
                                                                     $signed(conv_shrink_output_temp) - $signed(mem_conv_shrink_golden[i]);
@@ -242,7 +242,7 @@
                 else begin
                 	error = 0;
                 end
-                if (error < 0 || error > display_error_threshold) begin
+                if (i < 100 || error < 0 || error > display_error_threshold) begin
                 	$display("[%d]: golden = %X, current = %X, difference = %d -> %f %%!!!",
                     i,
                     mem_conv_shrink_golden[i],
