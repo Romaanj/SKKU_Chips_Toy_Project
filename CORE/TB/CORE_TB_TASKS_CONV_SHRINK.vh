@@ -2,18 +2,18 @@
 `define DEF_TASKS_CONV_SHRINK_H
 
     // layer bits:
-    // 0 → conv_first.0 (Conv2d)
-    // 0 → conv_first.1_alpha (PReLU)
-    // 1 → conv_shrink.0 (Conv2d)
-    // 1 → conv_shrink.1_alpha (PReLU)
-    // 2 → conv_mapping.0 (Conv2d)
-    // 3 → conv_mapping.1 (Conv2d)
-    // 4 → conv_mapping.2 (Conv2d)
-    // 5 → conv_mapping.3 (Conv2d)
-    // 5 → conv_mapping.4 (PReLU)
-    // 6 → conv_expanding.0 (Conv2d)
-    // 6 → conv_expanding.1_alpha (PReLU)
-    // 7 → conv_last (Conv2d)
+    // 0 ?? conv_first.0 (Conv2d)
+    // 0 ?? conv_first.1_alpha (PReLU)
+    // 1 ?? conv_shrink.0 (Conv2d)
+    // 1 ?? conv_shrink.1_alpha (PReLU)
+    // 2 ?? conv_mapping.0 (Conv2d)
+    // 3 ?? conv_mapping.1 (Conv2d)
+    // 4 ?? conv_mapping.2 (Conv2d)
+    // 5 ?? conv_mapping.3 (Conv2d)
+    // 5 ?? conv_mapping.4 (PReLU)
+    // 6 ?? conv_expanding.0 (Conv2d)
+    // 6 ?? conv_expanding.1_alpha (PReLU)
+    // 7 ?? conv_last (Conv2d)
 
     // -------------------------------------------------------------------------------
 
@@ -153,8 +153,8 @@
             fork
                 CONV_SHRINK_DRIVE_INPUT_INTERNAL;
                 begin
-                    layer_bits      <= 3'd0;
-                    for (i = 75; i < 108; i = i + 1) begin
+                    layer_bits      <= 3'd1;
+                    for (i = 56; i < 108; i = i + 1) begin
                         data_in[i]  <= 'b0;
                     end
                     @(posedge clk);
@@ -233,7 +233,7 @@
                     'd10    : conv_shrink_output_temp = mem_conv_shrink_output_10[i]    ;
                     'd11    : conv_shrink_output_temp = mem_conv_shrink_output_11[i]    ;
                 endcase
-                if (mem_golden[i]) begin
+                if (mem_conv_shrink_golden[i]) begin
                 	error = $signed(mem_conv_shrink_golden[i]) >= $signed(conv_shrink_output_temp) ?
                                                                     $signed(mem_conv_shrink_golden[i]) - $signed(conv_shrink_output_temp) :
                                                                     $signed(conv_shrink_output_temp) - $signed(mem_conv_shrink_golden[i]);
@@ -242,7 +242,7 @@
                 else begin
                 	error = 0;
                 end
-                if (error < 0 || error > display_error_threshold) begin
+                  if (error < 0 || error > display_error_threshold)  begin
                 	$display("[%d]: golden = %X, current = %X, difference = %d -> %f %%!!!",
                     i,
                     mem_conv_shrink_golden[i],
