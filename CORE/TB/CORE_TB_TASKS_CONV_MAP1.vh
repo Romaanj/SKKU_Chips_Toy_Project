@@ -492,7 +492,7 @@
                 else begin
                 	error = 0;
                 end
-                 /*if (error < 0 || error > display_error_threshold)*/ begin
+                 if (error < 0 || error > display_error_threshold) begin
                 	$display("[%d]: golden = %X, current = %X, difference = %d -> %f %%!!!",
                     i,
                     mem_conv_map1_golden[i],

@@ -21,6 +21,7 @@
     reg [Q_INT_BIAS+Q_FRAC_BIAS-1:0]                mem_conv_map0_bias        [0:0]               ;
     reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_conv_map0_golden      [0:mem_size-1]      ;
 
+
     reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_map0_output_0    [0:mem_size-1]      ;
     reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_map0_output_1    [0:mem_size-1]      ;
     reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_map0_output_2    [0:mem_size-1]      ;
@@ -43,6 +44,7 @@
         input integer output_channel_idx
     );
         reg [8*15-1:0]  _prefix;
+        reg [8*12-1:0]  _prefix_ans;
         reg [8*6-1:0]   _weight;
         reg [8*4-1:0]   _bias;
         reg [8*6-1:0]   _output;
@@ -492,7 +494,7 @@
                 else begin
                 	error = 0;
                 end
-                 begin
+                 if (error < 0 || error > display_error_threshold) begin
                 	$display("[%d]: golden = %X, current = %X, difference = %d -> %f %%!!!",
                     i,
                     mem_conv_map0_golden[i],
@@ -520,7 +522,7 @@
             repeat (10) @(posedge clk);
             $display("[%m] Channel %0d finished!", channel);
             $display("[%m] Evaluating error in processing channel %0d...", channel);
-            CONV_MAP0_EVAL_ERROR(channel, cnt_output, 0.000001);
+            CONV_MAP0_EVAL_ERROR(channel, cnt_output, 1);
             repeat (5) @(posedge clk);
         end
 	endtask

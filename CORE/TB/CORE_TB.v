@@ -99,12 +99,11 @@ module CORE_TB;
 
     wire signed [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]    data_out                        ;
     wire                                            data_out_enable                 ;
+    wire                                            scale_2_result_enable                  ;
 
     reg [31:0]                                      channel_idx                     ;
     reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_output  [0:mem_size-1]      ;
     reg [31:0]                                      cnt_output                      ;
-    reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0] data_out_d1;
-    reg                                  data_out_enable_d1;
 
     // -------------------------------------------------------------------------------
 
@@ -193,16 +192,12 @@ module CORE_TB;
         TEST_CONV_EXPAND_SINGLE_IMAGE_ALL_CHANNEL;
         $finish;
     end
-    always @(posedge clk) begin
-        data_out_d1 <= data_out;
-        data_out_enable_d1 <= data_out_enable;
-    end
 
     always @(posedge clk) begin
         if (reset_cnt_output) begin
             cnt_output <= 'b0;
         end
-        else if (data_out_enable) begin
+        else if (layer_bits == 3'd2 || layer_bits == 3'd3 || layer_bits == 3'd4 ? scale_2_result_enable : data_out_enable) begin //idx가 증가하는 타이밍을 반영함함
             cnt_output <= cnt_output + 1;
             mem_output[cnt_output] <= data_out;
         end
@@ -285,52 +280,52 @@ module CORE_TB;
                 'd11    : mem_conv_shrink_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd2 && data_out_enable_d1) begin
+          else if (layer_bits == 3'd2 && scale_2_result_enable) begin 
             case(channel_idx)
-                'd0     : mem_conv_map0_output_0[cnt_output]  <= data_out_d1;
-                'd1     : mem_conv_map0_output_1[cnt_output]  <= data_out_d1;
-                'd2     : mem_conv_map0_output_2[cnt_output]  <= data_out_d1;
-                'd3     : mem_conv_map0_output_3[cnt_output]  <= data_out_d1;
-                'd4     : mem_conv_map0_output_4[cnt_output]  <= data_out_d1;
-                'd5     : mem_conv_map0_output_5[cnt_output]  <= data_out_d1;
-                'd6     : mem_conv_map0_output_6[cnt_output]  <= data_out_d1;
-                'd7     : mem_conv_map0_output_7[cnt_output]  <= data_out_d1;
-                'd8     : mem_conv_map0_output_8[cnt_output]  <= data_out_d1;
-                'd9     : mem_conv_map0_output_9[cnt_output]  <= data_out_d1;
-                'd10    : mem_conv_map0_output_10[cnt_output] <= data_out_d1;
-                'd11    : mem_conv_map0_output_11[cnt_output] <= data_out_d1;
+                'd0     : mem_conv_map0_output_0[cnt_output]  <= data_out;
+                'd1     : mem_conv_map0_output_1[cnt_output]  <= data_out;
+                'd2     : mem_conv_map0_output_2[cnt_output]  <= data_out;
+                'd3     : mem_conv_map0_output_3[cnt_output]  <= data_out;
+                'd4     : mem_conv_map0_output_4[cnt_output]  <= data_out;
+                'd5     : mem_conv_map0_output_5[cnt_output]  <= data_out;
+                'd6     : mem_conv_map0_output_6[cnt_output]  <= data_out;
+                'd7     : mem_conv_map0_output_7[cnt_output]  <= data_out;
+                'd8     : mem_conv_map0_output_8[cnt_output]  <= data_out;
+                'd9     : mem_conv_map0_output_9[cnt_output]  <= data_out;
+                'd10    : mem_conv_map0_output_10[cnt_output] <= data_out;
+                'd11    : mem_conv_map0_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd3 && data_out_enable_d1) begin
+          else if (layer_bits == 3'd3 && scale_2_result_enable) begin
             case(channel_idx)
-                'd0     : mem_conv_map1_output_0[cnt_output]  <= data_out_d1;
-                'd1     : mem_conv_map1_output_1[cnt_output]  <= data_out_d1;
-                'd2     : mem_conv_map1_output_2[cnt_output]  <= data_out_d1;
-                'd3     : mem_conv_map1_output_3[cnt_output]  <= data_out_d1;
-                'd4     : mem_conv_map1_output_4[cnt_output]  <= data_out_d1;
-                'd5     : mem_conv_map1_output_5[cnt_output]  <= data_out_d1;
-                'd6     : mem_conv_map1_output_6[cnt_output]  <= data_out_d1;
-                'd7     : mem_conv_map1_output_7[cnt_output]  <= data_out_d1;
-                'd8     : mem_conv_map1_output_8[cnt_output]  <= data_out_d1;
-                'd9     : mem_conv_map1_output_9[cnt_output]  <= data_out_d1;
-                'd10    : mem_conv_map1_output_10[cnt_output] <= data_out_d1;
-                'd11    : mem_conv_map1_output_11[cnt_output] <= data_out_d1;
+                'd0     : mem_conv_map1_output_0[cnt_output]  <= data_out;
+                'd1     : mem_conv_map1_output_1[cnt_output]  <= data_out;
+                'd2     : mem_conv_map1_output_2[cnt_output]  <= data_out;
+                'd3     : mem_conv_map1_output_3[cnt_output]  <= data_out;
+                'd4     : mem_conv_map1_output_4[cnt_output]  <= data_out;
+                'd5     : mem_conv_map1_output_5[cnt_output]  <= data_out;
+                'd6     : mem_conv_map1_output_6[cnt_output]  <= data_out;
+                'd7     : mem_conv_map1_output_7[cnt_output]  <= data_out;
+                'd8     : mem_conv_map1_output_8[cnt_output]  <= data_out;
+                'd9     : mem_conv_map1_output_9[cnt_output]  <= data_out;
+                'd10    : mem_conv_map1_output_10[cnt_output] <= data_out;
+                'd11    : mem_conv_map1_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd4 && data_out_enable_d1) begin
+          else if (layer_bits == 3'd4 && scale_2_result_enable) begin
             case(channel_idx)
-                'd0     : mem_conv_map2_output_0[cnt_output]  <= data_out_d1;
-                'd1     : mem_conv_map2_output_1[cnt_output]  <= data_out_d1;
-                'd2     : mem_conv_map2_output_2[cnt_output]  <= data_out_d1;
-                'd3     : mem_conv_map2_output_3[cnt_output]  <= data_out_d1;
-                'd4     : mem_conv_map2_output_4[cnt_output]  <= data_out_d1;
-                'd5     : mem_conv_map2_output_5[cnt_output]  <= data_out_d1;
-                'd6     : mem_conv_map2_output_6[cnt_output]  <= data_out_d1;
-                'd7     : mem_conv_map2_output_7[cnt_output]  <= data_out_d1;
-                'd8     : mem_conv_map2_output_8[cnt_output]  <= data_out_d1;
-                'd9     : mem_conv_map2_output_9[cnt_output]  <= data_out_d1;
-                'd10    : mem_conv_map2_output_10[cnt_output] <= data_out_d1;
-                'd11    : mem_conv_map2_output_11[cnt_output] <= data_out_d1;
+                'd0     : mem_conv_map2_output_0[cnt_output]  <= data_out;
+                'd1     : mem_conv_map2_output_1[cnt_output]  <= data_out;
+                'd2     : mem_conv_map2_output_2[cnt_output]  <= data_out;
+                'd3     : mem_conv_map2_output_3[cnt_output]  <= data_out;
+                'd4     : mem_conv_map2_output_4[cnt_output]  <= data_out;
+                'd5     : mem_conv_map2_output_5[cnt_output]  <= data_out;
+                'd6     : mem_conv_map2_output_6[cnt_output]  <= data_out;
+                'd7     : mem_conv_map2_output_7[cnt_output]  <= data_out;
+                'd8     : mem_conv_map2_output_8[cnt_output]  <= data_out;
+                'd9     : mem_conv_map2_output_9[cnt_output]  <= data_out;
+                'd10    : mem_conv_map2_output_10[cnt_output] <= data_out;
+                'd11    : mem_conv_map2_output_11[cnt_output] <= data_out;
             endcase
         end
           else if (layer_bits == 3'd5 && data_out_enable) begin
@@ -630,7 +625,8 @@ module CORE_TB;
         .slope_in                               (slope_in               ),
     
         .data_out                               (data_out               ),
-        .data_out_enable                        (data_out_enable        )
+        .data_out_enable                        (data_out_enable        ),
+        .scale_2_result_enable                  (scale_2_result_enable)
     );
 
     // -------------------------------------------------------------------------------

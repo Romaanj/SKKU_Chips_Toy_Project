@@ -275,7 +275,8 @@ module CORE
     input signed    [Q_INT_SLOPE + Q_FRAC_SLOPE -1:0]           slope_in                    ,
 
     output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     data_out                    ,
-    output reg                                                  data_out_enable
+    output reg                                                  data_out_enable             ,
+    output wire                                                 scale_2_result_enable
 );
 
     // -------------------------------------------------------------------------------
@@ -309,6 +310,7 @@ module CORE
             data_out_enable <= 1'b0;
         end
         else if (scale_2_result_enable) begin
+
             data_out_enable <= 1'b1;
         end
         else if (data_out_enable) begin
@@ -321,7 +323,7 @@ module CORE
         if (!rst_n) begin
             data_out <= 'b0;
         end
-        else if (scale_2_result_enable) begin
+        else if ((is_conv2d_core_output ? PReLU_result_enable : scale_2_result_enable)) begin // conv2d_result만 PRelu_result_enable신호로 동작하게 적용
             if (is_conv2d_core_output) begin
                 data_out <= conv2d_result;
             end
