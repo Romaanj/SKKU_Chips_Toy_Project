@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 module CORE_TB;
 
     // Assumption: Default input fixed point format = signed Q4.15
@@ -197,7 +199,7 @@ module CORE_TB;
         if (reset_cnt_output) begin
             cnt_output <= 'b0;
         end
-        else if (layer_bits == 3'd2 || layer_bits == 3'd3 || layer_bits == 3'd4 ? scale_2_result_enable : data_out_enable) begin //idx가 증가하는 타이밍을 반영함함
+        else if (data_out_enable) begin
             cnt_output <= cnt_output + 1;
             mem_output[cnt_output] <= data_out;
         end

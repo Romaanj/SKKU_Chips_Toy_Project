@@ -285,7 +285,9 @@ module CORE
 
     // In some layers, valid data comes after scale_1
     // which is the result of "F.Conv2d"
+    // this result should wait for 1 cycle in a temporal buffer
     reg [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]                    conv2d_result               ;
+    reg [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]                    temp_conv2d_result          ;
     wire                                                        is_conv2d_core_output       ;
 
     always @(posedge clk) begin
@@ -294,6 +296,15 @@ module CORE
         end
         else if (scale_1_result_enable) begin
             conv2d_result <= scale_1_result >> (Q_FRAC_INTERIM_3 - Q_FRAC_OUTPUT);
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            temp_conv2d_result <= 'b0;
+        end
+        else if (PReLU_result_enable) begin
+            temp_conv2d_result <= conv2d_result;
         end
     end
 
@@ -310,7 +321,6 @@ module CORE
             data_out_enable <= 1'b0;
         end
         else if (scale_2_result_enable) begin
-
             data_out_enable <= 1'b1;
         end
         else if (data_out_enable) begin
@@ -323,9 +333,9 @@ module CORE
         if (!rst_n) begin
             data_out <= 'b0;
         end
-        else if ((is_conv2d_core_output ? PReLU_result_enable : scale_2_result_enable)) begin // conv2d_result만 PRelu_result_enable신호로 동작하게 적용
+        else if (scale_2_result_enable) begin
             if (is_conv2d_core_output) begin
-                data_out <= conv2d_result;
+                data_out <= temp_conv2d_result;
             end
             else begin
                 data_out <= scale_2_result;
