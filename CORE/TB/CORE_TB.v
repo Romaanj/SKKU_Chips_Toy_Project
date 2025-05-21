@@ -282,7 +282,7 @@ module CORE_TB;
                 'd11    : mem_conv_shrink_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd2 && scale_2_result_enable) begin 
+          else if (layer_bits == 3'd2 && data_out_enable) begin 
             case(channel_idx)
                 'd0     : mem_conv_map0_output_0[cnt_output]  <= data_out;
                 'd1     : mem_conv_map0_output_1[cnt_output]  <= data_out;
@@ -298,7 +298,7 @@ module CORE_TB;
                 'd11    : mem_conv_map0_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd3 && scale_2_result_enable) begin
+          else if (layer_bits == 3'd3 && data_out_enable) begin
             case(channel_idx)
                 'd0     : mem_conv_map1_output_0[cnt_output]  <= data_out;
                 'd1     : mem_conv_map1_output_1[cnt_output]  <= data_out;
@@ -314,7 +314,7 @@ module CORE_TB;
                 'd11    : mem_conv_map1_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd4 && scale_2_result_enable) begin
+          else if (layer_bits == 3'd4 && data_out_enable) begin
             case(channel_idx)
                 'd0     : mem_conv_map2_output_0[cnt_output]  <= data_out;
                 'd1     : mem_conv_map2_output_1[cnt_output]  <= data_out;
