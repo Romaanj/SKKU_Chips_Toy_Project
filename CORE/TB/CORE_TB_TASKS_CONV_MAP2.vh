@@ -12,7 +12,7 @@
     // 5 ?? conv_mapping.3 (Conv2d)
     // 5 ?? conv_mapping.4 (PReLU)
     // 6 ?? conv_expanding.0 (Conv2d)
-    // 6 ?? conv_expanding.1_alpha (PReLU)
+    // 6 ?? conv_expanding.1_alpha (PReLU) 
     // 7 ?? conv_last (Conv2d)
 
     // -------------------------------------------------------------------------------
