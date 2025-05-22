@@ -28,7 +28,7 @@ module CORE_LAST_ACC
       else if (last_acc_enable) begin
         cnt_acc <= cnt_acc + 'b1;
       end
-  end
+  end 
 
   wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0] internal_addend = addend;
   always @(posedge clk) begin
