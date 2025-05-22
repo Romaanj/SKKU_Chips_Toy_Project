@@ -147,8 +147,6 @@
                 end
             end
         end
-    
-
     endtask
     
     task automatic CONV_EXPAND_DRIVE_INPUT;
