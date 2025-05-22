@@ -42,6 +42,10 @@ module CORE
     parameter                                                   Q_INT_INTERIM_4     = 28    ,
     parameter                                                   Q_FRAC_INTERIM_4    = 27    ,
 
+    // Assumption: Default last acc result fixed point format = signed Q25.15
+    parameter                                                   Q_INT_INTERIM_5     = 25    ,
+    parameter                                                   Q_FRAC_INTERIM_5    = 15    ,
+
     // Assumption: Default output fixed point format = signed Q4.15
     parameter                                                   Q_INT_OUTPUT        = 4     ,
     parameter                                                   Q_FRAC_OUTPUT       = 15 
@@ -275,8 +279,7 @@ module CORE
     input signed    [Q_INT_SLOPE + Q_FRAC_SLOPE -1:0]           slope_in                    ,
 
     output reg signed   [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]     data_out                    ,
-    output reg                                                  data_out_enable             ,
-    output wire                                                 scale_2_result_enable
+    output reg                                                  data_out_enable
 );
 
     // -------------------------------------------------------------------------------
@@ -311,7 +314,7 @@ module CORE
     assign is_conv2d_core_output = (layer_bits == 3'd0
                                     || layer_bits == 3'd1
                                     || layer_bits == 3'd5
-                                    || layer_bits == 3'd6) ? 1'b0 : 1'b1;
+                                    || layer_bits == 3'd6 ) ? 1'b0 : 1'b1;
 
     // -------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------
@@ -334,7 +337,7 @@ module CORE
             data_out <= 'b0;
         end
         else if (scale_2_result_enable) begin
-            if (is_conv2d_core_output) begin
+            else if (is_conv2d_core_output) begin
                 data_out <= temp_conv2d_result;
             end
             else begin
@@ -462,7 +465,7 @@ module CORE
 
     wire signed [Q_INT_BIAS + Q_FRAC_BIAS -1:0]                 bias_buffed                 ;
 
-	wire signed [Q_INT_INTERIM_2 + Q_FRAC_INTERIM_2 -1:0]       adder_tree_result           ;
+	  wire signed [Q_INT_INTERIM_2 + Q_FRAC_INTERIM_2 -1:0]       adder_tree_result           ;
     wire signed [Q_INT_INTERIM_3 + Q_FRAC_INTERIM_3 -1:0]       scale_1_result              ;
     wire signed [Q_INT_INTERIM_4 + Q_FRAC_INTERIM_4 -1:0]       PReLU_result                ;
     wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]             scale_2_result              ;
@@ -841,7 +844,7 @@ module CORE
         .clk                                    (clk                        ),
         .rst_n                                  (rst_n                      ),
 
-        .adder_tree_first_stage_enable			(adder_tree_enable          ),
+        .adder_tree_first_stage_enable			     (adder_tree_enable          ),
 
         .addend_0                               (multiplied_result_0        ),
         .addend_1                               (multiplied_result_1        ),
@@ -958,6 +961,22 @@ module CORE
         .adder_tree_result_enable               (adder_tree_result_enable   )
     );
 
+    LAST_ACC
+    #(
+      .Q_INT_INPUT                             (Q_INT_INTERIM_2            ),
+      .Q_FRAC_INTPUT                           (Q_FRAC_INTERIM_2           ),
+      .Q_INT_OUTPUT                            (Q_INT_INTERIM_5            ),
+      .Q_FRAC_OUTPUT                           (Q_FRAC_INTERIM_5           ),
+    )
+    last_acc_inst
+    (
+      .clk                                     (clk                        ),
+      .rst_n                                   (rst_n                      ),
+      .last_acc_enable                         (adder_tree_result_enable   ),
+      .addend                                  (adder_tree_result          ),
+      .last_acc_result_enable                  (last_acc_result_enable     ),
+      .last_acc_result                         (last_acc_result            )
+    )
     SCALE_1
     #(
         .Q_INT_OPERAND                          (Q_INT_INTERIM_2            ),
