@@ -584,7 +584,7 @@ module CORE_ADDER_TREE
     // -------------------------------------------------------------------------------
 
     wire signed [width_stage_6 - 1:0]               stage_6_operand     [0:3]                   ;
-    wire signed [width_stage_6 - 1:0]               stage_6_result      [0:2]                   ; // 4 = 2 * 2
+    wire signed [width_stage_6 - 1:0]               stage_6_result      [0:1]                   ; // 4 = 2 * 2
 
     // sign extension: Q(a+5).b -> Q(a+6).b
     assign stage_6_operand[0]       = stage_5_result[0 ]                                        ;

@@ -54,8 +54,8 @@
         reg [8*1-1:0]   _idx_up;
         reg [8*1-1:0]   _idx_down;
         begin
-            _prefix_1         = "conv_mapping.3_";
-            _prefix_2         = "conv_mapping.4_";
+            _prefix_1       = "conv_mapping.3_";
+            _prefix_2       = "conv_mapping.4_";
             _weight         = "weight";
             _bias           = "bias";
             _slope          = "slope";
@@ -423,7 +423,6 @@
                 CONV_MAP3_DRIVE_INPUT_9_INTERNAL;
                 CONV_MAP3_DRIVE_INPUT_10_INTERNAL;
                 CONV_MAP3_DRIVE_INPUT_11_INTERNAL;
-
                 begin
                   layer_bits      <= 3'd5;
                 end
@@ -449,12 +448,20 @@
         end
     endtask
 
+    task CONV_MAP3_DRIVE_SLOPE;
+        begin
+            slope_in <= mem_conv_map4_slope[0];
+            @(posedge clk);
+        end
+    endtask
+
     task CONV_MAP3_DRIVE;
         begin
             fork
                 CONV_MAP3_DRIVE_INPUT;
                 CONV_MAP3_DRIVE_WEIGHT;
                 CONV_MAP3_DRIVE_BIAS;
+                CONV_MAP3_DRIVE_SLOPE;
                 begin
                     convolution_enable  <= 1'b1;
                     @(posedge clk);
