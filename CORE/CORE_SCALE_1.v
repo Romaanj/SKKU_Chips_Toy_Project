@@ -21,7 +21,7 @@ module SCALE_1
     input signed [Q_INT_OPERAND + Q_FRAC_OPERAND - 1:0]                             operand                     ,
 
     output reg                                                                      scale_1_result_enable		,
-    output reg signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]                          result
+    (* keep = "true" *) output reg signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]		result
 );
 
     // --------------------------------------------------------
