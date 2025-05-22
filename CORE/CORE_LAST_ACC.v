@@ -14,7 +14,7 @@ module CORE_LAST_ACC
     input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend                                              ,
 
     output reg                                              last_acc_result_enable                              ,
-    output signed reg [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]  last_acc_result
+    output reg signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]  last_acc_result
 );
 
   reg [5:0] cnt_acc;
