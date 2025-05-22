@@ -59,6 +59,7 @@ module CORE_TB;
     `include "CORE_TB_TASKS_CONV_MAP2.vh"
     `include "CORE_TB_TASKS_CONV_MAP3.vh"
     `include "CORE_TB_TASKS_CONV_EXPAND.vh"
+    `include "CORE_TB_TASKS_CONV_LAST.vh"
     
 
     // -------------------------------------------------------------------------------
@@ -69,10 +70,6 @@ module CORE_TB;
     reg                                             reset_channel_idx               ;
 
     // -------------------------------------------------------------------------------
-
-    reg [Q_INT_WEIGHT+Q_FRAC_WEIGHT-1:0]            mem_weight  [0:input_size-1]    ;
-    reg [Q_INT_BIAS+Q_FRAC_BIAS-1:0]                mem_bias    [0:0]               ;
-    reg [Q_INT_SLOPE+Q_FRAC_SLOPE-1:0]              mem_slope   [0:0]               ;
 
     // layer bits:
     // 0 ?? conv_first.0 (Conv2d)
@@ -90,8 +87,6 @@ module CORE_TB;
     reg [2:0]                                       layer_bits                      ;
     reg                                             convolution_enable              ;
 
-    reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_golden  [0:mem_size-1]      ;
-
     // -------------------------------------------------------------------------------
     
     reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              data_in     [0:input_size-1]    ;
@@ -101,7 +96,6 @@ module CORE_TB;
 
     wire signed [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]    data_out                        ;
     wire                                            data_out_enable                 ;
-    wire                                            scale_2_result_enable                  ;
 
     reg [31:0]                                      channel_idx                     ;
     reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_output  [0:mem_size-1]      ;
@@ -190,7 +184,6 @@ module CORE_TB;
         TEST_CONV_MAP0_SINGLE_IMAGE_ALL_CHANNEL;
         TEST_CONV_MAP1_SINGLE_IMAGE_ALL_CHANNEL;
         TEST_CONV_MAP2_SINGLE_IMAGE_ALL_CHANNEL;
-        //TEST_CONV_MAP3_SINGLE_IMAGE_SINGLE_CHANNEL(5);
         TEST_CONV_MAP3_SINGLE_IMAGE_ALL_CHANNEL;
         TEST_CONV_EXPAND_SINGLE_IMAGE_ALL_CHANNEL;
         $finish;
@@ -283,7 +276,7 @@ module CORE_TB;
                 'd11    : mem_conv_shrink_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd2 && data_out_enable) begin 
+        else if (layer_bits == 3'd2 && data_out_enable) begin 
             case(channel_idx)
                 'd0     : mem_conv_map0_output_0[cnt_output]  <= data_out;
                 'd1     : mem_conv_map0_output_1[cnt_output]  <= data_out;
@@ -299,7 +292,7 @@ module CORE_TB;
                 'd11    : mem_conv_map0_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd3 && data_out_enable) begin
+        else if (layer_bits == 3'd3 && data_out_enable) begin
             case(channel_idx)
                 'd0     : mem_conv_map1_output_0[cnt_output]  <= data_out;
                 'd1     : mem_conv_map1_output_1[cnt_output]  <= data_out;
@@ -315,7 +308,7 @@ module CORE_TB;
                 'd11    : mem_conv_map1_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd4 && data_out_enable) begin
+        else if (layer_bits == 3'd4 && data_out_enable) begin
             case(channel_idx)
                 'd0     : mem_conv_map2_output_0[cnt_output]  <= data_out;
                 'd1     : mem_conv_map2_output_1[cnt_output]  <= data_out;
@@ -331,7 +324,7 @@ module CORE_TB;
                 'd11    : mem_conv_map2_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd5 && data_out_enable) begin
+        else if (layer_bits == 3'd5 && data_out_enable) begin
             case(channel_idx)
                 'd0     : mem_conv_map4_output_0[cnt_output]  <= data_out;
                 'd1     : mem_conv_map4_output_1[cnt_output]  <= data_out;
@@ -347,7 +340,67 @@ module CORE_TB;
                 'd11    : mem_conv_map4_output_11[cnt_output] <= data_out;
             endcase
         end
-          else if (layer_bits == 3'd6 && data_out_enable) begin
+        else if (layer_bits == 3'd6 && data_out_enable) begin
+            case(channel_idx)
+                'd0     : mem_conv_expand_output_0[cnt_output]  <= data_out;
+                'd1     : mem_conv_expand_output_1[cnt_output]  <= data_out;
+                'd2     : mem_conv_expand_output_2[cnt_output]  <= data_out;
+                'd3     : mem_conv_expand_output_3[cnt_output]  <= data_out;
+                'd4     : mem_conv_expand_output_4[cnt_output]  <= data_out;
+                'd5     : mem_conv_expand_output_5[cnt_output]  <= data_out;
+                'd6     : mem_conv_expand_output_6[cnt_output]  <= data_out;
+                'd7     : mem_conv_expand_output_7[cnt_output]  <= data_out;
+                'd8     : mem_conv_expand_output_8[cnt_output]  <= data_out;
+                'd9     : mem_conv_expand_output_9[cnt_output]  <= data_out;
+                'd10    : mem_conv_expand_output_10[cnt_output] <= data_out;
+                'd11    : mem_conv_expand_output_11[cnt_output] <= data_out;
+                'd12    : mem_conv_expand_output_12[cnt_output] <= data_out;
+                'd13    : mem_conv_expand_output_13[cnt_output] <= data_out;
+                'd14    : mem_conv_expand_output_14[cnt_output] <= data_out;
+                'd15    : mem_conv_expand_output_15[cnt_output] <= data_out;
+                'd16    : mem_conv_expand_output_16[cnt_output] <= data_out;
+                'd17    : mem_conv_expand_output_17[cnt_output] <= data_out;
+                'd18    : mem_conv_expand_output_18[cnt_output] <= data_out;
+                'd19    : mem_conv_expand_output_19[cnt_output] <= data_out;
+                'd20    : mem_conv_expand_output_20[cnt_output] <= data_out;
+                'd21    : mem_conv_expand_output_21[cnt_output] <= data_out;
+                'd22    : mem_conv_expand_output_22[cnt_output] <= data_out;
+                'd23    : mem_conv_expand_output_23[cnt_output] <= data_out;
+                'd24    : mem_conv_expand_output_24[cnt_output] <= data_out;
+                'd25    : mem_conv_expand_output_25[cnt_output] <= data_out;
+                'd26    : mem_conv_expand_output_26[cnt_output] <= data_out;
+                'd27    : mem_conv_expand_output_27[cnt_output] <= data_out;
+                'd28    : mem_conv_expand_output_28[cnt_output] <= data_out;
+                'd29    : mem_conv_expand_output_29[cnt_output] <= data_out;
+                'd30    : mem_conv_expand_output_30[cnt_output] <= data_out;
+                'd31    : mem_conv_expand_output_31[cnt_output] <= data_out;
+                'd32    : mem_conv_expand_output_32[cnt_output] <= data_out;
+                'd33    : mem_conv_expand_output_33[cnt_output] <= data_out;
+                'd34    : mem_conv_expand_output_34[cnt_output] <= data_out;
+                'd35    : mem_conv_expand_output_35[cnt_output] <= data_out;
+                'd36    : mem_conv_expand_output_36[cnt_output] <= data_out;
+                'd37    : mem_conv_expand_output_37[cnt_output] <= data_out;
+                'd38    : mem_conv_expand_output_38[cnt_output] <= data_out;
+                'd39    : mem_conv_expand_output_39[cnt_output] <= data_out;
+                'd40    : mem_conv_expand_output_40[cnt_output] <= data_out;
+                'd41    : mem_conv_expand_output_41[cnt_output] <= data_out;
+                'd42    : mem_conv_expand_output_42[cnt_output] <= data_out;
+                'd43    : mem_conv_expand_output_43[cnt_output] <= data_out;
+                'd44    : mem_conv_expand_output_44[cnt_output] <= data_out;
+                'd45    : mem_conv_expand_output_45[cnt_output] <= data_out;
+                'd46    : mem_conv_expand_output_46[cnt_output] <= data_out;
+                'd47    : mem_conv_expand_output_47[cnt_output] <= data_out;
+                'd48    : mem_conv_expand_output_48[cnt_output] <= data_out;
+                'd49    : mem_conv_expand_output_49[cnt_output] <= data_out;
+                'd50    : mem_conv_expand_output_50[cnt_output] <= data_out;
+                'd51    : mem_conv_expand_output_51[cnt_output] <= data_out;
+                'd52    : mem_conv_expand_output_52[cnt_output] <= data_out;
+                'd53    : mem_conv_expand_output_53[cnt_output] <= data_out;
+                'd54    : mem_conv_expand_output_54[cnt_output] <= data_out;
+                'd55    : mem_conv_expand_output_55[cnt_output] <= data_out;
+            endcase
+        end
+        else if (layer_bits == 3'd7 && data_out_enable) begin
             case(channel_idx)
                 'd0     : mem_conv_expand_output_0[cnt_output]  <= data_out;
                 'd1     : mem_conv_expand_output_1[cnt_output]  <= data_out;

@@ -465,7 +465,8 @@ module CORE
 
     wire signed [Q_INT_BIAS + Q_FRAC_BIAS -1:0]                 bias_buffed                 ;
 
-	  wire signed [Q_INT_INTERIM_2 + Q_FRAC_INTERIM_2 -1:0]       adder_tree_result           ;
+	wire signed [Q_INT_INTERIM_2 + Q_FRAC_INTERIM_2 -1:0]       adder_tree_result           ;
+	wire signed [Q_INT_INTERIM_5 + Q_FRAC_INTERIM_5 -1:0]		last_acc_result				;
     wire signed [Q_INT_INTERIM_3 + Q_FRAC_INTERIM_3 -1:0]       scale_1_result              ;
     wire signed [Q_INT_INTERIM_4 + Q_FRAC_INTERIM_4 -1:0]       PReLU_result                ;
     wire signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT -1:0]             scale_2_result              ;
@@ -961,10 +962,10 @@ module CORE
         .adder_tree_result_enable               (adder_tree_result_enable   )
     );
 
-    LAST_ACC
+    CORE_LAST_ACC
     #(
       .Q_INT_INPUT                             (Q_INT_INTERIM_2            ),
-      .Q_FRAC_INTPUT                           (Q_FRAC_INTERIM_2           ),
+      .Q_FRAC_INPUT								(Q_FRAC_INTERIM_2           ),
       .Q_INT_OUTPUT                            (Q_INT_INTERIM_5            ),
       .Q_FRAC_OUTPUT                           (Q_FRAC_INTERIM_5           )
     )
