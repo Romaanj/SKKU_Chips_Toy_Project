@@ -337,7 +337,7 @@ module CORE
             data_out <= 'b0;
         end
         else if (scale_2_result_enable) begin
-            else if (is_conv2d_core_output) begin
+            if (is_conv2d_core_output) begin
                 data_out <= temp_conv2d_result;
             end
             else begin
@@ -966,7 +966,7 @@ module CORE
       .Q_INT_INPUT                             (Q_INT_INTERIM_2            ),
       .Q_FRAC_INTPUT                           (Q_FRAC_INTERIM_2           ),
       .Q_INT_OUTPUT                            (Q_INT_INTERIM_5            ),
-      .Q_FRAC_OUTPUT                           (Q_FRAC_INTERIM_5           ),
+      .Q_FRAC_OUTPUT                           (Q_FRAC_INTERIM_5           )
     )
     last_acc_inst
     (
@@ -976,7 +976,7 @@ module CORE
       .addend                                  (adder_tree_result          ),
       .last_acc_result_enable                  (last_acc_result_enable     ),
       .last_acc_result                         (last_acc_result            )
-    )
+    );
     SCALE_1
     #(
         .Q_INT_OPERAND                          (Q_INT_INTERIM_2            ),
