@@ -254,7 +254,8 @@ module BRAM_ACCESS_CONTROLLER
     reg                             AXI_first_buf;
     reg [3:0]                       data_i_cnt;
     reg [3:0]                       cnt;
-    
+    reg [39:0]                  core_data_temp_0;
+    reg [39:0]                  core_data_temp_1;
     always @ (posedge clk) begin
     
         if (!rst_n) begin
@@ -386,7 +387,7 @@ module BRAM_ACCESS_CONTROLLER
            
         end
         else if (state == CONV_FIRST) begin
-            if(AXI_first_buf || AXI_lastline_buf) begin
+            if(AXI_first_buf || AXI_lastline_buf) begin // line buf : 2
                 if(cnt == 1 || cnt == 6) begin //read
                     en_a_1                  <= 'b1;
                     en_b_1                  <= 'b1;
@@ -407,6 +408,7 @@ module BRAM_ACCESS_CONTROLLER
                 if(cnt == 0 || cnt == 5) begin
                     CORE_data_o0 <= dout_a_1;
                     CORE_data_o1 <= dout_b_1;
+                    core_data_valid <= 'b1;
                 end
                 
                 if(data_i_cnt == 4'b0000)       begin
@@ -453,7 +455,7 @@ module BRAM_ACCESS_CONTROLLER
                     data_to_core_b_n <= data_to_core_b;
                 end 
             end
-            else begin
+            else begin // line buf : 3, 4
                 if(cnt == 0 || cnt == 1 || cnt == 5 || cnt == 6) begin //read
                     en_a_1                  <= 'b1;
                     en_b_1                  <= 'b1;
@@ -472,12 +474,14 @@ module BRAM_ACCESS_CONTROLLER
                 end
                 
                 if(cnt == 4) begin
-                    assign CORE_data_o0 = dout_a_1;
-                    assign CORE_data_o1 = dout_b_1;
+                    core_data_temp_0 <= dout_a_1;
+                    core_data_temp_1 <= dout_b_1;
                 end
                 else if(cnt == 5) begin
-                    assign CORE_data_o2 = dout_a_1;
-                    assign CORE_data_o3 = dout_b_1;
+                    CORE_data_o0 <= core_data_temp_0;
+                    CORE_data_o1 <= core_data_temp_1;
+                    CORE_data_o2 <= dout_a_1;
+                    CORE_data_o3 <= dout_b_1;
                 end
                 
                 if(data_i_cnt == 4'b0000)       begin
