@@ -186,6 +186,8 @@ module CORE_TB;
         TEST_CONV_MAP2_SINGLE_IMAGE_ALL_CHANNEL;
         TEST_CONV_MAP3_SINGLE_IMAGE_ALL_CHANNEL;
         TEST_CONV_EXPAND_SINGLE_IMAGE_ALL_CHANNEL;
+        //TEST_CONV_LAST_SINGLE_IMAGE_SINGLE_CHANNEL(0);
+        TEST_CONV_LAST_SINGLE_IMAGE_ALL_CHANNEL;
         $finish;
     end
 
@@ -402,62 +404,9 @@ module CORE_TB;
         end
         else if (layer_bits == 3'd7 && data_out_enable) begin
             case(channel_idx)
-                'd0     : mem_conv_expand_output_0[cnt_output]  <= data_out;
-                'd1     : mem_conv_expand_output_1[cnt_output]  <= data_out;
-                'd2     : mem_conv_expand_output_2[cnt_output]  <= data_out;
-                'd3     : mem_conv_expand_output_3[cnt_output]  <= data_out;
-                'd4     : mem_conv_expand_output_4[cnt_output]  <= data_out;
-                'd5     : mem_conv_expand_output_5[cnt_output]  <= data_out;
-                'd6     : mem_conv_expand_output_6[cnt_output]  <= data_out;
-                'd7     : mem_conv_expand_output_7[cnt_output]  <= data_out;
-                'd8     : mem_conv_expand_output_8[cnt_output]  <= data_out;
-                'd9     : mem_conv_expand_output_9[cnt_output]  <= data_out;
-                'd10    : mem_conv_expand_output_10[cnt_output] <= data_out;
-                'd11    : mem_conv_expand_output_11[cnt_output] <= data_out;
-                'd12    : mem_conv_expand_output_12[cnt_output] <= data_out;
-                'd13    : mem_conv_expand_output_13[cnt_output] <= data_out;
-                'd14    : mem_conv_expand_output_14[cnt_output] <= data_out;
-                'd15    : mem_conv_expand_output_15[cnt_output] <= data_out;
-                'd16    : mem_conv_expand_output_16[cnt_output] <= data_out;
-                'd17    : mem_conv_expand_output_17[cnt_output] <= data_out;
-                'd18    : mem_conv_expand_output_18[cnt_output] <= data_out;
-                'd19    : mem_conv_expand_output_19[cnt_output] <= data_out;
-                'd20    : mem_conv_expand_output_20[cnt_output] <= data_out;
-                'd21    : mem_conv_expand_output_21[cnt_output] <= data_out;
-                'd22    : mem_conv_expand_output_22[cnt_output] <= data_out;
-                'd23    : mem_conv_expand_output_23[cnt_output] <= data_out;
-                'd24    : mem_conv_expand_output_24[cnt_output] <= data_out;
-                'd25    : mem_conv_expand_output_25[cnt_output] <= data_out;
-                'd26    : mem_conv_expand_output_26[cnt_output] <= data_out;
-                'd27    : mem_conv_expand_output_27[cnt_output] <= data_out;
-                'd28    : mem_conv_expand_output_28[cnt_output] <= data_out;
-                'd29    : mem_conv_expand_output_29[cnt_output] <= data_out;
-                'd30    : mem_conv_expand_output_30[cnt_output] <= data_out;
-                'd31    : mem_conv_expand_output_31[cnt_output] <= data_out;
-                'd32    : mem_conv_expand_output_32[cnt_output] <= data_out;
-                'd33    : mem_conv_expand_output_33[cnt_output] <= data_out;
-                'd34    : mem_conv_expand_output_34[cnt_output] <= data_out;
-                'd35    : mem_conv_expand_output_35[cnt_output] <= data_out;
-                'd36    : mem_conv_expand_output_36[cnt_output] <= data_out;
-                'd37    : mem_conv_expand_output_37[cnt_output] <= data_out;
-                'd38    : mem_conv_expand_output_38[cnt_output] <= data_out;
-                'd39    : mem_conv_expand_output_39[cnt_output] <= data_out;
-                'd40    : mem_conv_expand_output_40[cnt_output] <= data_out;
-                'd41    : mem_conv_expand_output_41[cnt_output] <= data_out;
-                'd42    : mem_conv_expand_output_42[cnt_output] <= data_out;
-                'd43    : mem_conv_expand_output_43[cnt_output] <= data_out;
-                'd44    : mem_conv_expand_output_44[cnt_output] <= data_out;
-                'd45    : mem_conv_expand_output_45[cnt_output] <= data_out;
-                'd46    : mem_conv_expand_output_46[cnt_output] <= data_out;
-                'd47    : mem_conv_expand_output_47[cnt_output] <= data_out;
-                'd48    : mem_conv_expand_output_48[cnt_output] <= data_out;
-                'd49    : mem_conv_expand_output_49[cnt_output] <= data_out;
-                'd50    : mem_conv_expand_output_50[cnt_output] <= data_out;
-                'd51    : mem_conv_expand_output_51[cnt_output] <= data_out;
-                'd52    : mem_conv_expand_output_52[cnt_output] <= data_out;
-                'd53    : mem_conv_expand_output_53[cnt_output] <= data_out;
-                'd54    : mem_conv_expand_output_54[cnt_output] <= data_out;
-                'd55    : mem_conv_expand_output_55[cnt_output] <= data_out;
+                'd0     : mem_conv_last_output_0[cnt_output]  <= data_out;
+                'd1     : mem_conv_last_output_1[cnt_output]  <= data_out;
+                'd2     : mem_conv_last_output_2[cnt_output]  <= data_out;
             endcase
         end
     end
@@ -725,8 +674,7 @@ module CORE_TB;
         .slope_in                               (slope_in               ),
     
         .data_out                               (data_out               ),
-        .data_out_enable                        (data_out_enable        ),
-        .scale_2_result_enable                  (scale_2_result_enable)
+        .data_out_enable                        (data_out_enable        )
     );
 
     // -------------------------------------------------------------------------------

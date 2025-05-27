@@ -286,9 +286,23 @@ module CORE
     // data control start
     // -------------------------------------------------------------------------------
 
+    // In the last layer, valid data comes after accumulation of adder_tree_result's
+    // which is the result of "last_acc"
+    // this result enables the scale_1
+    // but in other layers, scale_1 is auto-enabled by adder_tree_enable
+
+    wire                                                        scale_1_enable              ;
+    wire [Q_INT_INTERIM_2 + Q_FRAC_INTERIM_2 - 1:0]             scale_1_operand             ;
+
+    assign scale_1_enable   = (layer_bits == 3'd7) ? 'b0 : adder_tree_result_enable         ;
+    assign scale_1_operand  = (layer_bits == 3'd7) ? 'b0 : adder_tree_result                ;
+
+    // -------------------------------------------------------------------------------
+
     // In some layers, valid data comes after scale_1
     // which is the result of "F.Conv2d"
     // this result should wait for 1 cycle in a temporal buffer
+
     reg [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]                    conv2d_result               ;
     reg [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]                    temp_conv2d_result          ;
     wire                                                        is_conv2d_core_output       ;
@@ -316,12 +330,20 @@ module CORE
                                     || layer_bits == 3'd5
                                     || layer_bits == 3'd6 ) ? 1'b0 : 1'b1;
 
-    // -------------------------------------------------------------------------------
+
     // -------------------------------------------------------------------------------
 
     always @(posedge clk) begin
         if (!rst_n) begin
             data_out_enable <= 1'b0;
+        end
+        else if (layer_bits == 3'd7) begin
+            if (last_acc_result_enable) begin
+                data_out_enable <= 1'b1;
+            end
+            else if (data_out_enable) begin
+                data_out_enable <= 1'b0;
+            end
         end
         else if (scale_2_result_enable) begin
             data_out_enable <= 1'b1;
@@ -331,10 +353,14 @@ module CORE
         end
     end
 
-
     always @(posedge clk) begin
         if (!rst_n) begin
             data_out <= 'b0;
+        end
+        else if (layer_bits == 3'd7) begin
+            if (last_acc_result_enable) begin
+                data_out <= last_acc_result >> 12;
+            end
         end
         else if (scale_2_result_enable) begin
             if (is_conv2d_core_output) begin
@@ -464,6 +490,7 @@ module CORE
     wire signed [Q_INT_INTERIM_1 + Q_FRAC_INTERIM_1 -1:0]       multiplied_result_107       ;
 
     wire signed [Q_INT_BIAS + Q_FRAC_BIAS -1:0]                 bias_buffed                 ;
+    wire signed [Q_INT_BIAS + Q_FRAC_BIAS -1:0]                 bias_buffed_2               ;
 
 	wire signed [Q_INT_INTERIM_2 + Q_FRAC_INTERIM_2 -1:0]       adder_tree_result           ;
 	wire signed [Q_INT_INTERIM_5 + Q_FRAC_INTERIM_5 -1:0]		last_acc_result				;
@@ -845,7 +872,7 @@ module CORE
         .clk                                    (clk                        ),
         .rst_n                                  (rst_n                      ),
 
-        .adder_tree_first_stage_enable			     (adder_tree_enable          ),
+        .adder_tree_first_stage_enable			(adder_tree_enable          ),
 
         .addend_0                               (multiplied_result_0        ),
         .addend_1                               (multiplied_result_1        ),
@@ -956,28 +983,34 @@ module CORE
         .addend_106                             (multiplied_result_106      ),
         .addend_107                             (multiplied_result_107      ),
 
-        .bias                                   (bias_buffed                ),
+        .bias_i                                 (bias_buffed                ),
 
         .adder_tree_result                      (adder_tree_result          ),
-        .adder_tree_result_enable               (adder_tree_result_enable   )
+        .adder_tree_result_enable               (adder_tree_result_enable   ),
+        .bias_o                                 (bias_buffed_2              )
     );
 
     CORE_LAST_ACC
     #(
-      .Q_INT_INPUT                             (Q_INT_INTERIM_2            ),
-      .Q_FRAC_INPUT								(Q_FRAC_INTERIM_2           ),
-      .Q_INT_OUTPUT                            (Q_INT_INTERIM_5            ),
-      .Q_FRAC_OUTPUT                           (Q_FRAC_INTERIM_5           )
+        .Q_INT_INPUT                            (Q_INT_INTERIM_2            ),
+        .Q_FRAC_INPUT                           (Q_FRAC_INTERIM_2           ),
+        .Q_INT_BIAS                             (Q_INT_BIAS                 ),
+        .Q_FRAC_BIAS                            (Q_FRAC_BIAS                ),
+        .Q_INT_OUTPUT                           (Q_INT_INTERIM_5            ),
+        .Q_FRAC_OUTPUT                          (Q_FRAC_INTERIM_5           )
     )
     last_acc_inst
     (
-      .clk                                     (clk                        ),
-      .rst_n                                   (rst_n                      ),
-      .last_acc_enable                         (adder_tree_result_enable   ),
-      .addend                                  (adder_tree_result          ),
-      .last_acc_result_enable                  (last_acc_result_enable     ),
-      .last_acc_result                         (last_acc_result            )
+        .clk                                    (clk                        ),
+        .rst_n                                  (rst_n                      ),
+        .layer_bits                             (layer_bits                 ),
+        .last_acc_enable                        (adder_tree_result_enable   ),
+        .bias                                   (bias_buffed_2              ),
+        .addend                                 (adder_tree_result          ),
+        .last_acc_result_enable                 (last_acc_result_enable     ),
+        .last_acc_result                        (last_acc_result            )
     );
+
     SCALE_1
     #(
         .Q_INT_OPERAND                          (Q_INT_INTERIM_2            ),
@@ -992,8 +1025,8 @@ module CORE
         .clk                                    (clk                        ),
         .rst_n                                  (rst_n                      ),
         .layer_bits                             (layer_bits                 ),
-        .scale_1_enable                         (adder_tree_result_enable   ),
-        .operand                                (adder_tree_result          ),
+        .scale_1_enable                         (scale_1_enable             ),
+        .operand                                (scale_1_operand            ),
         .scale_1_result_enable                  (scale_1_result_enable      ),
         .result                                 (scale_1_result             )
     );

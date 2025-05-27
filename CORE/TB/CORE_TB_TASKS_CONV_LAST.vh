@@ -15,16 +15,18 @@
     // 6 → conv_expanding.1_alpha (PReLU)
     // 7 → conv_last (Conv2d)
 
+    parameter                                       conv_last_weight_size       = 81 * 56           ;
+
     // -------------------------------------------------------------------------------
 
-    reg [Q_INT_WEIGHT+Q_FRAC_WEIGHT-1:0]            mem_conv_last_weight       [0:input_size-1]     ;
+    reg [Q_INT_WEIGHT+Q_FRAC_WEIGHT-1:0]            mem_conv_last_weight       [0:conv_last_weight_size-1];
     reg [Q_INT_BIAS+Q_FRAC_BIAS-1:0]                mem_conv_last_bias         [0:0]                ;
     reg [Q_INT_SLOPE+Q_FRAC_SLOPE-1:0]              mem_conv_last_slope        [0:0]                ;
     reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_conv_last_golden       [0:9*mem_size-1]     ;
 
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_last_output_0     [0:9*mem_size-1]     ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_last_output_1     [0:9*mem_size-1]     ;
-    reg [Q_INT_INPUT+Q_FRAC_INPUT-1:0]              mem_conv_last_output_2     [0:9*mem_size-1]     ;
+    reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_conv_last_output_0     [0:9*mem_size-1]     ;
+    reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_conv_last_output_1     [0:9*mem_size-1]     ;
+    reg [Q_INT_OUTPUT+Q_FRAC_OUTPUT-1:0]            mem_conv_last_output_2     [0:9*mem_size-1]     ;
 
     // -------------------------------------------------------------------------------
     // function definition start
@@ -36,7 +38,7 @@
         input integer col
     );
         begin
-            if (row % 3 == 0 || col % 3 == 0) begin
+            if (row % 3 == 0 && col % 3 == 0) begin
                 is_upsampled = 1'b0;
             end
             else begin
@@ -53,36 +55,74 @@
     // task definition start
     // -------------------------------------------------------------------------------
 
-    task automatic CONV_LAST_READ_WEIGHT
-    (
-        input integer output_channel_idx,
-        input integer startpos,
-        input integer endpos
-    );
-        reg [8*10-1:0]  _prefix;
-        reg [8*6-1:0]   _weight;
-        reg [8*1-1:0]   _underbar;
-        reg [8*4-1:0]   _filetype;
-        reg [8*1-1:0]   _idx_down;
+    task automatic CONV_LAST_READ_EXPANDING_GOLDEN;
         begin
-            _prefix         = "conv_last_";
-            _weight         = "weight";
-            _underbar       = "_";
-            _filetype       = ".txt";
-
-            _idx_down   = output_channel_idx + 48;
-            $readmemh({_prefix, _weight  , _underbar, _idx_down, _filetype}, mem_conv_last_weight, startpos, endpos);
+            $readmemh("conv_expanding_output_0.txt", mem_conv_expand_output_0);
+            $readmemh("conv_expanding_output_1.txt", mem_conv_expand_output_1);
+            $readmemh("conv_expanding_output_2.txt", mem_conv_expand_output_2);
+            $readmemh("conv_expanding_output_3.txt", mem_conv_expand_output_3);
+            $readmemh("conv_expanding_output_4.txt", mem_conv_expand_output_4);
+            $readmemh("conv_expanding_output_5.txt", mem_conv_expand_output_5);
+            $readmemh("conv_expanding_output_6.txt", mem_conv_expand_output_6);
+            $readmemh("conv_expanding_output_7.txt", mem_conv_expand_output_7);
+            $readmemh("conv_expanding_output_8.txt", mem_conv_expand_output_8);
+            $readmemh("conv_expanding_output_9.txt", mem_conv_expand_output_9);
+            $readmemh("conv_expanding_output_10.txt", mem_conv_expand_output_10);
+            $readmemh("conv_expanding_output_11.txt", mem_conv_expand_output_11);
+            $readmemh("conv_expanding_output_12.txt", mem_conv_expand_output_12);
+            $readmemh("conv_expanding_output_13.txt", mem_conv_expand_output_13);
+            $readmemh("conv_expanding_output_14.txt", mem_conv_expand_output_14);
+            $readmemh("conv_expanding_output_15.txt", mem_conv_expand_output_15);
+            $readmemh("conv_expanding_output_16.txt", mem_conv_expand_output_16);
+            $readmemh("conv_expanding_output_17.txt", mem_conv_expand_output_17);
+            $readmemh("conv_expanding_output_18.txt", mem_conv_expand_output_18);
+            $readmemh("conv_expanding_output_19.txt", mem_conv_expand_output_19);
+            $readmemh("conv_expanding_output_20.txt", mem_conv_expand_output_20);
+            $readmemh("conv_expanding_output_21.txt", mem_conv_expand_output_21);
+            $readmemh("conv_expanding_output_22.txt", mem_conv_expand_output_22);
+            $readmemh("conv_expanding_output_23.txt", mem_conv_expand_output_23);
+            $readmemh("conv_expanding_output_24.txt", mem_conv_expand_output_24);
+            $readmemh("conv_expanding_output_25.txt", mem_conv_expand_output_25);
+            $readmemh("conv_expanding_output_26.txt", mem_conv_expand_output_26);
+            $readmemh("conv_expanding_output_27.txt", mem_conv_expand_output_27);
+            $readmemh("conv_expanding_output_28.txt", mem_conv_expand_output_28);
+            $readmemh("conv_expanding_output_29.txt", mem_conv_expand_output_29);
+            $readmemh("conv_expanding_output_30.txt", mem_conv_expand_output_30);
+            $readmemh("conv_expanding_output_31.txt", mem_conv_expand_output_31);
+            $readmemh("conv_expanding_output_32.txt", mem_conv_expand_output_32);
+            $readmemh("conv_expanding_output_33.txt", mem_conv_expand_output_33);
+            $readmemh("conv_expanding_output_34.txt", mem_conv_expand_output_34);
+            $readmemh("conv_expanding_output_35.txt", mem_conv_expand_output_35);
+            $readmemh("conv_expanding_output_36.txt", mem_conv_expand_output_36);
+            $readmemh("conv_expanding_output_37.txt", mem_conv_expand_output_37);
+            $readmemh("conv_expanding_output_38.txt", mem_conv_expand_output_38);
+            $readmemh("conv_expanding_output_39.txt", mem_conv_expand_output_39);
+            $readmemh("conv_expanding_output_40.txt", mem_conv_expand_output_40);
+            $readmemh("conv_expanding_output_41.txt", mem_conv_expand_output_41);
+            $readmemh("conv_expanding_output_42.txt", mem_conv_expand_output_42);
+            $readmemh("conv_expanding_output_43.txt", mem_conv_expand_output_43);
+            $readmemh("conv_expanding_output_44.txt", mem_conv_expand_output_44);
+            $readmemh("conv_expanding_output_45.txt", mem_conv_expand_output_45);
+            $readmemh("conv_expanding_output_46.txt", mem_conv_expand_output_46);
+            $readmemh("conv_expanding_output_47.txt", mem_conv_expand_output_47);
+            $readmemh("conv_expanding_output_48.txt", mem_conv_expand_output_48);
+            $readmemh("conv_expanding_output_49.txt", mem_conv_expand_output_49);
+            $readmemh("conv_expanding_output_50.txt", mem_conv_expand_output_50);
+            $readmemh("conv_expanding_output_51.txt", mem_conv_expand_output_51);
+            $readmemh("conv_expanding_output_52.txt", mem_conv_expand_output_52);
+            $readmemh("conv_expanding_output_53.txt", mem_conv_expand_output_53);
+            $readmemh("conv_expanding_output_54.txt", mem_conv_expand_output_54);
+            $readmemh("conv_expanding_output_55.txt", mem_conv_expand_output_55);
         end
     endtask
 
-    task automatic CONV_LAST_READ_BIAS_SLOPE_GOLDEN
+    task automatic CONV_LAST_READ_WEIGHT_BIAS_GOLDEN
     (
         input integer output_channel_idx
     );
         reg [8*10-1:0]  _prefix;
         reg [8*6-1:0]   _weight;
         reg [8*4-1:0]   _bias;
-        reg [8*5-1:0]   _slope;
         reg [8*6-1:0]   _output;
         reg [8*1-1:0]   _underbar;
         reg [8*4-1:0]   _filetype;
@@ -91,19 +131,18 @@
             _prefix         = "conv_last_";
             _weight         = "weight";
             _bias           = "bias";
-            _slope          = "slope";
             _output         = "output";
             _underbar       = "_";
             _filetype       = ".txt";
 
             _idx_down   = output_channel_idx + 48;
+            $readmemh({_prefix, _weight  , _underbar, _idx_down, _filetype}, mem_conv_last_weight );
             $readmemh({_prefix, _bias    , _underbar, _idx_down, _filetype}, mem_conv_last_bias   );
-            $readmemh({_prefix, _slope   , _underbar, _idx_down, _filetype}, mem_conv_last_slope  );
             $readmemh({_prefix, _output  , _underbar, _idx_down, _filetype}, mem_conv_last_golden );
         end
     endtask
 
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_0
+    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL
     (
         input integer input_channel_idx,
         input integer row,
@@ -114,1444 +153,71 @@
         begin
             for (i = row - 4; i <= row + 4; i = i + 1) begin
                 for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
+                    if (is_padding(HSIZE * 3, VSIZE * 3, i, j)) begin
                         data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
                     end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_0[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_1
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
+                    else if (is_upsampled(i, j)) begin
                         data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
                     end
                     else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_1[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_2
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_2[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_3
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_3[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_4
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_4[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_5
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_5[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_6
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_6[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_7
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_7[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_8
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_8[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_9
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_9[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_10
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_10[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_11
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_11[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_12
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_12[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_13
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_13[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_14
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_14[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_15
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_15[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_16
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_16[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_17
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_17[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_18
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_18[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_19
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_19[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_20
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_20[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_21
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_21[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_22
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_22[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_23
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_23[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_24
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_24[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_25
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_25[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_26
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_26[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_27
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_27[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_28
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_28[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_29
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_29[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_30
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_30[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_31
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_31[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_32
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_32[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_33
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_33[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_34
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_34[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_35
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_35[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_36
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_36[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_37
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_37[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_38
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_38[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_39
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_39[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_40
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_40[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_41
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_41[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_42
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_42[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_43
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_43[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_44
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_44[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_45
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_45[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_46
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_46[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_47
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_47[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_48
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_48[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_49
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_49[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_50
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_50[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_51
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_51[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_52
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_52[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_53
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_53[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_54
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_54[i * HSIZE + j];
-                    end
-                end
-            end
-            @(posedge clk);
-        end
-    endtask
-
-    task automatic CONV_LAST_DRIVE_INPUT_INTERNAL_55
-    (
-        input integer input_channel_idx,
-        input integer row,
-        input integer col
-    );
-        integer i;
-        integer j;
-        begin
-            for (i = row - 4; i <= row + 4; i = i + 1) begin
-                for (j = col - 4; j <= col + 4; j = j + 1) begin
-                    if (is_padding(HSIZE, VSIZE, ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else if (is_upsampled(ii, jj)) begin
-                        data_in[((i - row) * 9 + (j - col)) + 40] <= 'b0;
-                    end
-                    else begin
-                        data_in[((i - row) * 5 + (j - col)) + 40] <= mem_conv_expand_output_55[i * HSIZE + j];
+                        case (input_channel_idx)
+                            'd0 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_0[(i/3) * HSIZE + (j/3)];
+                            'd1 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_1[(i/3) * HSIZE + (j/3)];
+                            'd2 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_2[(i/3) * HSIZE + (j/3)];
+                            'd3 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_3[(i/3) * HSIZE + (j/3)];
+                            'd4 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_4[(i/3) * HSIZE + (j/3)];
+                            'd5 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_5[(i/3) * HSIZE + (j/3)];
+                            'd6 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_6[(i/3) * HSIZE + (j/3)];
+                            'd7 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_7[(i/3) * HSIZE + (j/3)];
+                            'd8 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_8[(i/3) * HSIZE + (j/3)];
+                            'd9 :   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_9[(i/3) * HSIZE + (j/3)];
+                            'd10:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_10[(i/3) * HSIZE + (j/3)];
+                            'd11:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_11[(i/3) * HSIZE + (j/3)];
+                            'd12:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_12[(i/3) * HSIZE + (j/3)];
+                            'd13:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_13[(i/3) * HSIZE + (j/3)];
+                            'd14:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_14[(i/3) * HSIZE + (j/3)];
+                            'd15:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_15[(i/3) * HSIZE + (j/3)];
+                            'd16:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_16[(i/3) * HSIZE + (j/3)];
+                            'd17:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_17[(i/3) * HSIZE + (j/3)];
+                            'd18:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_18[(i/3) * HSIZE + (j/3)];
+                            'd19:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_19[(i/3) * HSIZE + (j/3)];
+                            'd20:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_20[(i/3) * HSIZE + (j/3)];
+                            'd21:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_21[(i/3) * HSIZE + (j/3)];
+                            'd22:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_22[(i/3) * HSIZE + (j/3)];
+                            'd23:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_23[(i/3) * HSIZE + (j/3)];
+                            'd24:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_24[(i/3) * HSIZE + (j/3)];
+                            'd25:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_25[(i/3) * HSIZE + (j/3)];
+                            'd26:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_26[(i/3) * HSIZE + (j/3)];
+                            'd27:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_27[(i/3) * HSIZE + (j/3)];
+                            'd28:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_28[(i/3) * HSIZE + (j/3)];
+                            'd29:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_29[(i/3) * HSIZE + (j/3)];
+                            'd30:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_30[(i/3) * HSIZE + (j/3)];
+                            'd31:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_31[(i/3) * HSIZE + (j/3)];
+                            'd32:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_32[(i/3) * HSIZE + (j/3)];
+                            'd33:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_33[(i/3) * HSIZE + (j/3)];
+                            'd34:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_34[(i/3) * HSIZE + (j/3)];
+                            'd35:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_35[(i/3) * HSIZE + (j/3)];
+                            'd36:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_36[(i/3) * HSIZE + (j/3)];
+                            'd37:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_37[(i/3) * HSIZE + (j/3)];
+                            'd38:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_38[(i/3) * HSIZE + (j/3)];
+                            'd39:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_39[(i/3) * HSIZE + (j/3)];
+                            'd40:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_40[(i/3) * HSIZE + (j/3)];
+                            'd41:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_41[(i/3) * HSIZE + (j/3)];
+                            'd42:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_42[(i/3) * HSIZE + (j/3)];
+                            'd43:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_43[(i/3) * HSIZE + (j/3)];
+                            'd44:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_44[(i/3) * HSIZE + (j/3)];
+                            'd45:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_45[(i/3) * HSIZE + (j/3)];
+                            'd46:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_46[(i/3) * HSIZE + (j/3)];
+                            'd47:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_47[(i/3) * HSIZE + (j/3)];
+                            'd48:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_48[(i/3) * HSIZE + (j/3)];
+                            'd49:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_49[(i/3) * HSIZE + (j/3)];
+                            'd50:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_50[(i/3) * HSIZE + (j/3)];
+                            'd51:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_51[(i/3) * HSIZE + (j/3)];
+                            'd52:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_52[(i/3) * HSIZE + (j/3)];
+                            'd53:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_53[(i/3) * HSIZE + (j/3)];
+                            'd54:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_54[(i/3) * HSIZE + (j/3)];
+                            'd55:   data_in[((i - row) * 9 + (j - col)) + 40] <= mem_conv_expand_output_55[(i/3) * HSIZE + (j/3)];
+                        endcase
                     end
                 end
             end
@@ -1567,65 +233,10 @@
         begin
             fork
                 begin
-                    for (row = 0; row < VSIZE; row = row + 1) begin
-                        for (col = 0; col < HSIZE; col = col + 1) begin
+                    for (row = 0; row < VSIZE * 3; row = row + 1) begin
+                        for (col = 0; col < HSIZE * 3; col = col + 1) begin
                             for (channel_idx = 0; channel_idx < 56; channel_idx = channel_idx + 1) begin
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_0    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_1    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_2    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_3    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_4    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_5    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_6    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_7    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_8    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_9    (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_10   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_11   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_12   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_13   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_14   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_15   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_16   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_17   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_18   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_19   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_20   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_21   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_22   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_23   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_24   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_25   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_26   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_27   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_28   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_29   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_30   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_31   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_32   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_33   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_34   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_35   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_36   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_37   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_38   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_39   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_40   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_41   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_42   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_43   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_44   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_45   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_46   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_47   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_48   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_49   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_50   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_51   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_52   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_53   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_54   (channel_idx, row, col);
-                                CONV_LAST_DRIVE_INPUT_INTERNAL_55   (channel_idx, row, col);
+                                CONV_LAST_DRIVE_INPUT_INTERNAL(channel_idx, row, col);
                             end
                         end
                     end
@@ -1641,32 +252,115 @@
         end
     endtask
 
-    task automatic CONV_LAST_DRIVE_WEIGHT_INTERNAL;
-        integer i;
-        integer j;
+    task automatic CONV_LAST_DRIVE_WEIGHT_INTERNAL
+    (
+        input integer start
+    );
         begin
-            for (i = 0; i < 81; i = i + 1) begin
-                weight_in[i] <= mem_conv_last_weight[i];
-            end
+            weight_in[0]    <= mem_conv_last_weight[start + 0]  ;
+            weight_in[1]    <= mem_conv_last_weight[start + 1]  ;
+            weight_in[2]    <= mem_conv_last_weight[start + 2]  ;
+            weight_in[3]    <= mem_conv_last_weight[start + 3]  ;
+            weight_in[4]    <= mem_conv_last_weight[start + 4]  ;
+            weight_in[5]    <= mem_conv_last_weight[start + 5]  ;
+            weight_in[6]    <= mem_conv_last_weight[start + 6]  ;
+            weight_in[7]    <= mem_conv_last_weight[start + 7]  ;
+            weight_in[8]    <= mem_conv_last_weight[start + 8]  ;
+            weight_in[9]    <= mem_conv_last_weight[start + 9]  ;
+            weight_in[10]   <= mem_conv_last_weight[start + 10] ;
+            weight_in[11]   <= mem_conv_last_weight[start + 11] ;
+            weight_in[12]   <= mem_conv_last_weight[start + 12] ;
+            weight_in[13]   <= mem_conv_last_weight[start + 13] ;
+            weight_in[14]   <= mem_conv_last_weight[start + 14] ;
+            weight_in[15]   <= mem_conv_last_weight[start + 15] ;
+            weight_in[16]   <= mem_conv_last_weight[start + 16] ;
+            weight_in[17]   <= mem_conv_last_weight[start + 17] ;
+            weight_in[18]   <= mem_conv_last_weight[start + 18] ;
+            weight_in[19]   <= mem_conv_last_weight[start + 19] ;
+            weight_in[20]   <= mem_conv_last_weight[start + 20] ;
+            weight_in[21]   <= mem_conv_last_weight[start + 21] ;
+            weight_in[22]   <= mem_conv_last_weight[start + 22] ;
+            weight_in[23]   <= mem_conv_last_weight[start + 23] ;
+            weight_in[24]   <= mem_conv_last_weight[start + 24] ;
+            weight_in[25]   <= mem_conv_last_weight[start + 25] ;
+            weight_in[26]   <= mem_conv_last_weight[start + 26] ;
+            weight_in[27]   <= mem_conv_last_weight[start + 27] ;
+            weight_in[28]   <= mem_conv_last_weight[start + 28] ;
+            weight_in[29]   <= mem_conv_last_weight[start + 29] ;
+            weight_in[30]   <= mem_conv_last_weight[start + 30] ;
+            weight_in[31]   <= mem_conv_last_weight[start + 31] ;
+            weight_in[32]   <= mem_conv_last_weight[start + 32] ;
+            weight_in[33]   <= mem_conv_last_weight[start + 33] ;
+            weight_in[34]   <= mem_conv_last_weight[start + 34] ;
+            weight_in[35]   <= mem_conv_last_weight[start + 35] ;
+            weight_in[36]   <= mem_conv_last_weight[start + 36] ;
+            weight_in[37]   <= mem_conv_last_weight[start + 37] ;
+            weight_in[38]   <= mem_conv_last_weight[start + 38] ;
+            weight_in[39]   <= mem_conv_last_weight[start + 39] ;
+            weight_in[40]   <= mem_conv_last_weight[start + 40] ;
+            weight_in[41]   <= mem_conv_last_weight[start + 41] ;
+            weight_in[42]   <= mem_conv_last_weight[start + 42] ;
+            weight_in[43]   <= mem_conv_last_weight[start + 43] ;
+            weight_in[44]   <= mem_conv_last_weight[start + 44] ;
+            weight_in[45]   <= mem_conv_last_weight[start + 45] ;
+            weight_in[46]   <= mem_conv_last_weight[start + 46] ;
+            weight_in[47]   <= mem_conv_last_weight[start + 47] ;
+            weight_in[48]   <= mem_conv_last_weight[start + 48] ;
+            weight_in[49]   <= mem_conv_last_weight[start + 49] ;
+            weight_in[50]   <= mem_conv_last_weight[start + 50] ;
+            weight_in[51]   <= mem_conv_last_weight[start + 51] ;
+            weight_in[52]   <= mem_conv_last_weight[start + 52] ;
+            weight_in[53]   <= mem_conv_last_weight[start + 53] ;
+            weight_in[54]   <= mem_conv_last_weight[start + 54] ;
+            weight_in[55]   <= mem_conv_last_weight[start + 55] ;
+            weight_in[56]   <= mem_conv_last_weight[start + 56] ;
+            weight_in[57]   <= mem_conv_last_weight[start + 57] ;
+            weight_in[58]   <= mem_conv_last_weight[start + 58] ;
+            weight_in[59]   <= mem_conv_last_weight[start + 59] ;
+            weight_in[60]   <= mem_conv_last_weight[start + 60] ;
+            weight_in[61]   <= mem_conv_last_weight[start + 61] ;
+            weight_in[62]   <= mem_conv_last_weight[start + 62] ;
+            weight_in[63]   <= mem_conv_last_weight[start + 63] ;
+            weight_in[64]   <= mem_conv_last_weight[start + 64] ;
+            weight_in[65]   <= mem_conv_last_weight[start + 65] ;
+            weight_in[66]   <= mem_conv_last_weight[start + 66] ;
+            weight_in[67]   <= mem_conv_last_weight[start + 67] ;
+            weight_in[68]   <= mem_conv_last_weight[start + 68] ;
+            weight_in[69]   <= mem_conv_last_weight[start + 69] ;
+            weight_in[70]   <= mem_conv_last_weight[start + 70] ;
+            weight_in[71]   <= mem_conv_last_weight[start + 71] ;
+            weight_in[72]   <= mem_conv_last_weight[start + 72] ;
+            weight_in[73]   <= mem_conv_last_weight[start + 73] ;
+            weight_in[74]   <= mem_conv_last_weight[start + 74] ;
+            weight_in[75]   <= mem_conv_last_weight[start + 75] ;
+            weight_in[76]   <= mem_conv_last_weight[start + 76] ;
+            weight_in[77]   <= mem_conv_last_weight[start + 77] ;
+            weight_in[78]   <= mem_conv_last_weight[start + 78] ;
+            weight_in[79]   <= mem_conv_last_weight[start + 79] ;
+            weight_in[80]   <= mem_conv_last_weight[start + 80] ;
             @(posedge clk);
         end
     endtask
 
-    task automatic CONV_LAST_DRIVE_WEIGHT
-    (
-        input integer channel_idx
-    );
+    task automatic CONV_LAST_DRIVE_WEIGHT;
+        integer row;
+        integer col;
+        integer start;
+        integer i;
         begin
             fork
                 begin
-                    for (start = 0; start < 81 * 56; start = start + 81) begin
-                        CONV_LAST_READ_WEIGHT(channel_idx, start, start + 81);
-                        CONV_LAST_DRIVE_WEIGHT_INTERNAL;
+                    for (row = 0; row < VSIZE * 3; row = row + 1) begin
+                        for (col = 0; col < HSIZE * 3; col = col + 1) begin
+                            for (start = 0; start < 56; start = start + 1) begin
+                                CONV_LAST_DRIVE_WEIGHT_INTERNAL(start * 81);
+                            end
+                        end
                     end
                 end
                 begin
-                    for (j = 81; j < 108; j = j + 1) begin
-                        weight_in[j] <= 'b0;
+                    for (i = 81; i < 108; i = i + 1) begin
+                        weight_in[i] <= 'b0;
                     end
                 end
             join
@@ -1688,15 +382,10 @@
     endtask
 
     task automatic CONV_LAST_DRIVE;
-        integer i;
         begin
             fork
                 CONV_LAST_DRIVE_INPUT;
-                begin
-                    for (i = 0; i < 56; i = i + 1) begin
-                        CONV_LAST_DRIVE_WEIGHT(i);
-                    end
-                end
+                CONV_LAST_DRIVE_WEIGHT;
                 CONV_LAST_DRIVE_BIAS;
                 CONV_LAST_DRIVE_SLOPE;
                 begin
@@ -1749,13 +438,28 @@
         end
     endtask
 
+    task automatic CONV_LAST_WRITE_RESULT
+    (
+        input [31:0]    output_channel_idx
+    );
+        integer i;
+        begin
+            case (output_channel_idx)
+                'd0     : $writememh("core_output_0.txt", mem_conv_last_output_0);
+                'd1     : $writememh("core_output_1.txt", mem_conv_last_output_1);
+                'd2     : $writememh("core_output_2.txt", mem_conv_last_output_2);
+            endcase
+        end
+    endtask
+
 	task TEST_CONV_LAST_SINGLE_IMAGE_SINGLE_CHANNEL
     (
         input integer channel
     );
         begin
+            //CONV_LAST_READ_EXPANDING_GOLDEN;
             RESET_CNT_OUTPUT;
-            CONV_LAST_READ_BIAS_SLOPE_GOLDEN(channel);
+            CONV_LAST_READ_WEIGHT_BIAS_GOLDEN(channel);
             channel_idx <= channel;
             CONV_LAST_DRIVE;
             convolution_enable <= 1'b0;
@@ -1763,6 +467,7 @@
             $display("[%m] Channel %0d finished!", channel);
             $display("[%m] Evaluating error in processing channel %0d...", channel);
             CONV_LAST_EVAL_ERROR(channel, cnt_output, 1.0);
+            CONV_LAST_WRITE_RESULT(channel);
             repeat (5) @(posedge clk);
         end
 	endtask
@@ -1770,7 +475,8 @@
     task automatic TEST_CONV_LAST_SINGLE_IMAGE_ALL_CHANNEL;
         integer i;
         begin
-            for (i = 0; i < 56; i = i + 1) begin
+            //CONV_LAST_READ_EXPANDING_GOLDEN;
+            for (i = 0; i < 3; i = i + 1) begin
                 TEST_CONV_LAST_SINGLE_IMAGE_SINGLE_CHANNEL(i);
             end
             repeat (20) @(posedge clk);
