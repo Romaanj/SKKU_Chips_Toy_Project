@@ -379,10 +379,14 @@ void CONV_FIRST() {
 				double temp = 0.0;
 				for (int i_ch = 0; i_ch < NUM_INPUT_CHANNEL; i_ch++) {
 					for (int ii = i - 2; ii <= i + 2; ii++) {
+						if (ii < 0 || ii >= INPUT_VSIZE) {
+							continue;
+						}
 						for (int jj = j - 2; jj <= j + 2; jj++) {
-							if (!((ii < 0) || (jj < 0) || (ii >= INPUT_VSIZE) || (jj >= INPUT_HSIZE))) {
-								temp = temp + conv_first_weight[o_ch][i_ch][(ii - i) * 5 + (jj - j) + 12] * input[i_ch][ii][jj];
+							if ((jj < 0)|| (jj >= INPUT_HSIZE)) {
+								continue;
 							}
+							temp = temp + conv_first_weight[o_ch][i_ch][(ii - i) * 5 + (jj - j) + 12] * input[i_ch][ii][jj];
 						}
 					}
 				}
@@ -420,10 +424,14 @@ void CONV_MAPPING_0() {
 				double temp = 0.0;
 				for (int i_ch = 0; i_ch < NUM_CONV_SHRINK_RESULT_CHANNEL; i_ch++) {
 					for (int ii = i - 1; ii <= i + 1; ii++) {
+						if (ii < 0 || ii >= INPUT_VSIZE) {
+							continue;
+						}
 						for (int jj = j - 1; jj <= j + 1; jj++) {
-							if (!((ii < 0) || (jj < 0) || (ii >= INPUT_VSIZE) || (jj >= INPUT_HSIZE))) {
-								temp = temp + conv_mapping_0_weight[o_ch][i_ch][(ii - i) * 3 + (jj - j) + 4] * conv_shrink_result[i_ch][ii][jj];
+							if ((jj < 0) || (jj >= INPUT_HSIZE)) {
+								continue;
 							}
+							temp = temp + conv_mapping_0_weight[o_ch][i_ch][(ii - i) * 3 + (jj - j) + 4] * conv_shrink_result[i_ch][ii][jj];
 						}
 					}
 				}
@@ -442,10 +450,14 @@ void CONV_MAPPING_1() {
 				double temp = 0.0;
 				for (int i_ch = 0; i_ch < NUM_CONV_MAPPING_RESULT_CHANNEL; i_ch++) {
 					for (int ii = i - 1; ii <= i + 1; ii++) {
+						if (ii < 0 || ii >= INPUT_VSIZE) {
+							continue;
+						}
 						for (int jj = j - 1; jj <= j + 1; jj++) {
-							if (!((ii < 0) || (jj < 0) || (ii >= INPUT_VSIZE) || (jj >= INPUT_HSIZE))) {
-								temp = temp + conv_mapping_1_weight[o_ch][i_ch][(ii - i) * 3 + (jj - j) + 4] * conv_mapping_0_result[i_ch][ii][jj];
+							if ((jj < 0) || (jj >= INPUT_HSIZE)) {
+								continue;
 							}
+							temp = temp + conv_mapping_1_weight[o_ch][i_ch][(ii - i) * 3 + (jj - j) + 4] * conv_mapping_0_result[i_ch][ii][jj];
 						}
 					}
 				}
@@ -464,10 +476,14 @@ void CONV_MAPPING_2() {
 				double temp = 0.0;
 				for (int i_ch = 0; i_ch < NUM_CONV_MAPPING_RESULT_CHANNEL; i_ch++) {
 					for (int ii = i - 1; ii <= i + 1; ii++) {
+						if (ii < 0 || ii >= INPUT_VSIZE) {
+							continue;
+						}
 						for (int jj = j - 1; jj <= j + 1; jj++) {
-							if (!((ii < 0) || (jj < 0) || (ii >= INPUT_VSIZE) || (jj >= INPUT_HSIZE))) {
-								temp = temp + conv_mapping_2_weight[o_ch][i_ch][(ii - i) * 3 + (jj - j) + 4] * conv_mapping_1_result[i_ch][ii][jj];
+							if ((jj < 0) || (jj >= INPUT_HSIZE)) {
+								continue;
 							}
+							temp = temp + conv_mapping_2_weight[o_ch][i_ch][(ii - i) * 3 + (jj - j) + 4] * conv_mapping_1_result[i_ch][ii][jj];
 						}
 					}
 				}
@@ -487,10 +503,14 @@ void CONV_MAPPING_3() {
 				double temp = 0.0;
 				for (int i_ch = 0; i_ch < NUM_CONV_MAPPING_RESULT_CHANNEL; i_ch++) {
 					for (int ii = i - 1; ii <= i + 1; ii++) {
+						if (ii < 0 || ii >= INPUT_VSIZE) {
+							continue;
+						}
 						for (int jj = j - 1; jj <= j + 1; jj++) {
-							if (!((ii < 0) || (jj < 0) || (ii >= INPUT_VSIZE) || (jj >= INPUT_HSIZE))) {
-								temp = temp + conv_mapping_3_weight[o_ch][i_ch][(ii - i) * 3 + (jj - j) + 4] * conv_mapping_2_result[i_ch][ii][jj];
+							if ((jj < 0) || (jj >= INPUT_HSIZE)) {
+								continue;
 							}
+							temp = temp + conv_mapping_3_weight[o_ch][i_ch][(ii - i) * 3 + (jj - j) + 4] * conv_mapping_2_result[i_ch][ii][jj];
 						}
 					}
 				}
@@ -528,10 +548,14 @@ void CONV_LAST() {
 				double temp = 0.0;
 				for (int i_ch = 0; i_ch < NUM_CONV_EXPANDING_RESULT_CHANNEL; i_ch++) {
 					for (int ii = i - 4; ii <= i + 4; ii++) {
+						if (ii < 0 || ii >= INPUT_VSIZE * 3 || ii % 3) {
+							continue;
+						}
 						for (int jj = j - 4; jj <= j + 4; jj++) {
-							if (!((ii < 0) || (jj < 0) || (ii >= INPUT_VSIZE * 3) || (jj >= INPUT_HSIZE * 3) || (ii % 3 != 0) || (jj % 3 != 0))) {
-								temp = temp + conv_last_weight[o_ch][i_ch][(ii - i) * 9 + (jj - j) + 40] * conv_expanding_result[i_ch][ii / 3][jj / 3];
+							if (jj < 0 || jj >= INPUT_HSIZE * 3 || jj % 3) {
+								continue;
 							}
+							temp = temp + conv_last_weight[o_ch][i_ch][(ii - i) * 9 + (jj - j) + 40] * conv_expanding_result[i_ch][ii / 3][jj / 3];
 						}
 					}
 				}
