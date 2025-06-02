@@ -11,7 +11,7 @@ module PADDING
     input                     [2:0]                             layer_bits               ,
 
  
-    // conv_first ?��?�� 받는 5줄에 ???�� line_data  , input_0 + input_1 + input_2 구성 ?��?�� 40bit?��?��
+    // conv_first line datas
     input signed            [INPUT_DATA - 1:0]                 raw_data_0            ,
     input signed            [INPUT_DATA - 1:0]                 raw_data_1            ,
     input signed            [INPUT_DATA - 1:0]                 raw_data_2            ,
