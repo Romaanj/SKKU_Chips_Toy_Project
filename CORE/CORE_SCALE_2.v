@@ -84,15 +84,7 @@ module SCALE_2
             result                      <= 'b0;
         end
         else if (scale_2_enable & PReLU_operand_sign) begin
-            if (layer_bits == 3'd7 && internal_result[0]) begin
-                result                  <= 'b0;
-            end
-            else if (layer_bits == 3'd7 && internal_result >= (1 << 15)) begin
-                result                  <= 19'b0001_0000_0000_0000_000;
-            end
-            else begin
-                result                  <= internal_result >> (Q_FRAC_OPERAND + Q_FRAC_SCALE - Q_FRAC_OUTPUT);
-            end
+            result                      <= internal_result >> (Q_FRAC_OPERAND + Q_FRAC_SCALE - Q_FRAC_OUTPUT);
         end
         else if (scale_2_enable) begin
             result                      <= internal_operand >> (Q_FRAC_OPERAND - Q_FRAC_OUTPUT);

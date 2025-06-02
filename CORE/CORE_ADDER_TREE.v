@@ -15,7 +15,7 @@ module CORE_ADDER_TREE
 (
     input                                                   clk                                                 ,
     input                                                   rst_n                                               ,
-    input                                                   adder_tree_first_stage_enable                      ,
+    input                                                   adder_tree_first_stage_enable                       ,
 
     // By assumption, each addend has signed Q3.30
     input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_0                                            ,
@@ -127,10 +127,11 @@ module CORE_ADDER_TREE
     input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_106                                          ,
     input signed [Q_INT_INPUT + Q_FRAC_INPUT - 1:0]         addend_107                                          ,
 
-    input signed [Q_INT_BIAS + Q_FRAC_BIAS - 1:0]           bias                                                ,
+    input signed [Q_INT_BIAS + Q_FRAC_BIAS - 1:0]           bias_i                                              ,
 
     output reg signed [Q_INT_OUTPUT + Q_FRAC_OUTPUT - 1:0]  adder_tree_result                                   ,
-    output reg                                              adder_tree_result_enable
+    output reg                                              adder_tree_result_enable                            ,
+    output reg signed [Q_INT_BIAS + Q_FRAC_BIAS - 1:0]      bias_o
 );
 
     localparam                                              width_stage_1   = Q_INT_INPUT + Q_FRAC_INPUT + 1    ;
@@ -259,7 +260,7 @@ module CORE_ADDER_TREE
     assign stage_1_operand[105]     = addend_105                                                                ;
     assign stage_1_operand[106]     = addend_106                                                                ;
     assign stage_1_operand[107]     = addend_107                                                                ;
-    assign stage_1_operand[108]     = bias << (Q_FRAC_INPUT - Q_FRAC_BIAS)                                      ;
+    assign stage_1_operand[108]     = bias_i << (Q_FRAC_INPUT - Q_FRAC_BIAS)                                    ;
 
     assign stage_1_result[0]        = stage_1_operand[0 ]   +   stage_1_operand[1 ]                             ;
     assign stage_1_result[1]        = stage_1_operand[2 ]   +   stage_1_operand[3 ]                             ;
@@ -487,6 +488,7 @@ module CORE_ADDER_TREE
     wire signed [width_stage_4 - 1:0]               stage_4_operand     [0:13]                                  ;
     wire signed [width_stage_4 - 1:0]               stage_4_result      [0:6]                                   ; // 14 = 7 * 2
     reg signed  [width_stage_4 - 1:0]               stage_4_result_reg  [0:6]                                   ;
+    reg signed  [Q_INT_BIAS + Q_FRAC_BIAS - 1:0]    bias_t                                                      ;
     reg                                             adder_tree_second_stage_enable                              ;
 
     // sign extension: Q(a+3).b -> Q(a+4).b
@@ -522,6 +524,7 @@ module CORE_ADDER_TREE
             stage_4_result_reg[4]   <= 'd0;
             stage_4_result_reg[5]   <= 'd0;
             stage_4_result_reg[6]   <= 'd0;
+            bias_t                  <= 'd0;
         end
         else if (adder_tree_first_stage_enable) begin
             stage_4_result_reg[0]   <= stage_4_result[0];
@@ -531,6 +534,7 @@ module CORE_ADDER_TREE
             stage_4_result_reg[4]   <= stage_4_result[4];
             stage_4_result_reg[5]   <= stage_4_result[5];
             stage_4_result_reg[6]   <= stage_4_result[6];
+            bias_t                  <= bias_i;
         end
     end
 
@@ -627,22 +631,31 @@ module CORE_ADDER_TREE
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            adder_tree_result_enable <= 1'b0;
+            adder_tree_result_enable <= 1'b0                                                    ;
         end
         else if (adder_tree_second_stage_enable) begin
-            adder_tree_result_enable <= 1'b1;
+            adder_tree_result_enable <= 1'b1                                                    ;
         end
         else if (adder_tree_result_enable) begin
-            adder_tree_result_enable <= 1'b0;
+            adder_tree_result_enable <= 1'b0                                                    ;
         end
     end
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            adder_tree_result   <= 'd0;
+            adder_tree_result   <= 'd0                                                          ;
         end
         else if (adder_tree_second_stage_enable) begin
             adder_tree_result   <= stage_7_result >> (Q_FRAC_INPUT - Q_FRAC_OUTPUT)             ;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            bias_o              <= 'd0                                                          ;
+        end
+        else if (adder_tree_second_stage_enable) begin
+            bias_o              <= bias_t                                                       ;
         end
     end
 
