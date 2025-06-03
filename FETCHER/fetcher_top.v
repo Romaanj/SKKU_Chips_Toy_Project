@@ -1,98 +1,62 @@
-module TB_FETCHER
+module FETCHER_TOP
 (
-//	input clk,
-//	input rst_n,
-	//output [8:1] led
+	input               clk,
+	input               rst_n,
+    input               clken,
+    input               interrupt,
+
+    output              clk_disable     ,
+
+    output              PARAMETER_valid ,
+    output [2:0]        PARAMETER_layer ,
+    output [1:0]        PARAMETER_type  ,
+
+    output [31:0]       PARAMETER       ,
+
+    output              PIXEL_valid     ,
+    output              PIXEL_first     ,
+    output              PIXEL_last      ,
+    output              PIXEL_lastline  ,
+
+    output [39:0]       PIXEL_R         ,
+    output [39:0]       PIXEL_G         ,
+    output [39:0]       PIXEL_B
 );
 
-	reg clk;
-	reg rst_n;
-
-	task INIT;
-        begin
-            clk                 = 1'b0;
-            rst_n               = 1'b1;
-        end
-    endtask
-	
-	initial begin
-		forever begin
-			#5 clk = ~clk;
-		end
-	end
-	
-	task RESET;
-        begin
-            rst_n <= 1'b0;
-            repeat (5) @(posedge clk);
-            rst_n <= 1'b1;
-            @(posedge clk);
-        end
-    endtask
-    
-    reg interrupt;
-    initial begin
-        INIT;
-        repeat (5) @(posedge clk);
-        RESET;
-        repeat (10) @(posedge clk);
-        interrupt <= 'b1;
-        repeat (10000) @(posedge clk);
-        $finish;
-    end
-
-	reg [31:0] count;
-	always @(posedge clk) begin
-		if (!rst_n) begin
-			count <= 'd0;
-		end
-		else begin
-			count <= count + 'd1;
-		end
-	end
-
-//    reg interrupt;
-//    always @(posedge clk) begin
-//    	if (!rst_n) begin
-//    		interrupt <= 'b0;
-//    	end
-//    	else if (count >= 'd12345678) begin
-//    		interrupt <= 'b1;
-//    	end
-//    end
-    
-    wire [8:1] test_out;
-    
-//    //assign led[8] = test_out[8];
-//    assign led[7] = test_out[7];
-//    assign led[6] = test_out[6];
-//    assign led[5] = test_out[5];
-//    assign led[4] = test_out[4];
-//    assign led[3] = test_out[3];
-//    assign led[2] = test_out[2];
-//    assign led[1] = test_out[1];
-    
-    
     wire			en_b;
     wire [3:0]		we_a, we_b;
     wire [31:0]		addr_a, addr_b;
     wire [31:0]		din_a, din_b;
     wire [31:0]		dout_a, dout_b;
-    wire [31:0]		PARAMETER;
-    
-    FETCHER DUT
-    (
-        .clk            (clk            ),
-        .rst_n          (rst_n          ),
-        .interrupt      (interrupt      ),
-        .enable         (en_b			),
-        .write_enable   (we_b			),
-        .address        (addr_b			),
-        .dout           (dout_b         ),
 
-        .fetcher_valid  (fetcher_valid  ),
-        .PARAMETER      (PARAMETER      )//,
-        //.test_out       (test_out       )
+    FETCHER fetcher_inst
+    (
+        .clk                (clk                ),
+        .rst_n              (rst_n              ),
+        .clken              (clken              ),
+        .interrupt          (interrupt          ),
+
+        .enable             (en_b               ),
+        .write_enable       (we_b			    ),
+        .address            (addr_b			    ),
+        .dout               (dout_b             ),
+
+        .clk_disable        (clk_disable        ),
+
+        .PARAMETER_valid    (PARAMETER_valid    ),
+        .PARAMETER_layer    (PARAMETER_layer    ),
+        .PARAMETER_type     (PARAMETER_type     ),
+
+        .PARAMETER          (PARAMETER          ),
+
+        .PIXEL_valid        (PIXEL_valid        ),
+        .PIXEL_first        (PIXEL_first        ),
+        .PIXEL_last         (PIXEL_last         ),
+        .PIXEL_lastline     (PIXEL_lastline     ),
+
+        .PIXEL_R            (PIXEL_R            ),
+        .PIXEL_G            (PIXEL_G            ),
+        .PIXEL_B            (PIXEL_B            )
     );
     
     assign we_a = 0;

@@ -12,7 +12,7 @@ def quantize_tensor_to_int(tensor, fraction):
     scale = 2 ** fraction
     return torch.round(tensor * scale).to(torch.uint8)
 
-def generate_coe(image_path, weight_files, conv_last_files, q_fraction=8):
+def generate_coe(image_path, weight_files, conv_last_files, q_fraction=7):
     img = Image.open(image_path).convert("RGB")
     tensor_img = transforms.ToTensor()(img)
     fixed_point = quantize_tensor_to_int(tensor_img, q_fraction)
@@ -47,17 +47,22 @@ def generate_coe(image_path, weight_files, conv_last_files, q_fraction=8):
 
     print(weight_groups)
 
+    num = 0
     with open('fetcher.coe', 'w') as coe:
         coe.write("memory_initialization_radix=16;\n")
         coe.write("memory_initialization_vector=\n")
         for i, (r, g, b) in enumerate(pixels):
             coe.write(f"{r:02X}{g:02X}{b:02X}00,\n")
+            num += 1
         for i, weight_group in enumerate(weight_groups):
             w0, w1, w2, w3 = weight_group
+            num += 1
             if ((w0, w1, w2, w3) == weight_groups[-1]).all():
                 coe.write(f"{w0 & 0xFF:02X}{w1 & 0xFF:02X}{w2 & 0xFF:02X}{w3 & 0xFF:02X};")
             else:
                 coe.write(f"{w0 & 0xFF:02X}{w1 & 0xFF:02X}{w2 & 0xFF:02X}{w3 & 0xFF:02X},\n")
+
+    print(num)
 
 # --------------------------
 # 사용 예시
