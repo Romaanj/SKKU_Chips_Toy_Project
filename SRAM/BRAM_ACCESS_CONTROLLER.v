@@ -18,9 +18,9 @@ module BRAM_ACCESS_CONTROLLER
     input                                       CORE_first,
     input                                       CORE_last,
     input                                       CORE_lastline,
-    output reg [39:0]                           data_to_core_a_n,
-    reg [39:0]                           data_to_core_a,
-    reg [39:0]                           data_to_core_b,
+    output reg [39:0]                           data_to_core_a_n, // from fetcher to core
+    reg [39:0]                                  data_to_core_a, // to send all value at one time
+    reg [39:0]                                  data_to_core_b,
     output reg [39:0]                           data_to_core_b_n,
     output reg [39:0]                           CORE_data_o0,
     output reg [39:0]                           CORE_data_o1,
@@ -53,9 +53,9 @@ module BRAM_ACCESS_CONTROLLER
     
     input [31:0]                                AXI_data_i,
     input                                       AXI_data_i_valid,
-    input                                       AXI_first,
-    input                                       AXI_last,
-    input                                       AXI_lastline,
+    input                                       PIXEL_first,
+    input                                       PIXEL_last,
+    input                                       PIXEL_lastline,
     
     // LMB Channel 1
     output reg                                  en_a_1      ,
@@ -155,7 +155,7 @@ module BRAM_ACCESS_CONTROLLER
         if (!rst_n) begin
             line_buffer <= 0;
         end
-        else if(AXI_last) begin
+        else if(PIXEL_last) begin
             line_buffer <= line_buffer + 'b01;
         end
     end
