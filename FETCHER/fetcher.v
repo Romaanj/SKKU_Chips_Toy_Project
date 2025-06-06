@@ -27,7 +27,7 @@ module FETCHER
     input               interrupt       ,
 
     output reg          enable          ,
-    output [3:0]        write_enable    ,
+    output reg [3:0]    write_enable    ,
     output reg [31:0]   address         ,
     input [31:0]        dout            ,
 
@@ -60,8 +60,6 @@ module FETCHER
         end
     end
 
-    assign write_enable = 4'b0000;
-
     always @(posedge clk) begin
         if (!rst_n) begin
             clk_disable <= 1'b0;
@@ -74,6 +72,7 @@ module FETCHER
                     ||  address_delay_2 == 'd37156
                     ||  address_delay_2 == 'd38476
                     ||  address_delay_2 == 'd39260
+                    ||  (address_delay_2 == 'd52864 && flag_conv_last_bias_transferred)
                 ) begin
             clk_disable <= 1'b1;
         end
@@ -107,13 +106,23 @@ module FETCHER
                 else if (address == 'd39256) begin
                     address <= 'd52868; // the last address for parameter: conv_last_bias
                 end
-                //else if (address == 'd52872) begin
-                    //address <= 'd39264; //  the first address of conv_last_weight_0
-                //end
+                else if (address == 'd52868 && !flag_conv_last_bias_transferred) begin
+                    address <= 'd39260; //  the first address of conv_last_weight_0
+                end
                 else begin
                     address <= address + 'd4;
                 end
             end
+        end
+    end
+    
+    reg flag_conv_last_bias_transferred;
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            flag_conv_last_bias_transferred <= 1'b0;
+        end
+        else if (clken && enable && address_delay_2 == 'd52868 && !flag_conv_last_bias_transferred) begin
+            flag_conv_last_bias_transferred <= 1'b1;
         end
     end
 
@@ -189,7 +198,12 @@ module FETCHER
         end
         else if (clken) begin
             if (is_address_in_param_range && valid_2) begin
-                PARAMETER_valid <= 'd1;
+                if (is_address_in_param_range && address_delay_2 == 'd52868 && flag_conv_last_bias_transferred) begin
+                    PARAMETER_valid <= 'd0;
+                end
+                else begin
+                    PARAMETER_valid <= 'd1;
+                end
             end
             else if (is_address_in_pixel_range && PARAMETER_valid) begin
                 PARAMETER_valid <= 'd0;
@@ -220,8 +234,11 @@ module FETCHER
             else if (address_delay_2 == 'd38476) begin
                 PARAMETER_layer <= 'd6; // CONV_EXPANDING
             end
-            else if (address_delay_2 == 'd39260) begin
+            else if (address_delay_2 == 'd39256) begin
                 PARAMETER_layer <= 'd7; // CONV_LAST
+            end
+            else if (address_delay_2 == 'd52868 && flag_conv_last_bias_transferred) begin
+                PARAMETER_layer <= 'd0; // RESET
             end
         end
     end
@@ -239,7 +256,7 @@ module FETCHER
                     ||  address_delay_2 == 'd37144
                     ||  address_delay_2 == 'd38452
                     ||  address_delay_2 == 'd39148
-                    ||  address_delay_2 == 'd39260
+                    ||  address_delay_2 == 'd39256
                 ) begin
                 PARAMETER_type <= 'd1; // bias
             end
@@ -423,6 +440,25 @@ module FETCHER
                             pixel_buffer[4][15 -: 8],
                             pixel_buffer[5][15 -: 8]
                         };
+        end
+    end
+
+    reg writemode;
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            writemode <= 'd0;
+        end
+        else if (address_delay_2 == 'd52868 && flag_conv_last_bias_transferred && clk_disable) begin
+            writemode <= 'd1;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            write_enable <= 4'b0000;
+        end
+        else if (writemode && clken) begin
+            write_enable <= 4'b1111;
         end
     end
 
