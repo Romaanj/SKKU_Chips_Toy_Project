@@ -239,7 +239,7 @@ module FETCHER
                     ||  address_delay_2 == 'd37144
                     ||  address_delay_2 == 'd38452
                     ||  address_delay_2 == 'd39148
-                    //||  address_delay_2 == 'd39260
+                    ||  address_delay_2 == 'd39260
                 ) begin
                 PARAMETER_type <= 'd1; // bias
             end
