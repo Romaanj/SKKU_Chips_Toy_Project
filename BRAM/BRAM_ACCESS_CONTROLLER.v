@@ -123,13 +123,22 @@ module BRAM_ACCESS_CONTROLLER
     end
     // -----------------------------------------------------------------------------
 
-    reg [1:0]                       num_line_buffer;
+    reg [2:0]                       num_line_buffer;
     always @(posedge clk) begin
         if (!rst_n) begin
-            num_line_buffer <= 0;
+            num_line_buffer <= 'd0;
         end
-        else if(PIXEL_last) begin
-            num_line_buffer <= num_line_buffer + 'b01;
+        else if (PIXEL_last && cnt_PIXEL_last == 'd1) begin
+            num_line_buffer <= 'd2;
+        end
+        else if (
+                    PIXEL_last
+                    && (cnt_PIXEL_last == 'd2 || cnt_PIXEL_last == 'd3 || cnt_PIXEL_last == 'd4)
+                ) begin
+            num_line_buffer <= num_line_buffer + 'd1;
+        end
+        else if (PIXEL_last && cnt_PIXEL_last == 'd83) begin
+            num_line_buffer <= num_line_buffer - 'd1;
         end
     end
     // -----------------------------------------------------------------------------
@@ -157,31 +166,78 @@ module BRAM_ACCESS_CONTROLLER
             din_b_1                 <= 'b0;
         end
         else if (state == CONV_FIRST) begin
-            if (PIXEL_valid) begin
-                if (PIXEL_even) begin
-                    if (PIXEL_last) begin
-                        we_a_1              <= {LMB_WE_WIDTH{1'b1}};
-                        din_a_1             <= {PIXEL_R[39 -: 32], 8'b0};
-                    end
-                    else begin
-                        we_a_1              <= {LMB_WE_WIDTH{1'b1}};
-                        we_b_1              <= {LMB_WE_WIDTH{1'b1}};
-                        din_b_1             <= PIXEL_R;
-                    end
-                end
-                else if (PIXEL_last) begin
+            if (PIXEL_valid_delay_1 & ~cnt_PIXEL_last[0]) begin
+                if (PIXEL_last_delay_1) begin
                     we_a_1              <= {LMB_WE_WIDTH{1'b1}};
                     din_a_1             <= {PIXEL_R[39 -: 32], 8'b0};
+                end
+                else if (~PIXEL_even) begin
+                    we_a_1              <= {LMB_WE_WIDTH{1'b1}};
+                    we_b_1              <= {LMB_WE_WIDTH{1'b1}};
+                    din_b_1             <= PIXEL_R;
+                end
+                //else if (PIXEL_last) begin
+                    //we_a_1              <= {LMB_WE_WIDTH{1'b1}};
+                    //din_a_1             <= {PIXEL_R[39 -: 32], 8'b0};
+                //end
+                else begin
+                    din_a_1             <= PIXEL_R;
+                end
+            end
+            else if (PIXEL_valid & cnt_PIXEL_last[0]) begin
+                if (PIXEL_last_delay_1) begin
+                    we_a_1              <= {LMB_WE_WIDTH{1'b1}};
+                    din_a_1             <= {PIXEL_R[39 -: 32], 8'b0};
+                end
+                else if (PIXEL_even) begin
+                    we_a_1              <= {LMB_WE_WIDTH{1'b1}};
+                    we_b_1              <= {LMB_WE_WIDTH{1'b1}};
+                    din_b_1             <= PIXEL_R;
                 end
                 else begin
                     din_a_1             <= PIXEL_R;
                 end
+                //if (~PIXEL_even) begin
+                    //if (PIXEL_last) begin
+                        //we_a_1              <= {LMB_WE_WIDTH{1'b1}};
+                        //din_a_1             <= {PIXEL_R[39 -: 32], 8'b0};
+                    //end
+                    //else begin
+                        //we_a_1              <= {LMB_WE_WIDTH{1'b1}};
+                        //we_b_1              <= {LMB_WE_WIDTH{1'b1}};
+                        //din_b_1             <= PIXEL_R;
+                    //end
+                //end
+                //else if (PIXEL_last) begin
+                    //we_a_1              <= {LMB_WE_WIDTH{1'b1}};
+                    //din_a_1             <= {PIXEL_R[39 -: 32], 8'b0};
+                //end
+                //else begin
+                    //din_a_1             <= PIXEL_R;
+                //end
             end
             else begin
                 we_a_1              <= 'b0;
                 we_b_1              <= 'b0;
             end
         end
+    end
+
+    reg [11:0] line_buffer_0_start_address;
+    reg [11:0] line_buffer_1_start_address;
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            line_buffer_0_start_address <= 'd0;
+            line_buffer_1_start_address <= 'd0;
+        end
+        else if (state == INIT) begin
+            line_buffer_0_start_address <= 'd0;
+            line_buffer_1_start_address <= 'd17;
+        end
+        //else if (state == CONV_FIRST && PIXEL_last_delay_1) begin
+            //line_buffer_0_start_address <= line_buffer_0_start_address + 'h17;
+            //line
+        //end
     end
 
     always @(posedge clk) begin
@@ -193,7 +249,11 @@ module BRAM_ACCESS_CONTROLLER
             addr_b_1 <= 'h1;
         end
         else if (state == CONV_FIRST && PIXEL_valid_delay_1) begin
-            if (PIXEL_last_delay_1) begin
+            if (PIXEL_last_delay_1 && num_line_buffer == 'd2) begin
+                addr_a_1 <= line_buffer_0_start_address;
+                addr_b_1 <= line_buffer_1_start_address;
+            end
+            else if (PIXEL_last_delay_1) begin
                 addr_a_1 <= addr_b_1;
                 addr_b_1 <= addr_b_1 + 'h1;
             end
