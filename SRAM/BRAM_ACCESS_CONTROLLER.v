@@ -50,9 +50,17 @@ module BRAM_ACCESS_CONTROLLER
     output reg [39:0]                           CORE_data_o25,
     output reg                                  core_data_valid,
     
+    input                                       PARAMETER_valid ,
+    input  [2:0]                                PARAMETER_layer ,
+    input  [1:0]                                PARAMETER_type  ,
+
+    input  [31:0]                               PARAMETER       ,
     
-    input [31:0]                                AXI_data_i,
-    input                                       AXI_data_i_valid,
+    input [39:0]                                PIXEL_R,
+    input [39:0]                                PIXEL_G,
+    input [39:0]                                PIXEL_B,
+    
+    input                                       PIXEL_valid,
     input                                       PIXEL_first,
     input                                       PIXEL_last,
     input                                       PIXEL_lastline,
@@ -147,7 +155,7 @@ module BRAM_ACCESS_CONTROLLER
     
     reg [3:0]                       state_n;
     reg [3:0]                       state;
-    reg                             AXI_lastline_buf;
+    reg                             PIXEL_lastline_buf;
     reg [31:0]                      AXI_data_i_buf;
     reg [1:0]                       line_buffer;
     
@@ -180,13 +188,13 @@ module BRAM_ACCESS_CONTROLLER
     
     always @(posedge clk) begin
         if(!rst_n) begin
-            AXI_lastline_buf            <= 'b0;
+            PIXEL_lastline_buf            <= 'b0;
         end
-        else if (AXI_lastline) begin
-            AXI_lastline_buf            <= 'b1;
+        else if (PIXEL_lastline) begin
+            PIXEL_lastline_buf            <= 'b1;
         end 
-        else if (AXI_last) begin
-            AXI_lastline_buf            <= 'b0;
+        else if (PIXEL_last) begin
+            PIXEL_lastline_buf            <= 'b0;
         end
     end
     always @(*) begin
@@ -196,7 +204,7 @@ module BRAM_ACCESS_CONTROLLER
                 state_n             = INIT;
             end
             INIT : begin
-                if (AXI_last) begin // 임시로 해놓음
+                if (PIXEL_last) begin // 임시로 해놓음
                     state_n         = SETUP_CONV_FIRST;
                 end
             end
@@ -251,7 +259,7 @@ module BRAM_ACCESS_CONTROLLER
     // -----------------------------------------------------------------------------
     localparam                      input_width = Q_INT_INPUT + Q_FRAC_INPUT;
     reg                             bram_transfer_enable;
-    reg                             AXI_first_buf;
+    reg                             PIXEL_first_buf;
     reg [3:0]                       data_i_cnt;
     reg [3:0]                       cnt;
     reg [39:0]                  core_data_temp_0;
@@ -262,7 +270,7 @@ module BRAM_ACCESS_CONTROLLER
             data_i_cnt              <= 4'b0000;
         end
         else if (state == INIT) begin
-            if(AXI_data_i_valid) begin
+            if(PIXEL_valid) begin
                 if(data_i_cnt >= 9) begin
                     data_i_cnt      <= 4'b0000;
                 end
@@ -302,13 +310,13 @@ module BRAM_ACCESS_CONTROLLER
     
     always @ (posedge clk) begin
         if (!rst_n) begin
-            AXI_first_buf               <= 1'b0;
+            PIXEL_first_buf               <= 1'b0;
         end
-        else if (AXI_first) begin
-            AXI_first_buf               <= 1'b1;
+        else if (PIXEL_first) begin
+            PIXEL_first_buf               <= 1'b1;
         end
         else if (bram_transfer_enable) begin
-            AXI_first_buf               <= 1'b0;
+            PIXEL_first_buf               <= 1'b0;
         end
     end
     
@@ -387,7 +395,7 @@ module BRAM_ACCESS_CONTROLLER
            
         end
         else if (state == CONV_FIRST) begin
-            if(AXI_first_buf || AXI_lastline_buf) begin // line buf : 2
+            if(PIXEL_first_buf || PIXEL_lastline_buf) begin // line buf : 2
                 if(cnt == 1 || cnt == 6) begin //read
                     en_a_1                  <= 'b1;
                     en_b_1                  <= 'b1;
