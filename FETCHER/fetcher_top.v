@@ -13,6 +13,7 @@ module FETCHER_TOP
 
     output [31:0]       PARAMETER       ,
 
+    output              PIXEL_START     ,
     output              PIXEL_valid     ,
     output              PIXEL_first     ,
     output              PIXEL_last      ,
@@ -49,6 +50,7 @@ module FETCHER_TOP
 
         .PARAMETER          (PARAMETER          ),
 
+        .PIXEL_START        (PIXEL_START        ),
         .PIXEL_valid        (PIXEL_valid        ),
         .PIXEL_first        (PIXEL_first        ),
         .PIXEL_last         (PIXEL_last         ),

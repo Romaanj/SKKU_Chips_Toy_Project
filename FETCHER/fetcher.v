@@ -22,16 +22,16 @@
 module FETCHER
 (
     input               clk             ,
-    input				clken			,
     input               rst_n           ,
     input               interrupt       ,
+    
+    input				clken			,
+    output reg          clk_disable     ,
 
     output reg          enable          ,
     output reg [3:0]    write_enable    ,
     output reg [31:0]   address         ,
     input [31:0]        dout            ,
-
-    output reg          clk_disable     ,
 
     output reg          PARAMETER_valid ,
     output reg [2:0]    PARAMETER_layer ,
@@ -39,6 +39,7 @@ module FETCHER
 
     output reg [31:0]   PARAMETER       ,
 
+    output reg          PIXEL_START     ,
     output reg          PIXEL_valid     ,
     output reg          PIXEL_first     ,
     output reg          PIXEL_last      ,
@@ -47,8 +48,6 @@ module FETCHER
     output reg [39:0]   PIXEL_R         ,
     output reg [39:0]   PIXEL_G         ,
     output reg [39:0]   PIXEL_B
-
-    //output reg [7:0]    test_out
 );
 
     always @(posedge clk) begin
@@ -152,16 +151,6 @@ module FETCHER
     // bram32[WEIGHT_START_ADDR + parameter_idx] was read
     wire is_address_in_param_range = !is_address_in_pixel_range;
 
-    //reg [31:0] parameter_idx;
-    //always @(posedge clk) begin
-        //if (!rst_n) begin
-            //parameter_idx <= 'd0;
-        //end
-        //else if (is_address_in_param_range && valid_2) begin
-            //parameter_idx <= parameter_idx + 'd1;
-        //end
-    //end
-
     always @(posedge clk) begin
         if (!rst_n) begin
             PARAMETER <= 'd0;
@@ -190,7 +179,6 @@ module FETCHER
             PARAMETER_buf[1] <= dout;
         end
     end
-
 
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -284,15 +272,6 @@ module FETCHER
         end
     end
 
-    //always @(posedge clk) begin
-        //if (!rst_n) begin
-            //test_out <= 'd0;
-        //end
-        //else if (parameter_idx == 100 && valid_2) begin
-            //test_out <= dout[7:0];
-        //end
-    //end
-
     // RGB RGB RGB RGB RGB -> RRRRR GGGGG BBBBB
     wire is_address_in_pixel_range = address_delay_2 <= (7055 << 2);
     reg [6:0] cnt_pixel_data_input;
@@ -326,6 +305,17 @@ module FETCHER
         end
         else if (address_delay_2 == 'd32540) begin
             flag_pixel_out <= 1'b0;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            PIXEL_START <= 'd0;
+        end
+        else if (clken) begin
+            if (address_delay_2 == 'd0 && address_delay_1 == 'd4) begin
+                PIXEL_START <= 'd1;
+            end
         end
     end
 

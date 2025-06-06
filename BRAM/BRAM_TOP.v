@@ -10,15 +10,16 @@ module BRAM_TOP
     input                                       clk                 ,
     input                                       rst_n               ,
 
-    input [3*(Q_INT_INPUT+Q_FRAC_INPUT)-1:0]    data_i              ,
-    input                                       data_i_valid        ,
-    input                                       first               ,
-    input                                       last                ,
-    input                                       lastline
+    input                                       PIXEL_START         ,
+    input                                       PIXEL_valid         ,
+    input                                       PIXEL_first         ,
+    input                                       PIXEL_last          ,
+    input                                       PIXEL_lastline      ,
+    input [39:0]                                PIXEL_R             ,
+    input [39:0]                                PIXEL_G             ,
+    input [39:0]                                PIXEL_B
 );
 
-    wire                                        en_a_1              ;
-    wire                                        en_b_1              ;
     wire [LMB_WE_WIDTH-1:0]                     we_a_1              ;
     wire [LMB_WE_WIDTH-1:0]                     we_b_1              ;
     wire [LMB_ADDR_WIDTH-1:0]                   addr_a_1            ;
@@ -28,8 +29,6 @@ module BRAM_TOP
     wire [LMB_DATA_WIDTH-1:0]                   dout_a_1            ;
     wire [LMB_DATA_WIDTH-1:0]                   dout_b_1            ;
 
-    wire                                        en_a_2              ;
-    wire                                        en_b_2              ;
     wire [LMB_WE_WIDTH-1:0]                     we_a_2              ;
     wire [LMB_WE_WIDTH-1:0]                     we_b_2              ;
     wire [LMB_ADDR_WIDTH-1:0]                   addr_a_2            ;
@@ -39,8 +38,6 @@ module BRAM_TOP
     wire [LMB_DATA_WIDTH-1:0]                   dout_a_2            ;
     wire [LMB_DATA_WIDTH-1:0]                   dout_b_2            ;
 
-    wire                                        en_a_3              ;
-    wire                                        en_b_3              ;
     wire [LMB_WE_WIDTH-1:0]                     we_a_3              ;
     wire [LMB_WE_WIDTH-1:0]                     we_b_3              ;
     wire [LMB_ADDR_WIDTH-1:0]                   addr_a_3            ;
@@ -63,11 +60,15 @@ module BRAM_TOP
         .clk                                    (clk            )   ,
         .rst_n                                  (rst_n          )   ,
 
-        .data_i                                 (data_i         )   ,
-        .data_i_valid                           (data_i_valid   )   ,
-        .first                                  (first          )   ,
-        .last                                   (last           )   ,
-        .lastline                               (lastline       )   ,
+        .PIXEL_START                            (PIXEL_START    )   ,
+        .PIXEL_valid                            (PIXEL_valid    )   ,
+        .PIXEL_first                            (PIXEL_first    )   ,
+        .PIXEL_last                             (PIXEL_last     )   ,
+        .PIXEL_lastline                         (PIXEL_lastline )   ,
+
+        .PIXEL_R                                (PIXEL_R        )   ,
+        .PIXEL_G                                (PIXEL_G        )   ,
+        .PIXEL_B                                (PIXEL_B        )   ,
 
         .we_a_1                                 (we_a_1         )   ,
         .we_b_1                                 (we_b_1         )   ,
@@ -76,45 +77,43 @@ module BRAM_TOP
         .din_a_1                                (din_a_1        )   ,
         .din_b_1                                (din_b_1        )   ,
         .dout_a_1                               (dout_a_1       )   ,
-        .dout_b_1                               (dout_b_1       )   ,
+        .dout_b_1                               (dout_b_1       )
 
-        .we_a_2                                 (we_a_2         )   ,
-        .we_b_2                                 (we_b_2         )   ,
-        .addr_a_2                               (addr_a_2       )   ,
-        .addr_b_2                               (addr_b_2       )   ,
-        .din_a_2                                (din_a_2        )   ,
-        .din_b_2                                (din_b_2        )   ,
-        .dout_a_2                               (dout_a_2       )   ,
-        .dout_b_2                               (dout_b_2       )   ,
-
-        .we_a_3                                 (we_a_3         )   ,
-        .we_b_3                                 (we_b_3         )   ,
-        .addr_a_3                               (addr_a_3       )   ,
-        .addr_b_3                               (addr_b_3       )   ,
-        .din_a_3                                (din_a_3        )   ,
-        .din_b_3                                (din_b_3        )   ,
-        .dout_a_3                               (dout_a_3       )   ,
-        .dout_b_3                               (dout_b_3       )
+        //.we_a_2                                 (we_a_2         )   ,
+        //.we_b_2                                 (we_b_2         )   ,
+        //.addr_a_2                               (addr_a_2       )   ,
+        //.addr_b_2                               (addr_b_2       )   ,
+        //.din_a_2                                (din_a_2        )   ,
+        //.din_b_2                                (din_b_2        )   ,
+        //.dout_a_2                               (dout_a_2       )   ,
+        //.dout_b_2                               (dout_b_2       )   ,
+//
+        //.we_a_3                                 (we_a_3         )   ,
+        //.we_b_3                                 (we_b_3         )   ,
+        //.addr_a_3                               (addr_a_3       )   ,
+        //.addr_b_3                               (addr_b_3       )   ,
+        //.din_a_3                                (din_a_3        )   ,
+        //.din_b_3                                (din_b_3        )   ,
+        //.dout_a_3                               (dout_a_3       )   ,
+        //.dout_b_3                               (dout_b_3       )
     );
 
-    //BRAM_40x3528_TDP_RF
-    //u_bram_1
-    //(
-        //// Port A
-        //.clka                                   (clk            )   ,
-        //.ena                                    (en_a_1         )   ,
-        //.wea                                    (we_a_1         )   ,
-        //.addra                                  (addr_a_1       )   ,
-        //.dina                                   (din_a_1        )   ,
-        //.douta                                  (dout_a_1       )   ,
-        //// Port B
-        //.clkb                                   (clk            )   ,
-        //.enb                                    (en_b_1         )   ,
-        //.web                                    (we_b_1         )   ,
-        //.addrb                                  (addr_b_1       )   ,
-        //.dinb                                   (din_b_1        )   ,
-        //.doutb                                  (dout_b_1       )
-    //);
+    BRAM_40x3528_TDP_RF
+    u_bram_1
+    (
+        // Port A
+        .clka                                   (clk            )   ,
+        .wea                                    (we_a_1         )   ,
+        .addra                                  (addr_a_1       )   ,
+        .dina                                   (din_a_1        )   ,
+        .douta                                  (dout_a_1       )   ,
+        // Port B
+        .clkb                                   (clk            )   ,
+        .web                                    (we_b_1         )   ,
+        .addrb                                  (addr_b_1       )   ,
+        .dinb                                   (din_b_1        )   ,
+        .doutb                                  (dout_b_1       )
+    );
 //
     //BRAM_40x3528_TDP_RF
     //u_bram_2

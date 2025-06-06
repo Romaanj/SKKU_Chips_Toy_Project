@@ -25,6 +25,7 @@ module ACCELERATOR_TOP
     wire [1:0]      PARAMETER_type;
     wire [31:0]     PARAMETER;
 
+    wire            PIXEL_START;
     wire            PIXEL_valid;
     wire            PIXEL_first;
     wire            PIXEL_last;
@@ -105,6 +106,7 @@ module ACCELERATOR_TOP
         .PARAMETER_type     (PARAMETER_type     ),
         .PARAMETER          (PARAMETER          ),
 
+        .PIXEL_START        (PIXEL_START        ),
         .PIXEL_valid        (PIXEL_valid        ),
         .PIXEL_first        (PIXEL_first        ),
         .PIXEL_last         (PIXEL_last         ),
@@ -252,16 +254,21 @@ module ACCELERATOR_TOP
 
     CORE_TB core_tb_inst();
 
-    //BRAM_CONTROLLER
-    //bram_controller_inst
-    //(
-        //.PIXEL_valid        (PIXEL_valid        ),
-        //.PIXEL_first        (PIXEL_first        ),
-        //.PIXEL_last         (PIXEL_last         ),
-        //.PIXEL_lastline     (PIXEL_lastline     ),
-        //.PIXEL_R            (PIXEL_R            ),
-        //.PIXEL_G            (PIXEL_G            ),
-        //.PIXEL_B            (PIXEL_B            )
-    //);
+    BRAM_TOP
+    bram_top_inst
+    (
+        .clk                (clk            )   ,
+        .rst_n              (rst_n          )   ,
+
+        .PIXEL_START        (PIXEL_START    )   ,
+        .PIXEL_valid        (PIXEL_valid    )   ,
+        .PIXEL_first        (PIXEL_first    )   ,
+        .PIXEL_last         (PIXEL_last     )   ,
+        .PIXEL_lastline     (PIXEL_lastline )   ,
+
+        .PIXEL_R            (PIXEL_R        )   ,
+        .PIXEL_G            (PIXEL_G        )   ,
+        .PIXEL_B            (PIXEL_B        )
+    );
 
 endmodule
